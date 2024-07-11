@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Shop Detail</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>상세보기</h1>
+    <!-- 이미지 출력 -->
+    <div th:each="imageUrl:${shop.imageUrls}">
+	    <img th:src="@{${imageUrl}}" alt="Product Image">
+    </div>
+    <br>
+    <p><strong>상품번호:</strong> <span th:text="${shop.nom}"></span></p>
+    <p><strong>상품명:</strong> <span th:text="${shop.name}"></span></p>
+    <!--로그인 정보 필요
+    <p><strong>판매자:</strong><span th:text="${login.id}"></span></p>
+    -->
+    <p><strong>설명:</strong> <span th:text="${shop.description}"></span></p>
+    <p><strong>가격:</strong> <span th:text="${shop.price}"></span></p>
+    <br>
+    <!--삭제-->
+    <form th:action="@{/shop/delete/{nom} (nom=${shop.nom})}" method="post">
+		<button type="submit" onclick="return confirm('정말 삭제하시겠습니까?');">판매 그만두기</button>
+    </form>
+    <br>
+    <a href="/shop/shoplist">돌아가기</a>
+</body>
+</html>
