@@ -117,5 +117,16 @@ public class UserService {
 		}
 	}
 
+	public String nicknameCheck(String nickname) {
+		Optional<UserEntity> byNickname = userRepository.findByNickname(nickname);
+		if (byNickname.isPresent()) {
+			// 조회결과가 있다 -> 사용할 수 없다.
+			return null;
+		} else {
+			// 조회결과가 없다 -> 사용할 수 있다.
+			return "ok";
+		}
+	}
+
 
 }

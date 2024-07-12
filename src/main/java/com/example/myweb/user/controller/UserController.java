@@ -52,12 +52,13 @@ public class UserController {
 		return "user/login.html";
 	}
 	
-	@PostMapping("/user/login")
+	@PostMapping("/user/main")
 	public String login(@ModelAttribute UserDTO userDTO, HttpSession session) {
 		UserDTO loginResult = userService.login(userDTO);
 		if(loginResult != null) {
 			// login 성공
 			session.setAttribute("loginid", loginResult.getLoginid());
+			session.setAttribute("nickname", loginResult.getNickname());
 			return "user/main.html";
 		} else {
 			// login 실패
@@ -127,6 +128,14 @@ public class UserController {
 		System.out.println("email = " + email);
 		String checkResult = userService.emailCheck(email);
 
+		return checkResult;		
+	}
+	
+	@PostMapping("/user/nickname-check")
+	public @ResponseBody String nicknameCheck(@RequestParam("nickname") String nickname) {
+		System.out.println("nickname = " + nickname);
+		String checkResult = userService.nicknameCheck(nickname);
+		
 		return checkResult;		
 	}
 }
