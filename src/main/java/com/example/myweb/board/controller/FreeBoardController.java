@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.example.myweb.board.dto.FreeBoardCommentDTO;
 import com.example.myweb.board.dto.FreeBoardDTO;
+import com.example.myweb.board.service.FreeBoardCommentService;
 import com.example.myweb.board.service.FreeBoardService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/freeboard")
 public class FreeBoardController {
 	private final FreeBoardService freeBoardService;
+	private final FreeBoardCommentService freeBoardCommentService;
 	
 	@GetMapping("/save")
 	public String saveForm() {
@@ -54,6 +57,10 @@ public class FreeBoardController {
 		*/
 		freeBoardService.incrementViews(seq);
 		FreeBoardDTO freeBoardDTO = freeBoardService.findBySeq(seq);
+//		댓글 목록 가져오기
+		List<FreeBoardCommentDTO> freeBoardCommentDTOList = freeBoardCommentService.findAll(seq);
+		
+		model.addAttribute("freeBoardCommentList", freeBoardCommentDTOList);
 		model.addAttribute("freeBoard", freeBoardDTO);
 		model.addAttribute("page", pageable.getPageNumber());
 		System.out.println(freeBoardDTO.getStoredFileName());
