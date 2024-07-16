@@ -23,6 +23,7 @@
             <tr>
                 <th>이미지</th>
                 <th>상품명</th>
+                <th>판매자</th>
                 <th>가격</th>
             </tr>
         </thead>
@@ -34,12 +35,19 @@
                     </a>
                 </td>
                 <td th:text="${shop.name}"></td>
+                <td th:text="${user.nickname}"></td>
                 <td th:text="${shop.price}"></td>
             </tr>
         </tbody>
     </table>
     <br>
-    <a href="/shop/addshop">판매상품 등록하기</a><br>
-    <a href="/index">돌아가기</a>
+    <!--로그인여부-->
+    <div th:if="${user !=null}">
+	    <a href="/shop/addshop">판매상품 등록하기</a><br>
+    </div>
+    <div th:if="${user ==null}">
+		<span>로그인 이후 사용가능합니다.</span><br>
+    </div>
+    <a href="/home">돌아가기</a>
 </body>
 </html>
