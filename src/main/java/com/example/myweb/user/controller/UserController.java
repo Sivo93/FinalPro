@@ -59,6 +59,7 @@ public class UserController {
 			// login 성공
 			session.setAttribute("loginid", loginResult.getLoginid());
 			session.setAttribute("nickname", loginResult.getNickname());
+			session.setAttribute("loginUser", loginResult); // UserDTO 객체 저장
 			return "user/main.html";
 		} else {
 			// login 실패

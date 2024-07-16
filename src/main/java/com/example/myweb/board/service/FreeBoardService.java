@@ -38,7 +38,7 @@ public class FreeBoardService {
 		// UserEntity를 UserRepository를 통해 조회합니다.
 		UserEntity userEntity = userRepository
 				.findByLoginidAndNickname(freeBoardDTO.getLoginid(), freeBoardDTO.getNickname()).get();
-		
+
 		// 파일 첨부 여부에 따라 로직 분리
 		if (freeBoardDTO.getFreeboardFile().isEmpty()) {
 			// 첨부 파일 없음.
@@ -49,7 +49,7 @@ public class FreeBoardService {
 			// FreeBoardEntity를 저장합니다.
 			freeBoardRepository.save(freeBoardEntity);
 		} else {
-			// 첨부 파일 있음.			
+			// 첨부 파일 있음.
 
 			// 1. DTO에 담긴 파일을 꺼냄
 			// 2. 파일의 이름 가져옴
@@ -59,19 +59,26 @@ public class FreeBoardService {
 			// 5. 해당 경로에 파일 저장
 			// 6. free_board_table에 해당 데이터 save 처리
 			// 7. free_board_file_table에 해당 데이터 save처리
-			MultipartFile freeBoardFile = freeBoardDTO.getFreeboardFile(); // 1.
-			String originalFilename = freeBoardFile.getOriginalFilename(); // 2.
-			String storedFileName = System.currentTimeMillis() + "_" + originalFilename; // 3.
-			String savePath = "C:/springboot_img/" + storedFileName; // 4. C:/springboot_img/687416238_내사진.jpg
-			freeBoardFile.transferTo(new File(savePath)); // 5.
-
 			// 조회된 UserEntity를 사용하여 FreeBoardEntity를 생성합니다.
 			FreeBoardEntity freeBoardEntity = FreeBoardEntity.toSaveFileEntity(freeBoardDTO, userEntity);
 			Long savedSeq = freeBoardRepository.save(freeBoardEntity).getSeq(); // 게시글의 seq
 			FreeBoardEntity freeBoard = freeBoardRepository.findById(savedSeq).get(); // 게시글의 정보를 가져옴
-			
-			FreeBoardFileEntity freeBoardFileEntity = FreeBoardFileEntity.toFreeBoardFileEntity(freeBoard, originalFilename, storedFileName);
-			freeBoardFileRepository.save(freeBoardFileEntity);
+			for (MultipartFile freeBoardFile : freeBoardDTO.getFreeboardFile()) {
+				//MultipartFile freeBoardFile = freeBoardDTO.getFreeboardFile(); // 1.
+				String originalFilename = freeBoardFile.getOriginalFilename(); // 2.
+				String storedFileName = System.currentTimeMillis() + "_" + originalFilename; // 3.
+//				String savePath = "C:/springboot_img/" + storedFileName; // 4. C:/springboot_img/687416238_내사진.jpg
+				String savePath = new File("src/main/resources/static/upload/").getAbsolutePath() + "/" + storedFileName; // 4. C:/springboot_img/687416238_내사진.jpg
+				
+				File file = new File(savePath);
+				file.getParentFile().mkdirs(); // 경로가 존재하지 않으면 생성
+				freeBoardFile.transferTo(file);
+				//freeBoardFile.transferTo(new File(savePath)); // 5.
+
+				FreeBoardFileEntity freeBoardFileEntity = FreeBoardFileEntity.toFreeBoardFileEntity(freeBoard,
+						originalFilename, storedFileName);
+				freeBoardFileRepository.save(freeBoardFileEntity);
+			}
 		}
 
 	}
@@ -105,7 +112,7 @@ public class FreeBoardService {
 			return null;
 		}
 	}
-	
+
 	@Transactional
 	public FreeBoardDTO update(FreeBoardDTO freeBoardDTO) {
 		UserEntity userEntity = userRepository
@@ -124,10 +131,10 @@ public class FreeBoardService {
 	public Page<FreeBoardDTO> paging(Pageable pageable) {
 		int page = pageable.getPageNumber();
 		if (page < 0) {
-	        page = 0;
-	    }else {
-	    	page -=1;
-	    }
+			page = 0;
+		} else {
+			page -= 1;
+		}
 		int pageLimit = 3; // 한 페이지에 보여줄 글 갯수
 		// 한페이지당 3개씩 글을 보여주고 정렬 기준은 seq 기준으로 내림차순 정렬
 		// page 위치에 있는 값은 0부터 시작

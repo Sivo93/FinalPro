@@ -71,7 +71,8 @@ public class FreeBoardEntity extends BaseBoardEntity{
     @OneToMany(mappedBy = "freeBoardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FreeBoardFileEntity> freeBoardFileEntityList = new ArrayList<>();
 
-    
+    @OneToMany(mappedBy = "freeBoardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<FreeBoardCommentEntity> freeBoardCommentEntityList = new ArrayList<>();
   
     public static FreeBoardEntity toSaveEntity(FreeBoardDTO freeBoardDTO, UserEntity userEntity) { // 파일이 없는 경우 호출하는 save
     	FreeBoardEntity freeBoardEntity = new FreeBoardEntity();

@@ -1,10 +1,13 @@
 package com.example.myweb.board.dto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.myweb.board.entity.FreeBoardEntity;
+import com.example.myweb.board.entity.FreeBoardFileEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,9 +32,9 @@ public class FreeBoardDTO {
 	private String nickname; // 작성자
 	private String loginid; // 회원아이디
 
-	private MultipartFile freeboardFile; // save.html -> Controller 파일 담는 용도\
-	private String originalFileName; // 원본 파일 이름
-	private String storedFileName; // 서버 저장용 파일 이름
+	private List<MultipartFile> freeboardFile; // save.html -> Controller 파일 담는 용도
+	private List<String> originalFileName; // 원본 파일 이름
+	private List<String> storedFileName; // 서버 저장용 파일 이름
 	private int fileAttached; // 파일 첨부 여부(첨부 1, 미첨부 0)
 
 	// 목록: seq, nickname, title, views, likeCount, createdTime
@@ -50,14 +53,15 @@ public class FreeBoardDTO {
 		if (freeBoardEntity.getFileAttached() == 0) {
 			freeBoardDTO.setFileAttached(freeBoardEntity.getFileAttached()); // 0
 		} else {
+			List<String> originalFileNameList = new ArrayList<>();
+			List<String> storedFileNameList = new ArrayList<>();
 			freeBoardDTO.setFileAttached(freeBoardEntity.getFileAttached()); // 1
-			// 파일 이름을 가져가야 함.
-			// orininalFileName, storedFileName : free_board_file_table(FreeBoardFileentity)
-			// join
-			// select * from free_board_table b, free_board_file_table bf where b.seq=bf.freeboard_seq 
-			// and where b.seq=?
-			freeBoardDTO.setOriginalFileName(freeBoardEntity.getFreeBoardFileEntityList().get(0).getOriginalFileName());
-			freeBoardDTO.setStoredFileName(freeBoardEntity.getFreeBoardFileEntityList().get(0).getStoredFileName());
+			for(FreeBoardFileEntity freeBoardFileEntity : freeBoardEntity.getFreeBoardFileEntityList()) {
+				originalFileNameList.add(freeBoardFileEntity.getOriginalFileName());
+				storedFileNameList.add(freeBoardFileEntity.getStoredFileName());
+			}
+			freeBoardDTO.setOriginalFileName(originalFileNameList);
+			freeBoardDTO.setStoredFileName(storedFileNameList);
 		}
 
 		return freeBoardDTO;
