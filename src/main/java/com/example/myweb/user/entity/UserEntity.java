@@ -1,12 +1,17 @@
 package com.example.myweb.user.entity;
 
+import java.util.Set;
+
+import com.example.myweb.board.entity.FreeBoardLikeEntity;
 import com.example.myweb.user.dto.UserDTO;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +48,9 @@ public class UserEntity {
 
 	@Column(nullable = true)
 	private String role;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<FreeBoardLikeEntity> likes;
 
 	public static UserEntity toUserEntity(UserDTO userDTO) {
 		UserEntity userEntity = new UserEntity();
