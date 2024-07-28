@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
 <title>Insert title here</title>
 </head>
 <body>
-<h2>Hello Spring Boot!!</h2>
-<a href="user/save">회원가입</a>
-<a href="user/login">로그인</a>
+<h2>1인가구 홈페이지!</h2>
+<a href="/user/save">회원가입</a>
+<a th:if="${loginid == null}" href="/user/login">로그인</a>
+<a th:if="${loginid != null}" href="/user/logout">로그아웃</a>
 
 <button onclick="listReq()">글목록</button>
 <button onclick="pagingReq()">페이징목록</button>

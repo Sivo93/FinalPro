@@ -1,6 +1,7 @@
 package com.example.myweb.board.entity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -69,15 +70,46 @@ public class FreeBoardEntity extends BaseBoardEntity{
     })
     private UserEntity user;
     
-    @OneToMany(mappedBy = "freeBoardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "freeBoardEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FreeBoardFileEntity> freeBoardFileEntityList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "freeBoardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "freeBoardEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FreeBoardCommentEntity> freeBoardCommentEntityList = new ArrayList<>();
     
     @OneToMany(mappedBy = "freeBoardEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<FreeBoardLikeEntity> likes;
+    private Set<FreeBoardLikeEntity> likes = new HashSet<>();
   
+    // Helper methods to manage the relationship
+    public void addFile(FreeBoardFileEntity file) {
+        freeBoardFileEntityList.add(file);
+        file.setFreeBoardEntity(this);
+    }
+
+    public void removeFile(FreeBoardFileEntity file) {
+        freeBoardFileEntityList.remove(file);
+        file.setFreeBoardEntity(null);
+    }
+
+    public void addComment(FreeBoardCommentEntity comment) {
+        freeBoardCommentEntityList.add(comment);
+        comment.setFreeBoardEntity(this);
+    }
+
+    public void removeComment(FreeBoardCommentEntity comment) {
+        freeBoardCommentEntityList.remove(comment);
+        comment.setFreeBoardEntity(null);
+    }
+
+    public void addLike(FreeBoardLikeEntity like) {
+        likes.add(like);
+        like.setFreeBoardEntity(this);
+    }
+    
+    public void removeLike(FreeBoardLikeEntity like) {
+        likes.remove(like);
+        like.setFreeBoardEntity(null);
+    }
+    
     public static FreeBoardEntity toSaveEntity(FreeBoardDTO freeBoardDTO, UserEntity userEntity) { // 파일이 없는 경우 호출하는 save
     	FreeBoardEntity freeBoardEntity = new FreeBoardEntity();
     	freeBoardEntity.setTag(freeBoardDTO.getTag());

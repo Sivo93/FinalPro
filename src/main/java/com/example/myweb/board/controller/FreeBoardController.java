@@ -36,6 +36,7 @@ public class FreeBoardController {
 
 	@GetMapping("/save")
 	public String saveForm() {
+		System.out.println("FreeboardController.saveForm 호출");
 		return "freeboard/save.html";
 	}
 
@@ -73,35 +74,36 @@ public class FreeBoardController {
 //
 //		return "freeboard/detail.html";
 //	}
-	
+
 	@GetMapping("/{seq}")
-    public String findBySeq(@PathVariable Long seq, Model model, HttpSession session, @PageableDefault(page = 1) Pageable pageable) {
-        // 세션에서 조회한 게시글 ID 목록을 가져옵니다.
-        Set<Long> viewedBoardIds = (Set<Long>) session.getAttribute("viewedBoardIds");
-        if (viewedBoardIds == null) {
-            viewedBoardIds = new HashSet<>();
-            session.setAttribute("viewedBoardIds", viewedBoardIds);
-        }
+	public String findBySeq(@PathVariable Long seq, Model model, HttpSession session,
+			@PageableDefault(page = 1) Pageable pageable) {
+		// 세션에서 조회한 게시글 ID 목록을 가져옵니다.
+		Set<Long> viewedBoardIds = (Set<Long>) session.getAttribute("viewedBoardIds");
+		if (viewedBoardIds == null) {
+			viewedBoardIds = new HashSet<>();
+			session.setAttribute("viewedBoardIds", viewedBoardIds);
+		}
 
-        // 이 게시글이 이전에 조회된 적 있는지 확인합니다.
-        if (!viewedBoardIds.contains(seq)) {
-            // 조회수 증가 로직을 수행합니다.
-            freeBoardService.incrementViews(seq);
-            // 이 게시글을 세션에 조회한 목록에 추가합니다.
-            viewedBoardIds.add(seq);
-            session.setAttribute("viewedBoardIds", viewedBoardIds);
-        }
+		// 이 게시글이 이전에 조회된 적 있는지 확인합니다.
+		if (!viewedBoardIds.contains(seq)) {
+			// 조회수 증가 로직을 수행합니다.
+			freeBoardService.incrementViews(seq);
+			// 이 게시글을 세션에 조회한 목록에 추가합니다.
+			viewedBoardIds.add(seq);
+			session.setAttribute("viewedBoardIds", viewedBoardIds);
+		}
 
-        // 게시글 데이터를 가져와서 detail.html에 출력
-        FreeBoardDTO freeBoardDTO = freeBoardService.findBySeq(seq);
-        List<FreeBoardCommentDTO> freeBoardCommentDTOList = freeBoardCommentService.findAll(seq);
+		// 게시글 데이터를 가져와서 detail.html에 출력
+		FreeBoardDTO freeBoardDTO = freeBoardService.findBySeq(seq);
+		List<FreeBoardCommentDTO> freeBoardCommentDTOList = freeBoardCommentService.findAll(seq);
 
-        model.addAttribute("freeBoardCommentList", freeBoardCommentDTOList);
-        model.addAttribute("freeBoard", freeBoardDTO);
-        model.addAttribute("page", pageable.getPageNumber());
+		model.addAttribute("freeBoardCommentList", freeBoardCommentDTOList);
+		model.addAttribute("freeBoard", freeBoardDTO);
+		model.addAttribute("page", pageable.getPageNumber());
 
-        return "freeboard/detail.html";
-    }
+		return "freeboard/detail.html";
+	}
 
 	@GetMapping("/update/{seq}")
 	public String updateForm(@PathVariable Long seq, Model model) {
@@ -167,13 +169,13 @@ public class FreeBoardController {
 	}
 
 	@PostMapping("/isliked")
-    public ResponseEntity<Boolean> isLiked(@RequestParam Long boardSeq, HttpSession session) {
-        String loginid = (String) session.getAttribute("loginid");
-        if (loginid == null) {
-            return ResponseEntity.ok(false); // 세션이 없으면 false 반환
-        }
-        boolean liked = freeBoardService.isLikedByUser(boardSeq, loginid);
-        return ResponseEntity.ok(liked); // 좋아요 여부를 JSON 형태로 반환
-    }
+	public ResponseEntity<Boolean> isLiked(@RequestParam Long boardSeq, HttpSession session) {
+		String loginid = (String) session.getAttribute("loginid");
+		if (loginid == null) {
+			return ResponseEntity.ok(false); // 세션이 없으면 false 반환
+		}
+		boolean liked = freeBoardService.isLikedByUser(boardSeq, loginid);
+		return ResponseEntity.ok(liked); // 좋아요 여부를 JSON 형태로 반환
+	}
 
 }

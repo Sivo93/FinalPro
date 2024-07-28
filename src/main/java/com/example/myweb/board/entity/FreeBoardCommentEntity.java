@@ -47,7 +47,6 @@ public class FreeBoardCommentEntity extends BaseBoardEntity {
         @JoinColumn(name = "nickname", referencedColumnName = "nickname")
     })
     private UserEntity user;
-
 //	board : comment = 1 : N
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "freeBoard_seq")

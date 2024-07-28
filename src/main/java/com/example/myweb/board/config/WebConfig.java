@@ -1,20 +1,35 @@
 package com.example.myweb.board.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.example.myweb.interceptor.LoginInterceptor;
+
 @Configuration
-public class WebConfig implements WebMvcConfigurer{
-	private String resourcePath = "/upload/**"; // view 에서 접근할 경로
-//	private String savePath = "file:///C:/springboot_img"; // 실제 파일 저장 경로
-	private static final String SAVE_PATH = "classpath:/static/upload/"; // 프로젝트 내의 정적 리소스 경로
-	
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler(resourcePath)
-				.addResourceLocations(SAVE_PATH);
-	}
-	
-	
+public class WebConfig implements WebMvcConfigurer {
+    private static final String RESOURCE_PATH = "/upload/**";
+    private static final String SAVE_PATH = "classpath:/static/upload/";
+
+    private final LoginInterceptor loginInterceptor;
+
+    @Autowired
+    public WebConfig(LoginInterceptor loginInterceptor) {
+        this.loginInterceptor = loginInterceptor;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(loginInterceptor)
+                .addPathPatterns("/freeboard/**")
+                .excludePathPatterns("/login", "/signup", "/css/**", "/js/**", "/freeboard/paging", "/freeboard/*");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler(RESOURCE_PATH)
+                .addResourceLocations(SAVE_PATH);
+    }
 }

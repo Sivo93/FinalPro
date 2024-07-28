@@ -62,7 +62,7 @@
 	<div id="comment-write">
 		<input type="hidden" id="commentLoginid" th:value="${session.loginid}">
 		<input type="text" id="commentWriter" th:value="${session.nickname}" readonly>
-		<input type="text" id="commentContents" placeholder="내용">
+		<input type="text" id="commentContents" placeholder="내용" onclick="checkLoginBeforeComment()">
 		<button id="comment-write-btn" onclick="commentWrite()">댓글작성</button>
 	</div>
 
@@ -85,54 +85,68 @@
 		</table>
 
 	</div>
-
+	<a href="/">홈으로</a>
 </body>
 <script th:inline="javascript">
 	const commentWrite = () => {
-        const writer = document.getElementById("commentWriter").value; // 작성자
-        const contents = document.getElementById("commentContents").value; // 작성내용
-        const seq = `[[${freeBoard.seq}]]`; // 게시글번호
-        const writerId = document.getElementById("commentLoginid").value; // 작성자의 loginid
-        
-        $.ajax({
-            type: "POST",
-            url: "/comment/save",
-            data: {
-                "commentWriter": writer,
-                "commentContents": contents,
-                "freeBoardSeq": seq,
-                "commentLoginid": writerId  // 세션의 loginid 전달
-            },
-            success: function (res) {
-                console.log("요청성공", res);
-                // 댓글 목록을 갱신하는 코드 추가
-                updateCommentList(res);
-                document.getElementById('commentContents').value = '';
-            },
-            error: function (err) {
-                console.log("요청 실패", err);
-            }
-        });
-    }
+		const writer = document.getElementById("commentWriter").value; // 작성자
+		const contents = document.getElementById("commentContents").value; // 작성내용
+		const seq = `[[${freeBoard.seq}]]`; // 게시글번호
+		const writerId = document.getElementById("commentLoginid").value; // 작성자의 loginid
 
-    function updateCommentList(comments) {
-        let output = "<table>";
-        output += "<tr><th>댓글번호</th>";
-        output += "<th>작성자</th>";
-        output += "<th>내용</th>";
-        output += "<th>작성시간</th></tr>";
-        for (let i in comments) {
-            output += "<tr>";
-            output += "<td>" + comments[i].seq + "</td>";
-            output += "<td>" + comments[i].nickname + "</td>";  // 작성자 정보 표시
-            output += "<td>" + comments[i].commentContents + "</td>";
-            output += "<td>" + comments[i].formattedCommentCreatedTime + "</td>";
-            output += "</tr>";
-        }
-        output += "</table>";
-        document.getElementById('comment-list').innerHTML = output;
-    }
+		$.ajax({
+			type: "POST",
+			url: "/comment/save",
+			data: {
+				"commentWriter": writer,
+				"commentContents": contents,
+				"freeBoardSeq": seq,
+				"commentLoginid": writerId  // 세션의 loginid 전달
+			},
+			success: function (res) {
+				console.log("요청성공", res);
+				// 댓글 목록을 갱신하는 코드 추가
+				updateCommentList(res);
+				document.getElementById('commentContents').value = '';
+			},
+			error: function (err) {
+				console.log("요청 실패", err);
+			}
+		});
+	}
 
+	function updateCommentList(comments) {
+		let output = "<table>";
+		output += "<tr><th>댓글번호</th>";
+		output += "<th>작성자</th>";
+		output += "<th>내용</th>";
+		output += "<th>작성시간</th></tr>";
+		for (let i in comments) {
+			output += "<tr>";
+			output += "<td>" + comments[i].seq + "</td>";
+			output += "<td>" + comments[i].nickname + "</td>";  // 작성자 정보 표시
+			output += "<td>" + comments[i].commentContents + "</td>";
+			output += "<td>" + comments[i].formattedCommentCreatedTime + "</td>";
+			output += "</tr>";
+		}
+		output += "</table>";
+		document.getElementById('comment-list').innerHTML = output;
+	}
+
+	<!--댓글 로그인 체크-->
+	function checkLoginBeforeComment() {
+		fetch('/api/check-login')
+			.then(response => response.json())
+			.then(isLoggedIn => {
+				if (!isLoggedIn) {
+					alert("로그인이 필요합니다.");
+					window.location.href = "/user/login";
+				} else {
+					document.getElementById("commentInput").focus();
+				}
+			})
+			.catch(error => console.error('Error:', error));
+	}
 
 	const listReq = () => {
 		console.log("목록 요청");

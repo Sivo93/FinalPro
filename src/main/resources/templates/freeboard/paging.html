@@ -1,62 +1,71 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+	<meta charset="UTF-8">
+	<title>Title</title>
 </head>
+
 <body>
-<h1>자유게시판</h1>
-<button onclick="saveReq()">글작성</button>
+	<h1>자유게시판</h1>
+	<button onclick="saveReq()">글작성</button>
 
-<table border="1">
-    <tr>
-        <th>번호</th>
-        <th>태그</th>
-        <th>제목</th>
-        <th>작성자</th>
-        <th>작성일</th>
-        <th>조회수</th>
-        <th>추천</th>
-    </tr>
-    <tr th:each="freeboard: ${freeBoardList}">
-        <td th:text="${freeboard.seq}"></td>
-        <td th:text="${freeboard.tag}"></td>
-        <td><a th:href="@{|/freeboard/${freeboard.seq}|(page=${freeBoardList.number + 1})}" th:text="${freeboard.title}"></a></td>
-        <td th:text="${freeboard.nickname}"></td>
-        <td th:text="*{#temporals.format(freeboard.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
-        <td th:text="${freeboard.views}"></td>
-        <td th:text="${freeboard.likeCount}"></td>
-    </tr>
-</table>
-<!-- 첫번째 페이지로 이동 -->
-<!-- /board/paging?page=1 -->
-<a th:href="@{/freeboard/paging(page=1)}">First</a>
-<!-- 이전 링크 활성화 비활성화 -->
-<!-- boardList.getNumber() 사용자:2페이지 getNumber()=1 -->
-<a th:href="${freeBoardList.first} ? '#' : @{/freeboard/paging(page=${freeBoardList.number})}">prev</a>
+	<table border="1">
+		<tr>
+			<th>번호</th>
+			<th>태그</th>
+			<th>제목</th>
+			<th>작성자</th>
+			<th>작성일</th>
+			<th>조회수</th>
+			<th>추천</th>
+		</tr>
+		<tr th:each="freeboard: ${freeBoardList}">
+			<td th:text="${freeboard.seq}"></td>
+			<td th:text="${freeboard.tag}"></td>
+			<td><a th:href="@{|/freeboard/${freeboard.seq}|(page=${freeBoardList.number + 1})}"
+					th:text="${freeboard.title}"></a></td>
+			<td th:text="${freeboard.nickname}"></td>
+			<td th:text="*{#temporals.format(freeboard.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
+			<td th:text="${freeboard.views}"></td>
+			<td th:text="${freeboard.likeCount}"></td>
+		</tr>
+	</table>
+	<!-- 첫번째 페이지로 이동 -->
+	<!-- /board/paging?page=1 -->
+	<a th:href="@{/freeboard/paging(page=1)}">First</a>
+	<!-- 이전 링크 활성화 비활성화 -->
+	<!-- boardList.getNumber() 사용자:2페이지 getNumber()=1 -->
+	<a th:href="${freeBoardList.first} ? '#' : @{/freeboard/paging(page=${freeBoardList.number})}">prev</a>
 
-<!-- 페이지 번호 링크(현재 페이지는 숫자만)
+	<!-- 페이지 번호 링크(현재 페이지는 숫자만)
         for(int page=startPage; page<=endPage; page++)-->
-<span th:each="page: ${#numbers.sequence(startPage, endPage)}">
-<!-- 현재페이지는 링크 없이 숫자만 -->
-    <span th:if="${page == freeBoardList.number + 1}" th:text="${page}"></span>
-<!-- 현재페이지 번호가 아닌 다른 페이지번호에는 링크를 보여줌 -->
-    <span th:unless="${page == freeBoardList.number + 1}">
-        <a th:href="@{/freeboard/paging(page=${page})}" th:text="${page}"></a>
-    </span>
-</span>
+	<span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+		<!-- 현재페이지는 링크 없이 숫자만 -->
+		<span th:if="${page == freeBoardList.number + 1}" th:text="${page}"></span>
+		<!-- 현재페이지 번호가 아닌 다른 페이지번호에는 링크를 보여줌 -->
+		<span th:unless="${page == freeBoardList.number + 1}">
+			<a th:href="@{/freeboard/paging(page=${page})}" th:text="${page}"></a>
+		</span>
+	</span>
 
-<!-- 다음 링크 활성화 비활성화
+	<!-- 다음 링크 활성화 비활성화
     사용자: 2페이지, getNumber: 1, 3페이지-->
-<a th:href="${freeBoardList.last} ? '#' : @{/freeboard/paging(page=${freeBoardList.number + 2})}">next</a>
-<!-- 마지막 페이지로 이동 -->
-<a th:href="@{/freeboard/paging(page=${freeBoardList.totalPages})}">Last</a>
+	<a th:href="${freeBoardList.last} ? '#' : @{/freeboard/paging(page=${freeBoardList.number + 2})}">next</a>
+	<!-- 마지막 페이지로 이동 -->
+	<a th:href="@{/freeboard/paging(page=${freeBoardList.totalPages})}">Last</a> <br />
+
+	<a href="/freeboard/save">글작성 </a>
+	<a href="/user/logout">로그아웃 </a>
+	<a href="/user/main">메인으로 </a>
+	<a href="/">홈으로</a>
 
 </body>
 <script>
-    const saveReq = () => {
-        location.href = "/freeboard/save";
-    }
+	const saveReq = () => {
+		location.href = "/freeboard/save";
+	}
 
 </script>
+
 </html>
