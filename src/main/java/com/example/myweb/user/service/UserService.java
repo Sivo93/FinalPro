@@ -1,59 +1,40 @@
 package com.example.myweb.user.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.myweb.user.dto.UserDTO;
 import com.example.myweb.user.entity.UserEntity;
 import com.example.myweb.user.repository.UserRepository;
+import com.example.myweb.user.security.JwtUtil;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
 	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final JwtUtil jwtUtil;
 
-	public void save(UserDTO userDTO) {
-		// 1. dto -> entity 변환
+	@Value("${jwt.secret}")
+    private String jwtSecret;
 
-		// 2. repository의 save 메서드 호출
-		UserEntity userEntity = UserEntity.toUserEntity(userDTO);
-		userRepository.save(userEntity);
-		System.out.println("회원가입 성공");
+    @Value("${jwt.expiration}")
+    private long jwtExpiration;
 
-		// repository의 save 메서드 호출 (조건. entity객체를 넘겨줘야 함)
-	}
-
-	public UserDTO login(UserDTO userDTO) {
-		// 1. 회원이 입력한 이메일로 db에서 조회를 함
-		// 2. db에서 조회한 비밀번호와 사용자가 입력한 비밀번호가 일치하는지 판단
-		Optional<UserEntity> byLoginid = userRepository.findByLoginid(userDTO.getLoginid());
-		if (byLoginid.isPresent()) {
-			// 조회 결과가 있다(해당 아이디를 가진 회원 정보가 있다)
-			UserEntity userEntity = byLoginid.get();
-			if (userEntity.getPw().equals(userDTO.getPw())) {
-				// 비밀번호 일치
-				// entity -> dto 변환 후 리턴
-				UserDTO dto = UserDTO.toUserDTO(userEntity);
-				System.out.println("로그인 성공!");
-				return dto;
-			} else {
-				// 비밀번호 불일치(로그인실패)
-				System.out.println("비밀번호 틀림!");
-				return null;
-			}
-		} else {
-			// 조회 결과가 없다(해당 아이디를 가진 회원 정보가 없다)
-			System.out.println("아이디가 없습니다!");
-			return null;
-		}
-
-	}
 
 	public List<UserDTO> findAll() {
 		List<UserEntity> userEntityList = userRepository.findAll();
@@ -76,19 +57,25 @@ public class UserService {
 			return null;
 		}
 	}
+//	public UserDTO findBySeq(Long seq) {
+//		Optional<UserEntity> optionalUserEntity = userRepository.findById(seq);
+//		return optionalUserEntity.map(UserDTO::toUserDTO).orElse(null);
+//	}
+	
 
-	public UserDTO updateForm(String myLoginid) {
-		Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(myLoginid);
-		if (optionalUserEntity.isPresent()) {
-			return UserDTO.toUserDTO(optionalUserEntity.get());
-		} else {
-			return null;
-		}
-	}
+//	public UserDTO updateForm(String myLoginid) {
+//		Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(myLoginid);
+//		if (optionalUserEntity.isPresent()) {
+//			return UserDTO.toUserDTO(optionalUserEntity.get());
+//		} else {
+//			return null;
+//		}
+//	}
 
 	public void update(UserDTO userDTO) {
-		userRepository.save(UserEntity.toUpdateUserEntity(userDTO));
-		
+		UserEntity userEntity = UserEntity.toUpdateUserEntity(userDTO);
+		encodePassword(userEntity);
+		userRepository.save(userEntity);
 	}
 
 	public void deleteBySeq(Long seq) {
@@ -128,5 +115,72 @@ public class UserService {
 		}
 	}
 
+//	public boolean emailCheck(String email) {
+//		return userRepository.findByEmail(email).isEmpty();
+//	}
+//
+//	public boolean loginidCheck(String loginid) {
+//		return userRepository.findByLoginid(loginid).isEmpty();
+//	}
+//
+//	public boolean nicknameCheck(String nickname) {
+//		return userRepository.findByNickname(nickname).isEmpty();
+//	}
+	// 사용자 등록
+	public void registerUser(UserDTO userDTO) {
+		UserEntity userEntity = UserEntity.toUserEntity(userDTO);
+		userEntity.setPw(passwordEncoder.encode(userEntity.getPw()));
+		userRepository.save(userEntity);
+	}
+
+	// 사용자 정보 업데이트
+	public void updateUser(UserDTO userDTO) {
+		UserEntity userEntity = UserEntity.toUpdateUserEntity(userDTO);
+		userEntity.setPw(passwordEncoder.encode(userEntity.getPw()));
+		userRepository.save(userEntity);
+	}
+	
+	private void encodePassword(UserEntity userEntity) {
+		userEntity.setPw(passwordEncoder.encode(userEntity.getPw()));
+	}
+
+	// Spring Security에서 사용되는 사용자 인증 메서드
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		UserEntity user = userRepository.findByLoginid(username)
+				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+		return new org.springframework.security.core.userdetails.User(user.getLoginid(), user.getPw(),
+				new ArrayList<>());
+	}
+
+	// 사용자 로그인 인증 메서드
+	public boolean authenticate(String username, String rawPassword) {
+		UserEntity user = userRepository.findByLoginid(username)
+				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+		return passwordEncoder.matches(rawPassword, user.getPw());
+	}
+
+	public String generateToken(String username) {
+		return jwtUtil.generateToken(username);
+	}
+	
+	public UserEntity findByLoginid(String loginid) {
+	    return userRepository.findByLoginid(loginid)
+	            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+	}
+	
+	public UserEntity getAuthenticatedUser(String loginid, String nickname) {
+		System.out.println("Login ID: " + loginid);
+	    System.out.println("Nickname: " + nickname);
+        return userRepository.findByLoginidAndNickname(loginid, nickname)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with loginid " + loginid + " and nickname " + nickname));
+    }
+	
+	public UserEntity findByLoginidAndNickname(String loginid, String nickname) {
+        return userRepository.findByLoginidAndNickname(loginid, nickname)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with loginid " + loginid + " and nickname " + nickname));
+    }
 
 }

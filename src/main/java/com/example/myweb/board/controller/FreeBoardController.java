@@ -41,10 +41,21 @@ public class FreeBoardController {
 	}
 
 	@PostMapping("/save")
-	public String save(@ModelAttribute FreeBoardDTO freeBoardDTO) throws IllegalStateException, IOException {
-		System.out.println("freeBoardDTO: " + freeBoardDTO);
+	public String save(@ModelAttribute FreeBoardDTO freeBoardDTO, HttpSession session)
+			throws IllegalStateException, IOException {
+		// 세션에서 로그인 ID를 가져옵니다.
+		String loginid = (String) session.getAttribute("loginid");
+		String nickname = (String) session.getAttribute("nickname");
+
+		// 로그인 ID가 세션에 없으면 로그인되지 않은 상태로 처리합니다.
+		if (loginid == null) {
+			return "redirect:/login"; // 로그인 페이지로 리다이렉트
+		}
+
+		// 로그인된 상태일 경우 게시글 저장 로직을 호출합니다.
 		freeBoardService.save(freeBoardDTO);
-		return "user/main.html";
+
+		return "redirect:/freeboard/boardList"; // 게시글 목록 페이지로 리다이렉트
 	}
 
 	@GetMapping("/boardList")
@@ -113,8 +124,28 @@ public class FreeBoardController {
 		return "freeboard/update.html";
 	}
 
+//	@PostMapping("/update")
+//	public String update(@ModelAttribute FreeBoardDTO freeBoardDTO, Model model) {
+//		FreeBoardDTO freeBoard = freeBoardService.update(freeBoardDTO);
+//		model.addAttribute("freeBoard", freeBoard);
+//
+//		return "freeboard/detail.html";
+//	}
+
 	@PostMapping("/update")
-	public String update(@ModelAttribute FreeBoardDTO freeBoardDTO, Model model) {
+	public String update(@ModelAttribute FreeBoardDTO freeBoardDTO, HttpSession session, Model model) {
+		// 세션에서 로그인 ID와 닉네임을 가져옵니다.
+		String loginid = (String) session.getAttribute("loginid");
+		String nickname = (String) session.getAttribute("nickname");
+
+		// 로그인 ID와 닉네임이 세션에 없으면 로그인되지 않은 상태로 처리합니다.
+		if (loginid == null || nickname == null) {
+			return "redirect:/login"; // 로그인 페이지로 리다이렉트
+		}
+
+		// 로그인된 상태일 경우 게시글 업데이트 로직을 호출합니다.
+		freeBoardDTO.setLoginid(loginid);
+		freeBoardDTO.setNickname(nickname);
 		FreeBoardDTO freeBoard = freeBoardService.update(freeBoardDTO);
 		model.addAttribute("freeBoard", freeBoard);
 

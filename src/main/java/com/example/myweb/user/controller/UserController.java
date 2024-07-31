@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.myweb.user.dto.UserDTO;
+import com.example.myweb.user.entity.UserEntity;
 import com.example.myweb.user.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
@@ -46,7 +47,7 @@ public class UserController {
 		System.out.println("UserController.save 실행");
 		System.out.println("UserDTO : " + userDTO);
 
-		userService.save(userDTO);
+		userService.registerUser(userDTO);
 
 		return "user/login.html";
 	}
@@ -59,11 +60,14 @@ public class UserController {
 
 	@PostMapping("/user/login")
 	public String login(@ModelAttribute UserDTO userDTO, HttpSession session) {
-	    UserDTO loginResult = userService.login(userDTO);
-	    if (loginResult != null) {
-	        session.setAttribute("loginid", loginResult.getLoginid());
-	        session.setAttribute("nickname", loginResult.getNickname()); // nickname 추가
-	        session.setAttribute("loginUser", loginResult); 
+	    boolean authenticated = userService.authenticate(userDTO.getLoginid(), userDTO.getPw());
+	    if (authenticated) {
+	        UserEntity userEntity = userService.findByLoginid(userDTO.getLoginid());
+	        String token = userService.generateToken(userDTO.getLoginid()); // 토큰 생성 메서드
+	        session.setAttribute("loginid", userDTO.getLoginid());
+	        session.setAttribute("nickname", userDTO.getNickname());
+	        session.setAttribute("userSeq", userEntity.getSeq());
+	        session.setAttribute("token", token);
 	        String redirectURL = (String) session.getAttribute("redirectURL");
 	        if (redirectURL != null) {
 	            session.removeAttribute("redirectURL");
@@ -74,23 +78,7 @@ public class UserController {
 	        return "user/login.html";
 	    }
 	}
-	
-//	@PostMapping("/user/main")
-//	public String login(@ModelAttribute UserDTO userDTO, HttpSession session) {
-//		UserDTO loginResult = userService.login(userDTO);
-//		if (loginResult != null) {
-//			// login 성공
-//			session.setAttribute("loginid", loginResult.getLoginid());
-//			session.setAttribute("nickname", loginResult.getNickname());
-//			session.setAttribute("loginUser", loginResult); // UserDTO 객체 저장
-//			return "user/main.html";
-//		} else {
-//			// login 실패
-//
-//			return "user/login.html";
-//		}
-//
-//	}
+
 
 	@GetMapping("/user/userList")
 	public String findAll(Model model) {
@@ -111,11 +99,15 @@ public class UserController {
 
 	@GetMapping("/user/update")
 	public String updateForm(HttpSession session, Model model) {
-		String myLoginid = (String) session.getAttribute("loginid");
-		UserDTO userDTO = userService.updateForm(myLoginid);
-		model.addAttribute("updateUser", userDTO);
+	    Long userSeq = (Long) session.getAttribute("userSeq");
+	    if (userSeq == null) {
+	        // 세션에 사용자 seq가 없으면 로그인 페이지로 리다이렉트
+	        return "redirect:/user/login";
+	    }
+	    UserDTO userDTO = userService.findBySeq(userSeq);
+	    model.addAttribute("updateUser", userDTO);
 
-		return "user/update.html";
+	    return "user/update.html";
 	}
 
 	@PostMapping("/user/update")

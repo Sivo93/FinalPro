@@ -23,6 +23,7 @@ import com.example.myweb.board.repository.FreeBoardLikeRepository;
 import com.example.myweb.board.repository.FreeBoardRepository;
 import com.example.myweb.user.entity.UserEntity;
 import com.example.myweb.user.repository.UserRepository;
+import com.example.myweb.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,55 +37,39 @@ public class FreeBoardService {
 	private final FreeBoardFileRepository freeBoardFileRepository;
 	private final FreeBoardLikeRepository freeBoardLikeRepository;
 	private final UserRepository userRepository;
+	private final UserService userService;
 
 	public void save(FreeBoardDTO freeBoardDTO) throws IllegalStateException, IOException {
-		// UserEntity를 UserRepository를 통해 조회합니다.
-		UserEntity userEntity = userRepository
-				.findByLoginidAndNickname(freeBoardDTO.getLoginid(), freeBoardDTO.getNickname()).get();
+		String loginid = freeBoardDTO.getLoginid(); // 글쓰기 DTO에서 loginid를 추출
+		String nickname = freeBoardDTO.getNickname(); // 글쓰기 DTO에서 nickname을 추출 (필요한 경우)
 
-		// 파일 첨부 여부에 따라 로직 분리
+		// 사용자 인증을 위해 로그인 ID를 통해 UserEntity를 가져옵니다.
+		UserEntity userEntity = userService.getAuthenticatedUser(loginid, nickname);
+
 		if (freeBoardDTO.getFreeboardFile().isEmpty()) {
-			// 첨부 파일 없음.
-
-			// 조회된 UserEntity를 사용하여 FreeBoardEntity를 생성합니다.
 			FreeBoardEntity freeBoardEntity = FreeBoardEntity.toSaveEntity(freeBoardDTO, userEntity);
-
-			// FreeBoardEntity를 저장합니다.
 			freeBoardRepository.save(freeBoardEntity);
 		} else {
-			// 첨부 파일 있음.
-
-			// 1. DTO에 담긴 파일을 꺼냄
-			// 2. 파일의 이름 가져옴
-			// 3. 서버 저장용 이름을 만든다
-			// 내사진.jpg => 1287637126_내사진.jpg
-			// 4. 저장 경로 설정
-			// 5. 해당 경로에 파일 저장
-			// 6. free_board_table에 해당 데이터 save 처리
-			// 7. free_board_file_table에 해당 데이터 save처리
-			// 조회된 UserEntity를 사용하여 FreeBoardEntity를 생성합니다.
 			FreeBoardEntity freeBoardEntity = FreeBoardEntity.toSaveFileEntity(freeBoardDTO, userEntity);
-			Long savedSeq = freeBoardRepository.save(freeBoardEntity).getSeq(); // 게시글의 seq
-			FreeBoardEntity freeBoard = freeBoardRepository.findById(savedSeq).get(); // 게시글의 정보를 가져옴
+			Long savedSeq = freeBoardRepository.save(freeBoardEntity).getSeq();
+			FreeBoardEntity freeBoard = freeBoardRepository.findById(savedSeq)
+					.orElseThrow(() -> new IllegalStateException("Failed to retrieve saved FreeBoardEntity"));
+
 			for (MultipartFile freeBoardFile : freeBoardDTO.getFreeboardFile()) {
-				// MultipartFile freeBoardFile = freeBoardDTO.getFreeboardFile(); // 1.
-				String originalFilename = freeBoardFile.getOriginalFilename(); // 2.
-				String storedFileName = System.currentTimeMillis() + "_" + originalFilename; // 3.
-//				String savePath = "C:/springboot_img/" + storedFileName; // 4. C:/springboot_img/687416238_내사진.jpg
+				String originalFilename = freeBoardFile.getOriginalFilename();
+				String storedFileName = System.currentTimeMillis() + "_" + originalFilename;
 				String savePath = new File("src/main/resources/static/upload/").getAbsolutePath() + "/"
-						+ storedFileName; // 4. C:/springboot_img/687416238_내사진.jpg
+						+ storedFileName;
 
 				File file = new File(savePath);
-				file.getParentFile().mkdirs(); // 경로가 존재하지 않으면 생성
+				file.getParentFile().mkdirs();
 				freeBoardFile.transferTo(file);
-				// freeBoardFile.transferTo(new File(savePath)); // 5.
 
 				FreeBoardFileEntity freeBoardFileEntity = FreeBoardFileEntity.toFreeBoardFileEntity(freeBoard,
 						originalFilename, storedFileName);
 				freeBoardFileRepository.save(freeBoardFileEntity);
 			}
 		}
-
 	}
 
 	@Transactional
@@ -166,50 +151,51 @@ public class FreeBoardService {
 	// 좋아요 기능
 	@Transactional
 	public boolean toggleLike(Long freeBoard_seq, String loginid) {
-	    // 게시글과 사용자 정보를 Optional로 조회합니다.
-	    Optional<FreeBoardEntity> optionalBoard = freeBoardRepository.findById(freeBoard_seq);
-	    Optional<UserEntity> optionalUser = userRepository.findByLoginid(loginid);
+		// 게시글과 사용자 정보를 Optional로 조회합니다.
+		Optional<FreeBoardEntity> optionalBoard = freeBoardRepository.findById(freeBoard_seq);
+		Optional<UserEntity> optionalUser = userRepository.findByLoginid(loginid);
 
-	    // Optional에서 데이터를 가져올 수 있는지 확인합니다.
-	    if (optionalBoard.isPresent() && optionalUser.isPresent()) {
-	        FreeBoardEntity board = optionalBoard.get();
-	        UserEntity user = optionalUser.get();
+		// Optional에서 데이터를 가져올 수 있는지 확인합니다.
+		if (optionalBoard.isPresent() && optionalUser.isPresent()) {
+			FreeBoardEntity board = optionalBoard.get();
+			UserEntity user = optionalUser.get();
 
-	        // 좋아요 여부를 확인하기 위해 좋아요 엔티티를 조회합니다.
-	        Optional<FreeBoardLikeEntity> optionalLike = freeBoardLikeRepository.findByUserAndFreeBoardEntity(user, board);
+			// 좋아요 여부를 확인하기 위해 좋아요 엔티티를 조회합니다.
+			Optional<FreeBoardLikeEntity> optionalLike = freeBoardLikeRepository.findByUserAndFreeBoardEntity(user,
+					board);
 
-	        if (optionalLike.isPresent()) {
-	            // 이미 좋아요를 누른 상태이면 좋아요 취소 처리합니다.
-	            FreeBoardLikeEntity like = optionalLike.get();
-	            freeBoardLikeRepository.delete(like); // 좋아요 엔티티 삭제
-	            board.setLikeCount(board.getLikeCount() - 1); // 게시글의 좋아요 수 감소
-	        } else {
-	            // 좋아요를 누르지 않은 상태이면 좋아요 추가 처리합니다.
-	            FreeBoardLikeEntity like = new FreeBoardLikeEntity();
-	            like.setUser(user);
-	            like.setFreeBoardEntity(board);
-	            freeBoardLikeRepository.save(like); // 좋아요 엔티티 저장
-	            board.setLikeCount(board.getLikeCount() + 1); // 게시글의 좋아요 수 증가
-	        }
+			if (optionalLike.isPresent()) {
+				// 이미 좋아요를 누른 상태이면 좋아요 취소 처리합니다.
+				FreeBoardLikeEntity like = optionalLike.get();
+				freeBoardLikeRepository.delete(like); // 좋아요 엔티티 삭제
+				board.setLikeCount(board.getLikeCount() - 1); // 게시글의 좋아요 수 감소
+			} else {
+				// 좋아요를 누르지 않은 상태이면 좋아요 추가 처리합니다.
+				FreeBoardLikeEntity like = new FreeBoardLikeEntity();
+				like.setUser(user);
+				like.setFreeBoardEntity(board);
+				freeBoardLikeRepository.save(like); // 좋아요 엔티티 저장
+				board.setLikeCount(board.getLikeCount() + 1); // 게시글의 좋아요 수 증가
+			}
 
-	        // 게시글 엔티티 저장 (좋아요 수 변경 반영)
-	        freeBoardRepository.save(board);
+			// 게시글 엔티티 저장 (좋아요 수 변경 반영)
+			freeBoardRepository.save(board);
 
-	        return true; // 성공적으로 처리됨을 반환
-	    }
+			return true; // 성공적으로 처리됨을 반환
+		}
 
-	    return false; // 게시글 또는 사용자가 존재하지 않음을 반환
+		return false; // 게시글 또는 사용자가 존재하지 않음을 반환
 	}
 
 	public boolean isLikedByUser(Long boardSeq, String loginid) {
-	    Optional<FreeBoardEntity> optionalBoard = freeBoardRepository.findById(boardSeq);
-	    Optional<UserEntity> optionalUser = userRepository.findByLoginid(loginid);
-	    if (optionalBoard.isPresent() && optionalUser.isPresent()) {
-	        FreeBoardEntity board = optionalBoard.get();
-	        UserEntity user = optionalUser.get();
-	        return freeBoardLikeRepository.findByUserAndFreeBoardEntity(user, board).isPresent();
-	    }
-	    return false;
+		Optional<FreeBoardEntity> optionalBoard = freeBoardRepository.findById(boardSeq);
+		Optional<UserEntity> optionalUser = userRepository.findByLoginid(loginid);
+		if (optionalBoard.isPresent() && optionalUser.isPresent()) {
+			FreeBoardEntity board = optionalBoard.get();
+			UserEntity user = optionalUser.get();
+			return freeBoardLikeRepository.findByUserAndFreeBoardEntity(user, board).isPresent();
+		}
+		return false;
 	}
 
 }
