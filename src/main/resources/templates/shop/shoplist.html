@@ -35,7 +35,7 @@
                     </a>
                 </td>
                 <td th:text="${shop.name}"></td>
-                <td th:text="${user.nickname}"></td>
+                <!--<td th:text="${user.nickname}"></td>-->
                 <td th:text="${shop.price}"></td>
             </tr>
         </tbody>
@@ -48,6 +48,8 @@
     <div th:if="${user ==null}">
 		<span>로그인 이후 사용가능합니다.</span><br>
     </div>
-    <a href="/home">돌아가기</a>
+    <!--로그인 상관없음
+	<a href="/shop/addshop">판매상품 등록하기</a><br>-->
+    <button onclick="history.back()">돌아가기</a>
 </body>
 </html>

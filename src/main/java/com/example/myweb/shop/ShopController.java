@@ -75,7 +75,7 @@ public class ShopController {
     private String saveImage(MultipartFile image)throws IOException{
     	
     	//로직 구현
-    	String uploadDir="src/main/resources/static/images";
+    	String uploadDir="uploads/images";
     	String originalFilename=image.getOriginalFilename();
     	String filePath=Paths.get(uploadDir, originalFilename).toString();
     	
