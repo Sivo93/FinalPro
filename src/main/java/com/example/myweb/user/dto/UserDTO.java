@@ -1,10 +1,13 @@
 package com.example.myweb.user.dto;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import com.example.myweb.user.entity.UserEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -14,6 +17,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class UserDTO {
+		
 	private Long seq;
 	private String loginid;
 	private String pw;

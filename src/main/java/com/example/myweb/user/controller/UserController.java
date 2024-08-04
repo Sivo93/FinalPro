@@ -1,8 +1,13 @@
 package com.example.myweb.user.controller;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.myweb.user.dto.UserDTO;
+import com.example.myweb.user.security.JWTUtil;
 import com.example.myweb.user.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
@@ -23,13 +29,22 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 	// 생성자 주입
 	private final UserService userService;
+	private final JWTUtil jwtUtil;
 
 	@GetMapping("/")
-	public String index(HttpSession session, Model model) {
-		String loginid = (String) session.getAttribute("loginid");
-		String nickname = (String) session.getAttribute("nickname");
-		model.addAttribute("loginid", loginid);
-		model.addAttribute("nickname", nickname);
+	public String index() {
+		
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+		Iterator<? extends GrantedAuthority> iter = authorities.iterator();
+		GrantedAuthority auth = iter.next();
+		String role = auth.getAuthority();
+		
+		System.out.println("username : " + username);
+		System.out.println("role : " + role);
 
 		return "index.html";
 	}
@@ -58,38 +73,44 @@ public class UserController {
 	}
 
 	@PostMapping("/user/login")
-	public String login(@ModelAttribute UserDTO userDTO, HttpSession session) {
-	    UserDTO loginResult = userService.login(userDTO);
-	    if (loginResult != null) {
-	        session.setAttribute("loginid", loginResult.getLoginid());
-	        session.setAttribute("nickname", loginResult.getNickname()); // nickname 추가
-	        session.setAttribute("loginUser", loginResult); 
-	        String redirectURL = (String) session.getAttribute("redirectURL");
-	        if (redirectURL != null) {
-	            session.removeAttribute("redirectURL");
-	            return "redirect:" + redirectURL;
-	        }
-	        return "user/main.html";
-	    } else {
-	        return "user/login.html";
-	    }
-	}
-	
-//	@PostMapping("/user/main")
+    public String login(@ModelAttribute UserDTO userDTO, HttpSession session, Model model) {
+        UserDTO loginResult = userService.login(userDTO);
+        if (loginResult != null) {
+            // JWT 발급
+            String token = jwtUtil.createJwt(loginResult.getLoginid(), loginResult.getRole(), 60 * 60 * 10L);
+
+            // 세션에 로그인 정보 저장
+            session.setAttribute("loginid", loginResult.getLoginid());
+            session.setAttribute("nickname", loginResult.getNickname());
+            session.setAttribute("loginUser", loginResult);
+
+            // JWT 토큰을 모델에 추가 (예: 페이지에서 사용할 수 있도록)
+            model.addAttribute("token", token);
+
+            // 로그인 성공 후 이동할 페이지
+            return "redirect:/user/main";
+        } else {
+            // 로그인 실패 시 로그인 페이지로 리다이렉트
+            return "redirect:/user/login?error";
+        }
+    }
+
+//	@PostMapping("/user/login")
 //	public String login(@ModelAttribute UserDTO userDTO, HttpSession session) {
 //		UserDTO loginResult = userService.login(userDTO);
 //		if (loginResult != null) {
-//			// login 성공
 //			session.setAttribute("loginid", loginResult.getLoginid());
-//			session.setAttribute("nickname", loginResult.getNickname());
-//			session.setAttribute("loginUser", loginResult); // UserDTO 객체 저장
+//			session.setAttribute("nickname", loginResult.getNickname()); // nickname 추가
+//			session.setAttribute("loginUser", loginResult);
+//			String redirectURL = (String) session.getAttribute("redirectURL");
+//			if (redirectURL != null) {
+//				session.removeAttribute("redirectURL");
+//				return "redirect:" + redirectURL;
+//			}
 //			return "user/main.html";
 //		} else {
-//			// login 실패
-//
 //			return "user/login.html";
 //		}
-//
 //	}
 
 	@GetMapping("/user/userList")
@@ -164,9 +185,9 @@ public class UserController {
 	}
 
 	@GetMapping("/api/check-login")
-    public ResponseEntity<Boolean> checkLogin(HttpSession session) {
-        String loginid = (String) session.getAttribute("loginid");
-        boolean isLoggedIn = loginid != null;
-        return ResponseEntity.ok(isLoggedIn);
-    }
+	public ResponseEntity<Boolean> checkLogin(HttpSession session) {
+		String loginid = (String) session.getAttribute("loginid");
+		boolean isLoggedIn = loginid != null;
+		return ResponseEntity.ok(isLoggedIn);
+	}
 }

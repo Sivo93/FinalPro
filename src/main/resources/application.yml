@@ -20,6 +20,8 @@ spring:
     password: 1234
   thymeleaf:
     cache: false
+  jwt:
+    secret: ajfxlzoavjtmvkdlsjfvmfhwprxmdlfdlsrkrnghavpdlwlaaaaaaaaaaabbbbbbbbbbb
 
   # spring data jpa 설정
   jpa:

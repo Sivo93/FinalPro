@@ -2,6 +2,8 @@ package com.example.myweb.user.entity;
 
 import java.util.Set;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import com.example.myweb.board.entity.FreeBoardLikeEntity;
 import com.example.myweb.user.dto.UserDTO;
 
@@ -14,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -21,6 +24,7 @@ import lombok.Setter;
 @Getter
 @Table(name = "user_table")
 public class UserEntity {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long seq;
