@@ -21,6 +21,7 @@ import com.example.myweb.user.dto.UserDTO;
 import com.example.myweb.user.security.JWTUtil;
 import com.example.myweb.user.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -33,18 +34,18 @@ public class UserController {
 
 	@GetMapping("/")
 	public String index() {
-		
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-		Iterator<? extends GrantedAuthority> iter = authorities.iterator();
-		GrantedAuthority auth = iter.next();
-		String role = auth.getAuthority();
-		
-		System.out.println("username : " + username);
-		System.out.println("role : " + role);
+//		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//		
+//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+//		Iterator<? extends GrantedAuthority> iter = authorities.iterator();
+//		GrantedAuthority auth = iter.next();
+//		String role = auth.getAuthority();
+//		
+//		System.out.println("username : " + username);
+//		System.out.println("role : " + role);
 
 		return "index.html";
 	}
@@ -73,45 +74,48 @@ public class UserController {
 	}
 
 	@PostMapping("/user/login")
-    public String login(@ModelAttribute UserDTO userDTO, HttpSession session, Model model) {
-        UserDTO loginResult = userService.login(userDTO);
-        if (loginResult != null) {
-            // JWT 발급
-            String token = jwtUtil.createJwt(loginResult.getLoginid(), loginResult.getRole(), 60 * 60 * 10L);
+	public String login(@ModelAttribute UserDTO userDTO, HttpSession session, Model model) {
+		UserDTO loginResult = userService.login(userDTO);
+		if (loginResult != null) {
+			// JWT 발급
+			String token = jwtUtil.createJwt(loginResult.getLoginid(), loginResult.getRole(), 60 * 60 * 10L);
 
-            // 세션에 로그인 정보 저장
-            session.setAttribute("loginid", loginResult.getLoginid());
-            session.setAttribute("nickname", loginResult.getNickname());
-            session.setAttribute("loginUser", loginResult);
+			// 세션에 로그인 정보 저장
+			session.setAttribute("loginid", loginResult.getLoginid());
+			session.setAttribute("nickname", loginResult.getNickname());
+			session.setAttribute("loginUser", loginResult);
 
-            // JWT 토큰을 모델에 추가 (예: 페이지에서 사용할 수 있도록)
-            model.addAttribute("token", token);
+			// JWT 토큰을 모델에 추가 (예: 페이지에서 사용할 수 있도록)
+			model.addAttribute("token", token);
 
-            // 로그인 성공 후 이동할 페이지
-            return "redirect:/user/main";
-        } else {
-            // 로그인 실패 시 로그인 페이지로 리다이렉트
-            return "redirect:/user/login?error";
+			// 로그인 성공 후 이동할 페이지
+			return "user/main.html";
+		} else {
+			// 로그인 실패 시 로그인 페이지로 리다이렉트
+			return "redirect:/user/login?error";
+		}
+	}
+
+	@GetMapping("/user/main")
+    public String main(HttpServletRequest request) {
+        // Authorization 헤더에서 토큰 가져오기
+        String token = request.getHeader("Authorization");
+
+        // 토큰이 존재하고 유효한지 확인
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+            String loginid = jwtUtil.getLoginid(token);
+
+            if (loginid != null && !jwtUtil.isExpired(token)) {
+                // JWT가 유효한 경우
+                return "user/main.html";
+            }
         }
-    }
 
-//	@PostMapping("/user/login")
-//	public String login(@ModelAttribute UserDTO userDTO, HttpSession session) {
-//		UserDTO loginResult = userService.login(userDTO);
-//		if (loginResult != null) {
-//			session.setAttribute("loginid", loginResult.getLoginid());
-//			session.setAttribute("nickname", loginResult.getNickname()); // nickname 추가
-//			session.setAttribute("loginUser", loginResult);
-//			String redirectURL = (String) session.getAttribute("redirectURL");
-//			if (redirectURL != null) {
-//				session.removeAttribute("redirectURL");
-//				return "redirect:" + redirectURL;
-//			}
-//			return "user/main.html";
-//		} else {
-//			return "user/login.html";
-//		}
-//	}
+        // 토큰이 유효하지 않거나 존재하지 않는 경우
+        System.out.println("로그인 정보가 없습니다");
+        return "redirect:/";
+    }
 
 	@GetMapping("/user/userList")
 	public String findAll(Model model) {
