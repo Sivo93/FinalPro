@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
+<title>Insert title here</title>
+</head>
+<body>
+<h1>userList!</h1>
+<h2>list.html</h2>
+<table border="1">
+  <tr>
+    <th>seq</th>
+    <th>loginid</th>
+    <th>pw</th>
+    <th>name</th>
+    <th>nickname</th>
+    <th>address</th>
+    <th>email</th>
+    <th>tel</th>
+    <th>role</th>
+    <th>상세조회</th>
+    <th>삭제</th>
+  </tr>
+  <tr th:each="user: ${userList}">
+    <td th:text="${user.seq}"></td>
+    <td th:text="${user.loginid}"></td>
+    <td th:text="${user.pw}"></td>
+    <td th:text="${user.name}"></td>
+    <td th:text="${user.nickname}"></td>
+    <td th:text="${user.address}"></td>
+    <td th:text="${user.email}"></td>
+    <td th:text="${user.tel}"></td>
+    <td th:text="${user.role}"></td>
+    <td>
+      <!-- query string /member?id=1
+          rest api /member/1 -->
+      <a th:href="@{|/user/${user.seq}|}">조회</a>
+    </td>
+    <td>
+      <a th:href="@{|/user/delete/${user.seq}|}">삭제</a>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
