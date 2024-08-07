@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
-<title>Insert title here</title>
+<meta charset="UTF-8">
+<title>Home Page</title>
 </head>
 <body>
 <h2>1인가구 홈페이지!</h2>
@@ -14,14 +14,22 @@
 
 <button onclick="listReq()">글목록</button>
 <button onclick="pagingReq()">페이징목록</button>
+
+<h3>자유게시판 최근 게시물</h3>
+<ul>
+    <li th:each="post : ${latestPosts}">
+        <a th:href="@{|/freeboard/${post.seq}|}" th:text="${post.title}"></a> - 
+        <span th:text="${#temporals.format(post.createdTime, 'yyyy-MM-dd HH:mm')}"></span>
+    </li>
+</ul>
 </body>
 
 <script>
-	const listReq = () => {
-		location.href = "/freeboard/boardList";
-	}
-	const pagingReq = () => {
-		location.href = "/freeboard/paging";
-	}
+    const listReq = () => {
+        location.href = "/freeboard/boardList";
+    }
+    const pagingReq = () => {
+        location.href = "/freeboard/paging";
+    }
 </script>
 </html>

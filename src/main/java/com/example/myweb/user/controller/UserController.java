@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.myweb.board.dto.FreeBoardDTO;
+import com.example.myweb.board.service.FreeBoardService;
 import com.example.myweb.user.dto.UserDTO;
 import com.example.myweb.user.security.JWTUtil;
 import com.example.myweb.user.service.UserService;
@@ -31,6 +33,7 @@ public class UserController {
 	// 생성자 주입
 	private final UserService userService;
 	private final JWTUtil jwtUtil;
+	private final FreeBoardService freeBoardService;
 
 	@GetMapping("/")
 	public String index(HttpSession session, Model model) {
@@ -39,6 +42,10 @@ public class UserController {
 		String nickname = (String) session.getAttribute("nickname");
         model.addAttribute("loginid", loginid);
         model.addAttribute("nickname", nickname);
+        
+        // 마지막 3개 게시물을 가져오는 서비스 메서드 호출
+        List<FreeBoardDTO> latestPosts = freeBoardService.getLatestPosts(3);
+        model.addAttribute("latestPosts", latestPosts);
 
 		return "index.html";
 	}

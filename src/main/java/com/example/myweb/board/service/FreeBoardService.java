@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -230,6 +231,21 @@ public class FreeBoardService {
 	    return freeBoardEntities.map(FreeBoardDTO::toFreeBoardDTO);
 	}
 
+	public List<FreeBoardDTO> getLatestPosts(int count) {
+        Pageable pageable = PageRequest.of(0, count, Sort.by(Sort.Order.desc("createdTime")));
+        return freeBoardRepository.findAll(pageable)
+                                  .stream()
+                                  .map(this::convertToDTO)
+                                  .collect(Collectors.toList());
+    }
+
+    private FreeBoardDTO convertToDTO(FreeBoardEntity entity) {
+        FreeBoardDTO dto = new FreeBoardDTO();
+        dto.setSeq(entity.getSeq());
+        dto.setTitle(entity.getTitle());
+        dto.setCreatedTime(entity.getCreatedTime());
+        return dto;
+    }
 
 
 }
