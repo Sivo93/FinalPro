@@ -212,4 +212,24 @@ public class FreeBoardService {
 	    return false;
 	}
 
+//	public Page<FreeBoardDTO> searchByTitle(String keyword, Pageable pageable) {
+//		Page<FreeBoardEntity> freeBoardEntities = freeBoardRepository.findByTitleContaining(keyword, pageable);
+//		return freeBoardEntities.map(FreeBoardDTO::toFreeBoardDTO);
+//	}
+	
+	public Page<FreeBoardDTO> searchByTitle(String keyword, Pageable pageable) {
+	    int page = pageable.getPageNumber();
+	    if (page < 1) {
+	        page = 0;
+	    } else {
+	        page -= 1;
+	    }
+	    int pageLimit = 3; // 한 페이지에 보여줄 글 갯수
+
+	    Page<FreeBoardEntity> freeBoardEntities = freeBoardRepository.findByTitleContaining(keyword, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    return freeBoardEntities.map(FreeBoardDTO::toFreeBoardDTO);
+	}
+
+
+
 }

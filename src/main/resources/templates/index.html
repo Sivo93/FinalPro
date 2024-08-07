@@ -6,6 +6,8 @@
 </head>
 <body>
 <h2>1인가구 홈페이지!</h2>
+<!-- 닉네임이 있을 때 환영 메시지 표시 -->
+<p th:if="${nickname != null}" th:text="${nickname} + ' 님 반갑습니다.'"></p>
 <a href="/user/save">회원가입</a>
 <a th:if="${loginid == null}" href="/user/login">로그인</a>
 <a th:if="${loginid != null}" href="/user/logout">로그아웃</a>

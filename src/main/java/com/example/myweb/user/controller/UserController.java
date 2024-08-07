@@ -33,19 +33,12 @@ public class UserController {
 	private final JWTUtil jwtUtil;
 
 	@GetMapping("/")
-	public String index() {
+	public String index(HttpSession session, Model model) {
 
-//		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-//		
-//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-//		Iterator<? extends GrantedAuthority> iter = authorities.iterator();
-//		GrantedAuthority auth = iter.next();
-//		String role = auth.getAuthority();
-//		
-//		System.out.println("username : " + username);
-//		System.out.println("role : " + role);
+		String loginid = (String) session.getAttribute("loginid");
+		String nickname = (String) session.getAttribute("nickname");
+        model.addAttribute("loginid", loginid);
+        model.addAttribute("nickname", nickname);
 
 		return "index.html";
 	}

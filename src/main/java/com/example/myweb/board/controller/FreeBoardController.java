@@ -56,25 +56,6 @@ public class FreeBoardController {
 		return "freeboard/boardList.html";
 	}
 
-//	@GetMapping("/{seq}")
-//	public String findBySeq(@PathVariable Long seq, Model model, @PageableDefault(page = 1) Pageable pageable) {
-//		/*
-//		 * 해당 게시글의 조회수를 하나 올리고 게시글 데이터를 가져와서 detail.html에 출력
-//		 */
-//		freeBoardService.incrementViews(seq);
-//		FreeBoardDTO freeBoardDTO = freeBoardService.findBySeq(seq);
-////		댓글 목록 가져오기
-//		List<FreeBoardCommentDTO> freeBoardCommentDTOList = freeBoardCommentService.findAll(seq);
-//
-//		model.addAttribute("freeBoardCommentList", freeBoardCommentDTOList);
-//		model.addAttribute("freeBoard", freeBoardDTO);
-//		model.addAttribute("page", pageable.getPageNumber());
-//		System.out.println(freeBoardDTO.getStoredFileName());
-//		System.out.println(freeBoardDTO.getFileAttached());
-//
-//		return "freeboard/detail.html";
-//	}
-
 	@GetMapping("/{seq}")
 	public String findBySeq(@PathVariable Long seq, Model model, HttpSession session,
 			@PageableDefault(page = 1) Pageable pageable) {
@@ -176,6 +157,21 @@ public class FreeBoardController {
 		}
 		boolean liked = freeBoardService.isLikedByUser(boardSeq, loginid);
 		return ResponseEntity.ok(liked); // 좋아요 여부를 JSON 형태로 반환
+	}
+	
+	@GetMapping("/search")
+	public String search(@RequestParam("keyword") String keyword, Pageable pageable, Model model) {
+	    Page<FreeBoardDTO> freeBoardList = freeBoardService.searchByTitle(keyword, pageable);
+	    int blockLimit = 3;
+	    int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1;
+	    int endPage = ((startPage + blockLimit - 1) < freeBoardList.getTotalPages()) ? startPage + blockLimit - 1 : freeBoardList.getTotalPages();
+
+	    model.addAttribute("freeBoardList", freeBoardList);
+	    model.addAttribute("keyword", keyword);
+	    model.addAttribute("startPage", startPage);
+	    model.addAttribute("endPage", endPage);
+	    
+	    return "freeboard/searchResults.html";
 	}
 
 }

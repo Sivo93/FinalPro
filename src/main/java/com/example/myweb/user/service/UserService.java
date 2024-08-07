@@ -133,10 +133,34 @@ public class UserService {
 		}
 	}
 
-	public void update(UserDTO userDTO) {
-		userRepository.save(UserEntity.toUpdateUserEntity(userDTO));
-		
-	}
+    public void update(UserDTO userDTO) {
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(userDTO.getSeq());
+        if (optionalUserEntity.isPresent()) {
+            UserEntity userEntity = optionalUserEntity.get();
+            userEntity.setLoginid(userDTO.getLoginid());
+
+            if (!bCryptPasswordEncoder.matches(userDTO.getPw(), userEntity.getPw())) {
+                userEntity.setPw(bCryptPasswordEncoder.encode(userDTO.getPw()));
+            }
+
+            userEntity.setName(userDTO.getName());
+            userEntity.setNickname(userDTO.getNickname());
+            userEntity.setAddress(userDTO.getAddress());
+            userEntity.setEmail(userDTO.getEmail());
+            userEntity.setTel(userDTO.getTel());
+            userEntity.setRole(userDTO.getRole());
+
+            userRepository.save(userEntity);
+            System.out.println("업데이트 성공");
+        } else {
+            System.out.println("업데이트 실패: 사용자 없음");
+        }
+    }
+	
+//	public void update(UserDTO userDTO) {
+//		userRepository.save(UserEntity.toUpdateUserEntity(userDTO));
+//		
+//	}
 
 	public void deleteBySeq(Long seq) {
 		userRepository.deleteById(seq);

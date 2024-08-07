@@ -48,9 +48,11 @@
 		</tr>
 		<tr th:if="${freeBoard.fileAttached == 1}">
 			<th>이미지</th>
-			<td th:each="fileName: ${freeBoard.storedFileName}">
-				<img th:src="@{|/upload/${fileName}|}" alt="">
-			</td>
+			<td th:each="fileName : ${freeBoard.storedFileName}">
+                <a th:href="@{|/upload/${fileName}|}" target="_blank">
+                    <img th:src="@{|/upload/${fileName}|}" alt="" style="max-width: 300px; height: auto;">
+                </a>
+            </td>
 		</tr>
 
 	</table>

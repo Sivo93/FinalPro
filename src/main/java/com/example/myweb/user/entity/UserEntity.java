@@ -1,5 +1,6 @@
 package com.example.myweb.user.entity;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,7 +25,7 @@ import lombok.Setter;
 @Getter
 @Table(name = "user_table")
 public class UserEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long seq;
@@ -52,9 +53,10 @@ public class UserEntity {
 
 	@Column(nullable = true)
 	private String role;
-	
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<FreeBoardLikeEntity> likes;
+//    private Set<FreeBoardLikeEntity> likes;
+	private Set<FreeBoardLikeEntity> likes = new HashSet<>();
 
 	public static UserEntity toUserEntity(UserDTO userDTO) {
 		UserEntity userEntity = new UserEntity();
@@ -69,7 +71,7 @@ public class UserEntity {
 
 		return userEntity;
 	}
-	
+
 	public static UserEntity toUpdateUserEntity(UserDTO userDTO) {
 		UserEntity userEntity = new UserEntity();
 		userEntity.setSeq(userDTO.getSeq());
