@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Shop</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .preview img {
+            max-width: 500px;
+            max-height: 300px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <h1>판매 상품 등록하기</h1>
+    <p>Nickname: <span id="nickname" th:text="${nickname}">유저2</span></p>
+    <form th:action="@{/shop/addshop}" th:object="${shop}" method="post" enctype="multipart/form-data">
+        
+        <label for="images">이미지(최대 5개까지 가능합니다):</label><br>
+        <input type="file" id="images" name="images" accept="image/*" multiple><br><br>
+        
+        <!-- 미리보기 -->
+        <div class="preview" id="imagePreview"></div><br>
+        
+        <label for="productname">상품명:</label>
+        <input type="text" id="productname" th:field="*{productname}" /><br>
+        
+        <label for="sellernickname">판매자:</label>
+        <input type="text" id="sellernickname" th:field="*{sellernickname}" readonly /><br>
+        
+        <label for="price">가격:</label>
+        <input type="text" id="price" th:field="*{price}" /><br>
+        
+        <label for="description">설명:</label>
+        <input type="text" id="description" th:field="*{description}" /><br>
+        
+        <button type="submit">등록하기</button>
+    </form>
+    <br>
+    <a href="/shop/shoplist">돌아가기</a>
+    
+    <script>
+        document.getElementById('images').addEventListener('change', function(event) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = ''; // 이전에 표시된 이미지들을 초기화
+            
+            const files = event.target.files;
+            
+            if (files.length > 5) {
+                alert('최대 5개까지 이미지를 업로드할 수 있습니다.');
+                event.target.value = ''; // 파일 선택 초기화
+                return;
+            }
+            
+            Array.from(files).forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-image'; // 선택적으로 클래스를 추가하여 스타일링 가능
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        // 페이지 로드 시 판매자 필드에 닉네임을 설정
+        window.onload = function() {
+            const nickname = document.getElementById('nickname').textContent;
+            document.getElementById('sellernickname').value = nickname;
+        };
+    </script>
+</body>
+</html>

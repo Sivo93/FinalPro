@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
+	<title>Insert title here</title>
+	<!-- jquery cdn -->
+	<script src="https://code.jquery.com/jquery-3.6.3.min.js"
+		integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+	<table>
+		<tr>
+			<th>번호</th>
+			<td th:text="${freeBoard.seq}"></td>
+		</tr>
+		<tr>
+			<th>태그</th>
+			<td th:text="${freeBoard.tag}"></td>
+		</tr>
+		<tr>
+			<th>제목</th>
+			<td th:text="${freeBoard.title}"></td>
+		</tr>
+		<tr>
+			<th>작성자</th>
+			<td th:text="${freeBoard.nickname}"></td>
+		</tr>
+		<tr>
+			<th>작성일</th>
+			<td th:text="${freeBoard.createdTime}"></td>
+		</tr>
+		<tr>
+			<th>조회수</th>
+			<td th:text="${freeBoard.views}"></td>
+		</tr>
+		<tr>
+			<th>추천</th>
+			<td>
+				<span id="likeCount" th:text="${freeBoard.likeCount}"></span>
+				<button id="likeButton" onclick="toggleLike()">좋아요</button>
+			</td>
+		</tr>
+		<tr>
+			<th>내용</th>
+			<td th:text="${freeBoard.contents}"></td>
+		</tr>
+		<tr th:if="${freeBoard.fileAttached == 1}">
+			<th>이미지</th>
+			<td th:each="fileName: ${freeBoard.storedFileName}">
+				<img th:src="@{|/upload/${fileName}|}" alt="">
+			</td>
+		</tr>
+
+	</table>
+	<button onclick="listReq()">목록</button>
+	<button onclick="updateReq()">수정</button>
+	<button onclick="deleteReq()">삭제</button>
+
+	<!-- 댓글 작성 부분 -->
+	<div id="comment-write">
+		<input type="hidden" id="commentLoginid" th:value="${session.loginid}">
+		<input type="text" id="commentWriter" th:value="${session.nickname}" readonly>
+		<input type="text" id="commentContents" placeholder="내용" onclick="checkLoginBeforeComment()">
+		<button id="comment-write-btn" onclick="commentWrite()">댓글작성</button>
+	</div>
+
+	<!-- 댓글 출력 부분 -->
+	<div id="comment-list">
+		<table>
+			<tr>
+				<th>댓글번호</th>
+				<th>작성자</th>
+				<th>내용</th>
+				<th>작성시간</th>
+			</tr>
+			<tr th:each="comment: ${freeBoardCommentList}">
+				<td th:text="${comment.seq}"></td>
+				<td th:text="${comment.nickname}"></td>
+				<td th:text="${comment.commentContents}"></td>
+				<!--<td th:text="${comment.commentCreatedTime}"></td>-->
+				<td th:text="${comment.formattedCommentCreatedTime}"></td>
+			</tr>
+		</table>
+
+	</div>
+	<a href="/">홈으로</a>
+</body>
+<script th:inline="javascript">
+	const commentWrite = () => {
+		const writer = document.getElementById("commentWriter").value; // 작성자
+		const contents = document.getElementById("commentContents").value; // 작성내용
+		const seq = `[[${freeBoard.seq}]]`; // 게시글번호
+		const writerId = document.getElementById("commentLoginid").value; // 작성자의 loginid
+
+		$.ajax({
+			type: "POST",
+			url: "/comment/save",
+			data: {
+				"commentWriter": writer,
+				"commentContents": contents,
+				"freeBoardSeq": seq,
+				"commentLoginid": writerId  // 세션의 loginid 전달
+			},
+			success: function (res) {
+				console.log("요청성공", res);
+				// 댓글 목록을 갱신하는 코드 추가
+				updateCommentList(res);
+				document.getElementById('commentContents').value = '';
+			},
+			error: function (err) {
+				console.log("요청 실패", err);
+			}
+		});
+	}
+
+	function updateCommentList(comments) {
+		let output = "<table>";
+		output += "<tr><th>댓글번호</th>";
+		output += "<th>작성자</th>";
+		output += "<th>내용</th>";
+		output += "<th>작성시간</th></tr>";
+		for (let i in comments) {
+			output += "<tr>";
+			output += "<td>" + comments[i].seq + "</td>";
+			output += "<td>" + comments[i].nickname + "</td>";  // 작성자 정보 표시
+			output += "<td>" + comments[i].commentContents + "</td>";
+			output += "<td>" + comments[i].formattedCommentCreatedTime + "</td>";
+			output += "</tr>";
+		}
+		output += "</table>";
+		document.getElementById('comment-list').innerHTML = output;
+	}
+
+	<!--댓글 로그인 체크-->
+	function checkLoginBeforeComment() {
+		fetch('/api/check-login')
+			.then(response => response.json())
+			.then(isLoggedIn => {
+				if (!isLoggedIn) {
+					alert("로그인이 필요합니다.");
+					window.location.href = "/user/login";
+				} else {
+					document.getElementById("commentInput").focus();
+				}
+			})
+			.catch(error => console.error('Error:', error));
+	}
+
+	const listReq = () => {
+		console.log("목록 요청");
+		const page = `[[${page}]]`;
+		location.href = "/freeboard/paging?page=" + page;
+	}
+	const updateReq = () => {
+		console.log("수정 요청");
+		const seq = `[[${freeBoard.seq}]]`;
+		console.log(seq);
+		location.href = "/freeboard/update/" + seq;
+	}
+	const deleteReq = () => {
+		console.log("삭제 요청");
+		const seq = `[[${freeBoard.seq}]]`;
+		location.href = "/freeboard/delete/" + seq;
+	}
+
+	const toggleLike = () => {
+		const boardSeq = `[[${freeBoard.seq}]]`;
+
+		$.ajax({
+			type: "POST",
+			url: "/freeboard/like",
+			data: {boardSeq: boardSeq},
+			success: function (response) {
+				if (response === "not_logged_in") {
+					alert("로그인이 필요합니다.");
+				} else if (response === "success") {
+					location.reload();
+				} else {
+					alert("오류가 발생했습니다.");
+				}
+			},
+			error: function () {
+				alert("오류가 발생했습니다.");
+			}
+		});
+	};
+
+	$(document).ready(function () {
+		const boardSeq = `[[${freeBoard.seq}]]`;
+		$.ajax({
+			type: "POST",
+			url: "/freeboard/isliked",
+			data: {boardSeq: boardSeq},
+			success: function (isLiked) {
+				if (isLiked) {
+					$('#likeButton').text('좋아요 취소');
+				} else {
+					$('#likeButton').text('좋아요');
+				}
+			}
+		});
+	});
+</script>
+
+</html>

@@ -1,0 +1,32 @@
+/* src/main/resources/static/css/header.css */
+
+.nav-item .nav-link {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+#bell-item a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.icon-bell {
+  font-size: 1.5rem; /* 아이콘 크기 조절 */
+}
+#chat-icon {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  z-index: 1000; /* 다른 요소 위에 표시되도록 설정 */
+}
+
+#chat-icon.dragging {
+  opacity: 0.5; /* 드래그 중일 때 반투명하게 */
+  cursor: grabbing;
+}
