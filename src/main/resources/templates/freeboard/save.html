@@ -3,7 +3,9 @@
 
 <head>
 	<meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
-	<title>board/save</title>
+	<title>글작성 페이지</title>
+	<!-- CKEditor CDN -->
+	<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 </head>
 
 <body>
@@ -15,12 +17,27 @@
 		작성자: <input type="text" name="nickname" th:value="${session.nickname}" readonly> <br>
 		태그: <input type="text" name="tag"> <br>
 		제목: <input type="text" name="title"> <br>
-		내용: <textarea name="contents" cols="30" rows="10"></textarea> <br>
-		파일: <input type="file" name="freeboardFile" multiple> <br/>
+		내용: <textarea name="contents" id="editor" cols="30" rows="10"></textarea> <br>
+		파일: <input type="file" name="freeboardFile" multiple> <br />
 		<input type="submit" value="글작성">
 	</form>
-	
+
 	<a href="/">홈으로</a>
+
+	<!-- CKEditor 인스턴스 초기화 -->
+	<script>
+		ClassicEditor
+			.create(document.querySelector('#editor'), {
+				language: "ko",
+				ckfinder: {
+					uploadUrl: '/uploadImage', // 파일 업로드 엔드포인트 설정
+					withCredentials: true
+				}
+			})
+			.catch(error => {
+				console.error(error);
+			});
+	</script>
 </body>
 
 </html>

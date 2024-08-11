@@ -80,6 +80,8 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
+                		.requestMatchers("/upload/**").permitAll() // 파일 접근 경로 허용
+                        .requestMatchers("/uploadImage").permitAll() // 파일 업로드 경로 허용
                 		.requestMatchers("/**").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN") // 관리자는 관리자 페이지 접근 가능
                         .anyRequest().authenticated()); // 나머지 요청은 인증 필요

@@ -1,24 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
-<title>Insert title here</title>
+    <title>정보 수정</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/css/header.css">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="/css/animate.css">
+    <link rel="stylesheet" href="/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/css/magnific-popup.css">
+    <link rel="stylesheet" href="/css/aos.css">
+    <link rel="stylesheet" href="/css/ionicons.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="/css/jquery.timepicker.css">
+    <link rel="stylesheet" href="/css/flaticon.css">
+    <link rel="stylesheet" href="/css/icomoon.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .form-container {
+            background: #fff;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        .btn-primary {
+            background-color: #6c63ff;
+            border-color: #6c63ff;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #5753c9;
+            border-color: #5753c9;
+        }
+    </style>
 </head>
 <body>
-<h1>회원정보 수정 Page</h1>
-<form action="/user/update" method="post">
-  <input type="hidden" th:value="${updateUser.seq}" name="seq"><br>
-  아이디: <input type="text" th:value="${updateUser.loginid}" name="loginid" readonly> <br>
-  비밀번호: <input type="text" th:value="${updateUser.pw}" name="pw"> <br>
-  이름: <input type="text" th:value="${updateUser.name}" name="name"> <br>
-  닉네임: <input type="text" th:value="${updateUser.nickname}" name="nickname"> <br>
-  주소: <input type="text" th:value="${updateUser.address}" name="address"> <br>
-  이메일: <input type="text" th:value="${updateUser.email}" name="email"> <br>
-  전화번호: <input type="text" th:value="${updateUser.tel}" name="tel"> <br>
-  <input type="hidden" th:value="${updateUser.role}" name="role"><br>
-  <input type="submit" value="정보수정">
-</form>
+    <!-- 공통 헤더 포함 -->
+    <div th:replace="~{common/header :: fragment}"></div>
 
-<a href="/">홈으로</a>
+    <section class="ftco-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 ftco-animate">
+                    <div class="form-container">
+                        <form action="/user/update" method="post">
+                            <input type="hidden" th:value="${updateUser.seq}" name="seq">
+                            <div class="form-group">
+                                <label for="loginid">아이디</label>
+                                <input type="text" id="loginid" th:value="${updateUser.loginid}" name="loginid" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="pw">비밀번호</label>
+                                <input type="password" id="pw" th:value="${updateUser.pw}" name="pw">
+                            </div>
+                            <div class="form-group">
+                                <label for="name">이름</label>
+                                <input type="text" id="name" th:value="${updateUser.name}" name="name">
+                            </div>
+                            <div class="form-group">
+                                <label for="nickname">닉네임</label>
+                                <input type="text" id="nickname" th:value="${updateUser.nickname}" name="nickname">
+                            </div>
+                            <div class="form-group">
+                                <label for="address">주소</label>
+                                <input type="text" id="address" th:value="${updateUser.address}" name="address">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">이메일</label>
+                                <input type="email" id="email" th:value="${updateUser.email}" name="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="tel">전화번호</label>
+                                <input type="text" id="tel" th:value="${updateUser.tel}" name="tel">
+                            </div>
+                            <input type="hidden" th:value="${updateUser.role}" name="role">
+                            <div class="text-center">
+                                <input type="submit" value="정보수정" class="btn btn-primary py-3 px-5">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 공통 푸터 포함 -->
+    <div th:replace="~{common/footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script>
+      AOS.init();
+    </script>
 </body>
 </html>

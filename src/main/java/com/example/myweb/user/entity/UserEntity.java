@@ -1,9 +1,6 @@
 package com.example.myweb.user.entity;
 
-import java.util.HashSet;
 import java.util.Set;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.example.myweb.board.entity.FreeBoardLikeEntity;
 import com.example.myweb.user.dto.UserDTO;
@@ -17,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -25,7 +21,6 @@ import lombok.Setter;
 @Getter
 @Table(name = "user_table")
 public class UserEntity {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long seq;
@@ -53,38 +48,36 @@ public class UserEntity {
 
 	@Column(nullable = true)
 	private String role;
-
+	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private Set<FreeBoardLikeEntity> likes;
-	private Set<FreeBoardLikeEntity> likes = new HashSet<>();
+    private Set<FreeBoardLikeEntity> likes;
 
-	public static UserEntity toUserEntity(UserDTO userDTO) {
-		UserEntity userEntity = new UserEntity();
-		userEntity.setLoginid(userDTO.getLoginid());
-		userEntity.setPw(userDTO.getPw());
-		userEntity.setName(userDTO.getName());
-		userEntity.setNickname(userDTO.getNickname());
-		userEntity.setAddress(userDTO.getAddress());
-		userEntity.setEmail(userDTO.getEmail());
-		userEntity.setTel(userDTO.getTel());
-		userEntity.setRole(userDTO.getRole());
+    public static UserEntity toUserEntity(UserDTO userDTO) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setLoginid(userDTO.getLoginid());
+        userEntity.setPw(userDTO.getPw());
+        userEntity.setName(userDTO.getName());
+        userEntity.setNickname(userDTO.getNickname());
+        userEntity.setAddress(userDTO.getAddress());
+        userEntity.setEmail(userDTO.getEmail());
+        userEntity.setTel(userDTO.getTel());
+        userEntity.setRole(userDTO.getRole());
+        return userEntity;
+    }
 
-		return userEntity;
-	}
-
-	public static UserEntity toUpdateUserEntity(UserDTO userDTO) {
-		UserEntity userEntity = new UserEntity();
-		userEntity.setSeq(userDTO.getSeq());
-		userEntity.setLoginid(userDTO.getLoginid());
-		userEntity.setPw(userDTO.getPw());
-		userEntity.setName(userDTO.getName());
-		userEntity.setNickname(userDTO.getNickname());
-		userEntity.setAddress(userDTO.getAddress());
-		userEntity.setEmail(userDTO.getEmail());
-		userEntity.setTel(userDTO.getTel());
-		userEntity.setRole(userDTO.getRole());
-
-		return userEntity;
-	}
+    public static UserEntity toUpdateUserEntity(UserDTO userDTO) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setSeq(userDTO.getSeq());
+        userEntity.setLoginid(userDTO.getLoginid());
+        userEntity.setPw(userDTO.getPw());
+        userEntity.setName(userDTO.getName());
+        userEntity.setNickname(userDTO.getNickname());
+        userEntity.setAddress(userDTO.getAddress());
+        userEntity.setEmail(userDTO.getEmail());
+        userEntity.setTel(userDTO.getTel());
+        userEntity.setRole(userDTO.getRole());
+        // Do not set likes during update to avoid changes
+        return userEntity;
+    }
 
 }

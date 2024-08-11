@@ -5,8 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Component
 public class LoginInterceptor implements HandlerInterceptor {

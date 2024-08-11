@@ -57,25 +57,6 @@ public class UserService {
 		// repository의 save 메서드 호출 (조건. entity객체를 넘겨줘야 함)
 	}
 
-	public UserDTO login(UserDTO userDTO) {
-        Optional<UserEntity> byLoginid = userRepository.findByLoginid(userDTO.getLoginid());
-        if (byLoginid.isPresent()) {
-            UserEntity userEntity = byLoginid.get();
-            // 암호화된 비밀번호와 입력한 비밀번호 비교
-            if (bCryptPasswordEncoder.matches(userDTO.getPw(), userEntity.getPw())) {
-                UserDTO dto = UserDTO.toUserDTO(userEntity);
-                System.out.println("로그인 성공!");
-                return dto;
-            } else {
-                System.out.println("비밀번호 틀림!");
-                return null;
-            }
-        } else {
-            System.out.println("아이디가 없습니다!");
-            return null;
-        }
-    }	
-
 //	public UserDTO login(UserDTO userDTO) {
 //		// 1. 회원이 입력한 이메일로 db에서 조회를 함
 //		// 2. db에서 조회한 비밀번호와 사용자가 입력한 비밀번호가 일치하는지 판단
@@ -101,6 +82,25 @@ public class UserService {
 //		}
 //
 //	}
+	
+	public UserDTO login(UserDTO userDTO) {
+        Optional<UserEntity> byLoginid = userRepository.findByLoginid(userDTO.getLoginid());
+        if (byLoginid.isPresent()) {
+            UserEntity userEntity = byLoginid.get();
+            // 암호화된 비밀번호와 입력한 비밀번호 비교
+            if (bCryptPasswordEncoder.matches(userDTO.getPw(), userEntity.getPw())) {
+                UserDTO dto = UserDTO.toUserDTO(userEntity);
+                System.out.println("로그인 성공!");
+                return dto;
+            } else {
+                System.out.println("비밀번호 틀림!");
+                return null;
+            }
+        } else {
+            System.out.println("아이디가 없습니다!");
+            return null;
+        }
+    }	
 
 	public List<UserDTO> findAll() {
 		List<UserEntity> userEntityList = userRepository.findAll();
@@ -124,15 +124,34 @@ public class UserService {
 		}
 	}
 
-	public UserDTO updateForm(String myLoginid) {
-		Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(myLoginid);
-		if (optionalUserEntity.isPresent()) {
-			return UserDTO.toUserDTO(optionalUserEntity.get());
-		} else {
-			return null;
-		}
-	}
+    public UserDTO updateForm(String myLoginid) {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(myLoginid);
+        if (optionalUserEntity.isPresent()) {
+            return UserDTO.toUserDTO(optionalUserEntity.get());
+        } else {
+            return null;
+        }
+    }
 
+//    public void update(UserDTO userDTO) {
+//        UserEntity userEntity = userRepository.findById(userDTO.getSeq())
+//            .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+//
+//
+//        userEntity.setPw(userDTO.getPw());
+//        userEntity.setName(userDTO.getName());
+//        userEntity.setNickname(userDTO.getNickname());
+//        userEntity.setAddress(userDTO.getAddress());
+//        userEntity.setEmail(userDTO.getEmail());
+//        userEntity.setTel(userDTO.getTel());
+//        userEntity.setRole(userDTO.getRole());
+//
+//        userRepository.save(userEntity);
+//    }
+//    public void deleteBySeq(Long seq) {
+//        userRepository.deleteById(seq);
+//    }
+    
     public void update(UserDTO userDTO) {
         Optional<UserEntity> optionalUserEntity = userRepository.findById(userDTO.getSeq());
         if (optionalUserEntity.isPresent()) {
@@ -156,13 +175,8 @@ public class UserService {
             System.out.println("업데이트 실패: 사용자 없음");
         }
     }
-	
-//	public void update(UserDTO userDTO) {
-//		userRepository.save(UserEntity.toUpdateUserEntity(userDTO));
-//		
-//	}
-
-	public void deleteBySeq(Long seq) {
+    
+    public void deleteBySeq(Long seq) {
 		userRepository.deleteById(seq);
 	}
 
@@ -198,6 +212,9 @@ public class UserService {
 			return "ok";
 		}
 	}
-
+    public UserDTO findByLoginid(String loginid) {
+        Optional<UserEntity> optionalUserEntity = userRepository.findByLoginid(loginid);
+        return optionalUserEntity.map(UserDTO::toUserDTO).orElse(null);
+    }
 
 }

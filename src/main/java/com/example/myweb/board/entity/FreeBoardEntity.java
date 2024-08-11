@@ -51,7 +51,7 @@ public class FreeBoardEntity extends BaseBoardEntity{
     @Column
     private int likeCount;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String contents;
     
     @Column

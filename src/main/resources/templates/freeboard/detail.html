@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
-	<title>Insert title here</title>
+	<title>게시글 보기</title>
 	<!-- jquery cdn -->
 	<script src="https://code.jquery.com/jquery-3.6.3.min.js"
 		integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
@@ -44,7 +44,8 @@
 		</tr>
 		<tr>
 			<th>내용</th>
-			<td th:text="${freeBoard.contents}"></td>
+			<!-- HTML 태그가 해석되도록 th:utext로 변경 -->
+			<td th:utext="${freeBoard.contents}"></td>
 		</tr>
 		<tr th:if="${freeBoard.fileAttached == 1}">
 			<th>이미지</th>
@@ -54,7 +55,6 @@
                 </a>
             </td>
 		</tr>
-
 	</table>
 	<button onclick="listReq()">목록</button>
 	<button onclick="updateReq()">수정</button>
@@ -80,12 +80,10 @@
 			<tr th:each="comment: ${freeBoardCommentList}">
 				<td th:text="${comment.seq}"></td>
 				<td th:text="${comment.nickname}"></td>
-				<td th:text="${comment.commentContents}"></td>
-				<!--<td th:text="${comment.commentCreatedTime}"></td>-->
+				<td th:utext="${comment.commentContents}"></td> <!-- 댓글 내용도 HTML 해석 -->
 				<td th:text="${comment.formattedCommentCreatedTime}"></td>
 			</tr>
 		</table>
-
 	</div>
 	<a href="/">홈으로</a>
 </body>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 목록</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .product-img {
+            max-width: 300px;
+            max-height: 100px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <h1>상품 목록</h1>
+    <form method="get" action="/shop/shoplist">
+        <input type="text" name="keyword" placeholder="검색어 입력">
+        <button type="submit">검색하기</button>
+    </form>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>이미지</th>
+                <th>상품명</th>
+                <th>판매자</th>
+                <th>가격</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="shop : ${shops}">
+                <td>
+                    <a th:href="@{/shop/{nom}(nom=${shop.nom})}">
+                        <img class="product-img" th:src="@{${shop.imageUrls[0]}}" alt="상품 이미지">
+                    </a>
+                </td>
+                <td th:text="${shop.productname}"></td>
+                <td th:text="${shop.sellernickname}"></td>
+                <td th:text="${#numbers.formatDecimal(shop.price, 0, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <div th:if="${user != null}">
+        <a href="/shop/addshop">판매상품 등록하기</a><br>
+    </div>
+    <div th:if="${user == null}">
+        <span>로그인 이후 사용 가능합니다.</span><br>
+    </div>
+    <button onclick="history.back()">돌아가기</button>
+</body>
+</html>
