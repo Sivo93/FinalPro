@@ -13,9 +13,21 @@
 		<input type="hidden" name="seq" th:value="${freeBoardUpdate.seq}">
 		<input type="hidden" name="loginid" th:value="${freeBoardUpdate.loginid}">
 		작성자: <input type="text" name="nickname" th:value="${freeBoardUpdate.nickname}" readonly> <br>
-		태그: <input type="text" name="tag" th:value="${freeBoardUpdate.tag}"> <br>
+
+		<!-- 태그 선택 -->
+		태그:
+		<select name="tag">
+			<option value="운동">운동</option>
+			<option value="여가">여가</option>
+			<option value="여행">여행</option>
+			<option value="동물">동물</option>
+			<option value="질문">질문</option>
+			<option value="꿀팁">꿀팁</option>
+		</select>
+		<br>
 		제목: <input type="text" name="title" th:value="${freeBoardUpdate.title}"> <br>
-		내용: <textarea name="contents" id="editor" cols="30" rows="10" th:text="${freeBoardUpdate.contents}"></textarea> <br>
+		내용: <textarea name="contents" id="editor" cols="30" rows="10" th:text="${freeBoardUpdate.contents}"></textarea>
+		<br>
 		파일: <input type="file" name="files" multiple> <br />
 		<input type="hidden" name="views" th:value="${freeBoardUpdate.views}">
 		<input type="hidden" name="likeCount" th:value="${freeBoardUpdate.likeCount}">
@@ -24,7 +36,7 @@
 	</form>
 
 	<a href="/">홈으로</a>
-	
+
 	<!-- CKEditor 인스턴스 초기화 -->
 	<script>
 		ClassicEditor

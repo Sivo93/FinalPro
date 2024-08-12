@@ -1,12 +1,14 @@
 package com.example.myweb.board.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.myweb.board.dto.FreeBoardDTO;
 import com.example.myweb.board.service.FreeBoardService;
 
 import lombok.RequiredArgsConstructor;
@@ -48,6 +50,7 @@ public class BoardFileUploadController {
 
         return responseData;
     }
+
     
 //    @PostMapping("/uploadImage")
 //    @ResponseBody

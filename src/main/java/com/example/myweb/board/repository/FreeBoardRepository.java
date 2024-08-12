@@ -1,5 +1,7 @@
 package com.example.myweb.board.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,4 +16,6 @@ public interface FreeBoardRepository extends JpaRepository<FreeBoardEntity, Long
 	@Transactional
 	@Query(value = "update FreeBoardEntity b set b.views=b.views+1 where b.seq=:seq")
 	void incrementViews(@Param("seq") Long seq);
+	
+	Page<FreeBoardEntity> findByTag(String tag, Pageable pageable);
 }

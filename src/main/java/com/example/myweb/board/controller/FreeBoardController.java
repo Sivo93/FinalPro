@@ -147,33 +147,55 @@ public class FreeBoardController {
 	}
 
 	// /freeboard/paging?page=1
+//	@GetMapping("/paging")
+//	public String paging(@PageableDefault(page = 1) Pageable pageable, Model model) {
+////		pageable.getPageNumber();
+//		Page<FreeBoardDTO> freeBoardList = freeBoardService.paging(pageable);
+//		int blockLimit = 3;
+//		int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1; // 1
+//																													// 4
+//																													// 7
+//																													// 10
+//																													// ~~
+//		int endPage = ((startPage + blockLimit - 1) < freeBoardList.getTotalPages()) ? startPage + blockLimit - 1
+//				: freeBoardList.getTotalPages();
+//		// page 갯수 20개
+//		// 현재 사용자가 3페이지
+//		// 1 2 3
+//		// 현재 사용자가 7페이지
+//		// 7 8 9
+//		// 보여지는 페이지 갯수 3개
+//		// 총 페이지 갯수 8개
+//
+//		model.addAttribute("freeBoardList", freeBoardList);
+//		model.addAttribute("startPage", startPage);
+//		model.addAttribute("endPage", endPage);
+//
+//		return "freeboard/paging.html";
+//
+//	}
+	
 	@GetMapping("/paging")
-	public String paging(@PageableDefault(page = 1) Pageable pageable, Model model) {
-//		pageable.getPageNumber();
-		Page<FreeBoardDTO> freeBoardList = freeBoardService.paging(pageable);
-		int blockLimit = 3;
-		int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1; // 1
-																													// 4
-																													// 7
-																													// 10
-																													// ~~
-		int endPage = ((startPage + blockLimit - 1) < freeBoardList.getTotalPages()) ? startPage + blockLimit - 1
-				: freeBoardList.getTotalPages();
-		// page 갯수 20개
-		// 현재 사용자가 3페이지
-		// 1 2 3
-		// 현재 사용자가 7페이지
-		// 7 8 9
-		// 보여지는 페이지 갯수 3개
-		// 총 페이지 갯수 8개
+	public String paging(@PageableDefault(page = 1) Pageable pageable, 
+	                     @RequestParam(required = false) String tag, 
+	                     Model model) {
+	    
+	    Page<FreeBoardDTO> freeBoardList = freeBoardService.paging(pageable, tag);
+	    
+	    int blockLimit = 3;
+	    int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1;
+	    int endPage = ((startPage + blockLimit - 1) < freeBoardList.getTotalPages()) 
+	                  ? startPage + blockLimit - 1 
+	                  : freeBoardList.getTotalPages();
 
-		model.addAttribute("freeBoardList", freeBoardList);
-		model.addAttribute("startPage", startPage);
-		model.addAttribute("endPage", endPage);
+	    model.addAttribute("freeBoardList", freeBoardList);
+	    model.addAttribute("startPage", startPage);
+	    model.addAttribute("endPage", endPage);
+	    model.addAttribute("currentTag", tag);  // 현재 태그를 모델에 추가
 
-		return "freeboard/paging.html";
-
+	    return "freeboard/paging.html";
 	}
+
 
 	// 좋아요 기능
 	@PostMapping("/like")
@@ -196,23 +218,6 @@ public class FreeBoardController {
 		return ResponseEntity.ok(liked); // 좋아요 여부를 JSON 형태로 반환
 	}
 
-//	@PostMapping("/image/upload")
-//	@ResponseBody
-//	public Map<String, Object> imageUpload(@RequestParam("upload") MultipartFile file) throws IOException {
-//		Map<String, Object> responseData = new HashMap<>();
-//
-//		try {
-//			// 파일 저장 및 URL 생성
-//			String fileUrl = freeBoardService.saveFile(file);
-//			responseData.put("uploaded", true);
-//			responseData.put("url", fileUrl);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			responseData.put("uploaded", false);
-//			responseData.put("error", Map.of("message", "파일 업로드 실패"));
-//		}
-//
-//		return responseData;
-//	}
+
 
 }
