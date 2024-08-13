@@ -40,8 +40,13 @@ public class FreeBoardController {
 	private final FreeBoardCommentService freeBoardCommentService;
 
 	@GetMapping("/save")
-	public String saveForm() {
+	public String saveForm(Model model) {
 		System.out.println("FreeboardController.saveForm 호출");
+		// 인기글 가져오기 - 상위 3개만 가져오기
+		List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
+
+		// 모델에 인기글 추가
+		model.addAttribute("popularPosts", popularPosts);
 		return "freeboard/save.html";
 	}
 
@@ -93,51 +98,119 @@ public class FreeBoardController {
 //		return "freeboard/detail.html";
 //	}
 
+//	@GetMapping("/{seq}")
+//	public String findBySeq(@PathVariable Long seq, Model model, HttpSession session,
+//			@PageableDefault(page = 1) Pageable pageable) {
+//		// 세션에서 조회한 게시글 ID 목록을 가져옵니다.
+//		Set<Long> viewedBoardIds = (Set<Long>) session.getAttribute("viewedBoardIds");
+//		if (viewedBoardIds == null) {
+//			viewedBoardIds = new HashSet<>();
+//			session.setAttribute("viewedBoardIds", viewedBoardIds);
+//		}
+//
+//		// 이 게시글이 이전에 조회된 적 있는지 확인합니다.
+//		if (!viewedBoardIds.contains(seq)) {
+//			// 조회수 증가 로직을 수행합니다.
+//			freeBoardService.incrementViews(seq);
+//			// 이 게시글을 세션에 조회한 목록에 추가합니다.
+//			viewedBoardIds.add(seq);
+//			session.setAttribute("viewedBoardIds", viewedBoardIds);
+//		}
+//
+//		// 게시글 데이터를 가져와서 detail.html에 출력
+//		FreeBoardDTO freeBoardDTO = freeBoardService.findBySeq(seq);
+//		List<FreeBoardCommentDTO> freeBoardCommentDTOList = freeBoardCommentService.findAll(seq);
+//		// 세션에서 로그인 사용자 ID를 가져옵니다.
+//		String loginid = (String) session.getAttribute("loginid");
+//
+//		// 로그인 사용자가 작성자인지 여부를 확인합니다.
+//		boolean isAuthor = loginid != null && loginid.equals(freeBoardDTO.getLoginid());
+//
+//		model.addAttribute("freeBoardCommentList", freeBoardCommentDTOList);
+//		model.addAttribute("freeBoard", freeBoardDTO);
+//		model.addAttribute("page", pageable.getPageNumber());
+//		model.addAttribute("isAuthor", isAuthor); // 작성자 여부를 모델에 추가
+//		// 인기글 가져오기 - 상위 3개만 가져오기
+//		List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
+//
+//		// 모델에 인기글 추가
+//		model.addAttribute("popularPosts", popularPosts);
+//		return "freeboard/detail.html";
+//	}
+
 	@GetMapping("/{seq}")
-	public String findBySeq(@PathVariable Long seq, Model model, HttpSession session,
-			@PageableDefault(page = 1) Pageable pageable) {
-		// 세션에서 조회한 게시글 ID 목록을 가져옵니다.
-		Set<Long> viewedBoardIds = (Set<Long>) session.getAttribute("viewedBoardIds");
-		if (viewedBoardIds == null) {
-			viewedBoardIds = new HashSet<>();
-			session.setAttribute("viewedBoardIds", viewedBoardIds);
-		}
+	public String findBySeq(@PathVariable Long seq,
+	                        @RequestParam(defaultValue = "1") int page, // 현재 페이지를 파라미터로 받음
+	                        Model model, 
+	                        HttpSession session,
+	                        @PageableDefault(page = 1) Pageable pageable) {
+	    
+	    // 세션에서 조회한 게시글 ID 목록을 가져옵니다.
+	    Set<Long> viewedBoardIds = (Set<Long>) session.getAttribute("viewedBoardIds");
+	    if (viewedBoardIds == null) {
+	        viewedBoardIds = new HashSet<>();
+	        session.setAttribute("viewedBoardIds", viewedBoardIds);
+	    }
 
-		// 이 게시글이 이전에 조회된 적 있는지 확인합니다.
-		if (!viewedBoardIds.contains(seq)) {
-			// 조회수 증가 로직을 수행합니다.
-			freeBoardService.incrementViews(seq);
-			// 이 게시글을 세션에 조회한 목록에 추가합니다.
-			viewedBoardIds.add(seq);
-			session.setAttribute("viewedBoardIds", viewedBoardIds);
-		}
+	    // 이 게시글이 이전에 조회된 적 있는지 확인합니다.
+	    if (!viewedBoardIds.contains(seq)) {
+	        // 조회수 증가 로직을 수행합니다.
+	        freeBoardService.incrementViews(seq);
+	        // 이 게시글을 세션에 조회한 목록에 추가합니다.
+	        viewedBoardIds.add(seq);
+	        session.setAttribute("viewedBoardIds", viewedBoardIds);
+	    }
 
-		// 게시글 데이터를 가져와서 detail.html에 출력
-		FreeBoardDTO freeBoardDTO = freeBoardService.findBySeq(seq);
-		List<FreeBoardCommentDTO> freeBoardCommentDTOList = freeBoardCommentService.findAll(seq);
-
-		model.addAttribute("freeBoardCommentList", freeBoardCommentDTOList);
-		model.addAttribute("freeBoard", freeBoardDTO);
-		model.addAttribute("page", pageable.getPageNumber());
-
-		return "freeboard/detail.html";
+	    // 게시글 데이터를 가져와서 detail.html에 출력
+	    FreeBoardDTO freeBoardDTO = freeBoardService.findBySeq(seq);
+	    List<FreeBoardCommentDTO> freeBoardCommentDTOList = freeBoardCommentService.findAll(seq);
+	    
+	    // 세션에서 로그인 사용자 ID를 가져옵니다.
+	    String loginid = (String) session.getAttribute("loginid");
+	    
+	    // 로그인 사용자가 작성자인지 여부를 확인합니다.
+	    boolean isAuthor = loginid != null && loginid.equals(freeBoardDTO.getLoginid());
+	    
+	    // 모델에 필요한 데이터 추가
+	    model.addAttribute("freeBoardCommentList", freeBoardCommentDTOList);
+	    model.addAttribute("freeBoard", freeBoardDTO);
+	    model.addAttribute("page", page); // 현재 페이지 정보를 추가
+	    model.addAttribute("isAuthor", isAuthor); // 작성자 여부를 모델에 추가
+	    
+	    // 인기글 가져오기 - 상위 3개만 가져오기
+	    List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
+	    model.addAttribute("popularPosts", popularPosts);
+	    
+	    return "freeboard/detail.html";
 	}
 
+	
 	@GetMapping("/update/{seq}")
 	public String updateForm(@PathVariable Long seq, Model model) {
 		FreeBoardDTO freeBoardDTO = freeBoardService.findBySeq(seq);
 		model.addAttribute("freeBoardUpdate", freeBoardDTO);
+		// 인기글 가져오기 - 상위 3개만 가져오기
+		List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
 
+		// 모델에 인기글 추가
+		model.addAttribute("popularPosts", popularPosts);
 		return "freeboard/update.html";
 	}
 
 	@PostMapping("/update")
 	public String update(@ModelAttribute FreeBoardDTO freeBoardDTO, Model model) {
-		FreeBoardDTO freeBoard = freeBoardService.update(freeBoardDTO);
-		model.addAttribute("freeBoard", freeBoard);
+	    FreeBoardDTO updatedBoard = freeBoardService.update(freeBoardDTO);
+	    
+	    // 인기글 가져오기 - 상위 3개만 가져오기
+	    List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
+	    model.addAttribute("popularPosts", popularPosts);
 
-		return "freeboard/detail";
+	    // 게시글 수정 후 상세 페이지로 이동
+	    return "redirect:/freeboard/" + updatedBoard.getSeq();
 	}
+
+
+
 
 	@GetMapping("/delete/{seq}")
 	public String delete(@PathVariable Long seq) {
@@ -147,55 +220,25 @@ public class FreeBoardController {
 	}
 
 	// /freeboard/paging?page=1
-//	@GetMapping("/paging")
-//	public String paging(@PageableDefault(page = 1) Pageable pageable, Model model) {
-////		pageable.getPageNumber();
-//		Page<FreeBoardDTO> freeBoardList = freeBoardService.paging(pageable);
-//		int blockLimit = 3;
-//		int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1; // 1
-//																													// 4
-//																													// 7
-//																													// 10
-//																													// ~~
-//		int endPage = ((startPage + blockLimit - 1) < freeBoardList.getTotalPages()) ? startPage + blockLimit - 1
-//				: freeBoardList.getTotalPages();
-//		// page 갯수 20개
-//		// 현재 사용자가 3페이지
-//		// 1 2 3
-//		// 현재 사용자가 7페이지
-//		// 7 8 9
-//		// 보여지는 페이지 갯수 3개
-//		// 총 페이지 갯수 8개
-//
-//		model.addAttribute("freeBoardList", freeBoardList);
-//		model.addAttribute("startPage", startPage);
-//		model.addAttribute("endPage", endPage);
-//
-//		return "freeboard/paging.html";
-//
-//	}
-	
 	@GetMapping("/paging")
-	public String paging(@PageableDefault(page = 1) Pageable pageable, 
-	                     @RequestParam(required = false) String tag, 
-	                     Model model) {
-	    
-	    Page<FreeBoardDTO> freeBoardList = freeBoardService.paging(pageable, tag);
-	    
-	    int blockLimit = 3;
-	    int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1;
-	    int endPage = ((startPage + blockLimit - 1) < freeBoardList.getTotalPages()) 
-	                  ? startPage + blockLimit - 1 
-	                  : freeBoardList.getTotalPages();
+	public String paging(@PageableDefault(page = 1) Pageable pageable, @RequestParam(required = false) String tag,
+			Model model) {
 
-	    model.addAttribute("freeBoardList", freeBoardList);
-	    model.addAttribute("startPage", startPage);
-	    model.addAttribute("endPage", endPage);
-	    model.addAttribute("currentTag", tag);  // 현재 태그를 모델에 추가
+		Page<FreeBoardDTO> freeBoardList = freeBoardService.paging(pageable, tag);
+		List<FreeBoardDTO> popularPosts = freeBoardService.getTop3PopularPosts();
+		int blockLimit = 10;
+		int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1;
+		int endPage = ((startPage + blockLimit - 1) < freeBoardList.getTotalPages()) ? startPage + blockLimit - 1
+				: freeBoardList.getTotalPages();
 
-	    return "freeboard/paging.html";
+		model.addAttribute("freeBoardList", freeBoardList);
+		model.addAttribute("startPage", startPage);
+		model.addAttribute("endPage", endPage);
+		model.addAttribute("popularPosts", popularPosts);
+		model.addAttribute("currentTag", tag); // 현재 태그를 모델에 추가
+
+		return "freeboard/paging.html";
 	}
-
 
 	// 좋아요 기능
 	@PostMapping("/like")
@@ -217,7 +260,5 @@ public class FreeBoardController {
 		boolean liked = freeBoardService.isLikedByUser(boardSeq, loginid);
 		return ResponseEntity.ok(liked); // 좋아요 여부를 JSON 형태로 반환
 	}
-
-
 
 }

@@ -2,8 +2,11 @@ package com.example.myweb.chat.controller;
 
 import com.example.myweb.chat.dto.ChatMessageDTO;
 import com.example.myweb.chat.dto.ChatRoomDTO;
+import com.example.myweb.chat.entity.ChatRoom;
 import com.example.myweb.chat.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,17 +49,6 @@ public class ChatController {
         return chatService.getChatRooms(nickname);
     }
 
-    // 현재 사용자의 읽지 않은 메시지 개수를 반환하는 메서드
-    @GetMapping("/unreadCount")
-    @ResponseBody
-    public Map<String, Integer> getUnreadMessageCount(HttpSession session) {
-        String nickname = (String) session.getAttribute("nickname");
-        if (nickname == null) {
-            throw new IllegalArgumentException("Nickname parameter is required");
-        }
-        int unreadCount = chatService.getUnreadMessageCount(nickname);
-        return Map.of("unreadCount", unreadCount);
-    }
 
     // 메시지 처리
     @MessageMapping("/chat.sendMessage")
@@ -87,17 +80,8 @@ public class ChatController {
         chatService.markAllMessagesAsRead(sender, receiver);
     }
     
-    @GetMapping("/allNotifications")
-    @ResponseBody
-    public List<ChatMessageDTO> getAllNotifications(HttpSession session) {
-        String nickname = (String) session.getAttribute("nickname");
-        if (nickname == null) {
-            throw new IllegalArgumentException("Nickname parameter is required");
-        }
-        return chatService.getAllNotifications(nickname);
-    }
-    
-    
+
+
     @GetMapping("/userRooms")
     @ResponseBody
     public List<ChatRoomDTO> getUserChatRooms(HttpSession session) {
@@ -107,4 +91,7 @@ public class ChatController {
         }
         return chatService.getChatRooms(nickname);
     }
+
+    
+
 }

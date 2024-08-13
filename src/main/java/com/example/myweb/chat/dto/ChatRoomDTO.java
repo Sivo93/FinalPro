@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,11 +22,10 @@ public class ChatRoomDTO {
     private UserDTO sender;
     private UserDTO receiver;
     private String latestMessage;
-    private String latestMessageTime;
-    
+    private LocalDateTime latestMessageTime;  // 변경: String -> LocalDateTime
     
     // 엔티티와 최신 메시지 정보를 기반으로 dto객체 생성
-    public ChatRoomDTO(ChatRoom chatRoom, String latestMessage, String latestMessageTime) {
+    public ChatRoomDTO(ChatRoom chatRoom, String latestMessage, LocalDateTime latestMessageTime) {
         this.id = chatRoom.getId();
         this.roomId = chatRoom.getRoomId();
         this.sender = UserDTO.toUserDTO(chatRoom.getSender());

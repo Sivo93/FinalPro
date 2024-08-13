@@ -205,22 +205,26 @@
         }
     }
 
-    // 채팅방 목록을 받아와 화면에 표시(최근 메시지 표시)
-    function onChatListUpdate(payload) {
-        const chatRooms = JSON.parse(payload.body);
-        const chatSidebar = document.querySelector('.chat-sidebar ul');
-        chatSidebar.innerHTML = ''; // 기존 채팅방 목록 초기화
-        chatRooms.forEach(function(roomDto) {
-            if (roomDto.sender && roomDto.receiver) {
-                const user = roomDto.sender.nickname === senderNickname ? roomDto.receiver : roomDto.sender;
-                const li = document.createElement('li');
-                li.onclick = () => openChat(user.nickname);
-                li.className = user.nickname === receiverNickname ? 'active' : '';
-                li.innerHTML = `<strong>${user.nickname}</strong><br><span>${roomDto.latestMessage}</span>`;
-                chatSidebar.appendChild(li);
-            }
-        });
-    }
+	// 채팅방 목록을 받아와 화면에 표시 (수정된 부분)
+	function onChatListUpdate(payload) {
+	    const chatRooms = JSON.parse(payload.body);
+	    const chatSidebar = document.querySelector('.chat-sidebar ul');
+	    chatSidebar.innerHTML = ''; // 기존 채팅방 목록 초기화
+	    chatRooms.forEach(function(roomDto) {
+	        if (roomDto.sender && roomDto.receiver) {
+	            const user = roomDto.sender.nickname === senderNickname ? roomDto.receiver : roomDto.sender;
+	
+	            // 현재 사용자가 채팅방을 나가지 않았을 경우에만 목록에 표시
+	            if (!roomDto.hasLeft) {
+	                const li = document.createElement('li');
+	                li.onclick = () => openChat(user.nickname);
+	                li.className = user.nickname === receiverNickname ? 'active' : '';
+	                li.innerHTML = `<strong>${user.nickname}</strong><br><span>${roomDto.latestMessage}</span>`;
+	                chatSidebar.appendChild(li);
+	            }
+	        }
+	    });
+	}
 
     // 모든 채팅 메시지 로딩
     function loadAllMessages() {
@@ -258,88 +262,89 @@
         }
     }
 
-    // 메시지 표시
-    function displayMessage(message, isHistory = false) {
-        const messageDate = new Date(message.timestamp);
-        const messageDateString = messageDate.toDateString();
+function displayMessage(message, isHistory = false) {
+    const messageDate = new Date(message.timestamp);
+    const messageDateString = messageDate.toDateString();
 
-        const chatMessages = document.querySelector('#chat-messages');
-        const lastMessageElement = isHistory ? chatMessages.firstChild : chatMessages.lastChild;
-        const lastMessageDateString = lastMessageElement ? new Date(lastMessageElement.dataset.timestamp).toDateString() : null;
+    const chatMessages = document.querySelector('#chat-messages');
+    const lastMessageElement = isHistory ? chatMessages.firstChild : chatMessages.lastChild;
+    const lastMessageDateString = lastMessageElement ? new Date(lastMessageElement.dataset.timestamp).toDateString() : null;
 
-        if (lastMessageDateString !== messageDateString) {
-            addDateSeparator(messageDate, isHistory);
+    if (lastMessageDateString !== messageDateString) {
+        addDateSeparator(messageDate, isHistory);
+    }
+
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('chat-message');
+    messageElement.dataset.timestamp = message.timestamp;
+
+    // 메시지를 보낸 사람이 현재 사용자(`senderNickname`)인지 확인
+    if (message.sender.nickname === senderNickname) {
+        messageElement.classList.add('chat-message-right');
+    } else {
+        messageElement.classList.add('chat-message-left');
+    }
+
+    messageElement.dataset.messageId = message.id;
+
+    // 메시지를 읽음으로 표시하는 이벤트 리스너 추가
+    messageElement.addEventListener('mouseenter', function() {
+        // 수신자가 현재 사용자일 때만 읽음으로 표시
+        if (!message.read && message.sender.nickname !== senderNickname) {
+            markMessageAsRead(message.id);
         }
+    });
 
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('chat-message');
-        messageElement.dataset.timestamp = message.timestamp;
-        if (message.sender.nickname === senderNickname) {
-            messageElement.classList.add('chat-message-right');
+    const messageContent = document.createElement('div');
+    messageContent.classList.add('message-content');
+    const textElement = document.createElement('span');
+    const messageText = document.createTextNode(message.content);
+    textElement.appendChild(messageText);
+    messageContent.appendChild(textElement);
+    messageElement.appendChild(messageContent);
+
+    const timestampElement = document.createElement('div');
+    timestampElement.classList.add('timestamp');
+    timestampElement.textContent = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    messageElement.appendChild(timestampElement);
+
+    if (message.fileUrl) {
+        const fileExtension = message.fileName.split('.').pop().toLowerCase();
+        if (["jpeg", "jpg", "gif", "png"].includes(fileExtension)) {
+            const img = document.createElement('img');
+            img.src = message.fileUrl;
+            img.style.maxWidth = '200px';
+            img.onclick = function() {
+                openMediaModal(message.fileUrl, 'image');
+            };
+            messageContent.appendChild(img);
+        } else if (["mp4", "webm", "ogg"].includes(fileExtension)) {
+            const video = document.createElement('video');
+            video.src = message.fileUrl;
+            video.style.maxWidth = '200px';
+            video.controls = true;
+            video.onclick = function() {
+                openMediaModal(message.fileUrl, 'video');
+            };
+            messageContent.appendChild(video);
         } else {
-            messageElement.classList.add('chat-message-left');
-        }
-
-        messageElement.dataset.messageId = message.id;
-
-        // 메시지를 읽음으로 표시하는 이벤트 리스너 추가
-        messageElement.addEventListener('mouseenter', function() {
-            // 수신자가 현재 사용자일 때만 읽음으로 표시
-            if (!message.read && message.sender.nickname !== senderNickname) {
-                markMessageAsRead(message.id);
-            }
-        });
-
-        const messageContent = document.createElement('div');
-        messageContent.classList.add('message-content');
-        const textElement = document.createElement('span');
-        const messageText = document.createTextNode(message.content);
-        textElement.appendChild(messageText);
-        messageContent.appendChild(textElement);
-        messageElement.appendChild(messageContent);
-
-        const timestampElement = document.createElement('div');
-        timestampElement.classList.add('timestamp');
-        timestampElement.textContent = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        messageElement.appendChild(timestampElement);
-
-        if (message.fileUrl) {
-            const fileExtension = message.fileName.split('.').pop().toLowerCase();
-            if (["jpeg", "jpg", "gif", "png"].includes(fileExtension)) {
-                const img = document.createElement('img');
-                img.src = message.fileUrl;
-                img.style.maxWidth = '200px';
-                img.onclick = function() {
-                    openMediaModal(message.fileUrl, 'image');
-                };
-                messageContent.appendChild(img);
-            } else if (["mp4", "webm", "ogg"].includes(fileExtension)) {
-                const video = document.createElement('video');
-                video.src = message.fileUrl;
-                video.style.maxWidth = '200px';
-                video.controls = true;
-                video.onclick = function() {
-                    openMediaModal(message.fileUrl, 'video');
-                };
-                messageContent.appendChild(video);
-            } else {
-                const fileLink = document.createElement('a');
-                fileLink.href = "#";
-                fileLink.textContent = message.fileName;
-                fileLink.onclick = function() {
-                    openFileModal(message.fileUrl, message.fileName);
-                    return false;
-                };
-                messageContent.appendChild(fileLink);
-            }
-        }
-
-        if (isHistory) {
-            chatMessages.insertBefore(messageElement, chatMessages.firstChild);
-        } else {
-            chatMessages.appendChild(messageElement);
+            const fileLink = document.createElement('a');
+            fileLink.href = "#";
+            fileLink.textContent = message.fileName;
+            fileLink.onclick = function() {
+                openFileModal(message.fileUrl, message.fileName);
+                return false;
+            };
+            messageContent.appendChild(fileLink);
         }
     }
+
+    if (isHistory) {
+        chatMessages.insertBefore(messageElement, chatMessages.firstChild);
+    } else {
+        chatMessages.appendChild(messageElement);
+    }
+}
 
     // 미디어 미리보기 모달을 여는 함수
     function openMediaModal(mediaUrl, mediaType) {

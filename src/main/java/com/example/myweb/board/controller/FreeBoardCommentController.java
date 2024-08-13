@@ -39,6 +39,21 @@ public class FreeBoardCommentController {
 		}
 		
 	}
-
 	
+//	@PostMapping("/save")
+//    @ResponseBody
+//    public ResponseEntity<?> save(@RequestBody FreeBoardCommentDTO freeBoardCommentDTO) {
+//        System.out.println("freeBoardCommentDTO = " + freeBoardCommentDTO);
+//
+//        // 댓글 저장
+//        Long saveResult = freeBoardCommentService.save(freeBoardCommentDTO);
+//        if (saveResult != null) {
+//            // 저장 성공하면 댓글 목록을 가져와서 반환
+//            List<FreeBoardCommentDTO> freeBoardCommentDTOList = freeBoardCommentService.findAll(freeBoardCommentDTO.getFreeBoardSeq());
+//            return new ResponseEntity<>(freeBoardCommentDTOList, HttpStatus.OK);
+//        } else {
+//            return new ResponseEntity<>("해당 게시글이 존재하지 않습니다.", HttpStatus.NOT_FOUND);        
+//        }
+//    }
+
 }

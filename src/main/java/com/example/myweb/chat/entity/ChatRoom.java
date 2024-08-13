@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +18,7 @@ public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String roomId;
 
     @ManyToOne
@@ -31,12 +33,32 @@ public class ChatRoom {
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ChatMessage> messages = new HashSet<>();
 
+    private LocalDateTime senderLeaveTime; // 발신자가 나간 시점
+    private LocalDateTime receiverLeaveTime; // 수신자가 나간 시점
+
     public ChatRoom() {}
 
     public ChatRoom(String roomId, UserEntity sender, UserEntity receiver) {
         this.roomId = roomId;
         this.sender = sender;
         this.receiver = receiver;
+    }
+
+    public void leaveRoom(String nickname) {
+        if (sender.getNickname().equals(nickname)) {
+            this.senderLeaveTime = LocalDateTime.now();
+        } else if (receiver.getNickname().equals(nickname)) {
+            this.receiverLeaveTime = LocalDateTime.now();
+        }
+    }
+
+    public LocalDateTime getLeaveTime(String nickname) {
+        if (sender.getNickname().equals(nickname)) {
+            return senderLeaveTime;
+        } else if (receiver.getNickname().equals(nickname)) {
+            return receiverLeaveTime;
+        }
+        return null;
     }
 
     @Override

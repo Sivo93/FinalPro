@@ -16,14 +16,12 @@
 .icon-bell {
   font-size: 1.5rem; /* 아이콘 크기 조절 */
 }
-#chat-icon {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  cursor: pointer;
-  z-index: 1000; /* 다른 요소 위에 표시되도록 설정 */
+#chat-icon-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    cursor: grab;
+    z-index: 1000; /* 아이콘이 다른 요소들 위에 위치하도록 설정 */
 }
 
 #chat-icon.dragging {

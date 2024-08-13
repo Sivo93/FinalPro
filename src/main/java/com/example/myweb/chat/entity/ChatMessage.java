@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -13,8 +15,10 @@ public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String content;
-    private String timestamp;
+
+    private LocalDateTime timestamp;  // 변경된 부분
 
     @ManyToOne
     @JoinColumn(name = "room_id", referencedColumnName = "id")
@@ -31,5 +35,5 @@ public class ChatMessage {
     private String fileName;
     private String fileUrl;
 
-    private boolean isRead = false;  // 읽음 상태 필드 추가
+    private boolean isRead = false;
 }

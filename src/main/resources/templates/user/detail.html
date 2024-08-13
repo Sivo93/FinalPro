@@ -5,7 +5,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="/css/header.css">
-    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
     <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css">
     <link rel="stylesheet" href="/css/animate.css">
     <link rel="stylesheet" href="/css/owl.carousel.min.css">
@@ -19,67 +18,76 @@
     <link rel="stylesheet" href="/css/icomoon.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        /* Custom table styles */
-        .table-responsive {
-            margin-top: 10px; /* Reduced margin */
-        }
-        .table-striped {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-bottom: 1.5rem;
-            background: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
-            overflow: hidden;
-        }
-        .table-striped thead {
-            background: #343a40;
-            color: #fff;
-        }
-        .table-striped th, .table-striped td {
-            padding: 12px 15px;
-            border: 1px solid #dee2e6;
-        }
-        .table-striped thead th:first-child {
-            border-top-left-radius: 15px;
-        }
-        .table-striped thead th:last-child {
-            border-top-right-radius: 15px;
-        }
-        .table-striped tbody tr:last-child td:first-child {
-            border-bottom-left-radius: 15px;
-        }
-        .table-striped tbody tr:last-child td:last-child {
-            border-bottom-right-radius: 15px;
-        }
-        .table-striped tbody tr:nth-of-type(even) {
-            background: #f8f9fa;
-        }
-        .table-striped tbody tr:hover {
-            background: #e9ecef;
-        }
-        .table-striped tbody td {
-            font-size: 16px;
-            color: #343a40;
-        }
-        .btn-primary {
-            background-color: #6c63ff;
-            border-color: #6c63ff;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-        .btn-primary:hover {
-            background-color: #5753c9;
-            border-color: #5753c9;
-        }
-        .heading-section {
-            margin-bottom: 10px; /* Reduced margin */
-        }
-        .btn-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
+/* Custom table styles */
+.table-responsive {
+    margin-top: 10px;
+}
+
+.table-striped {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    background: #fff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 추가 */
+}
+
+.table-striped thead {
+    background: #6c63ff; /* 헤더 배경색 */
+    color: #fff;
+    border-bottom: none; /* 헤더와 바디 사이의 구분선 제거 */
+}
+
+.table-striped th, .table-striped td {
+    padding: 12px 15px;
+    border: none; /* 테두리 제거 */
+    text-align: left;
+}
+
+.table-striped thead th {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.table-striped tbody tr {
+    transition: background-color 0.3s ease;
+    background-color: #ffffff; /* 행 배경색을 동일하게 설정 */
+}
+
+.table-striped tbody tr:hover {
+    background: rgb(255, 255, 255); /* 호버 시 배경색 변경 */
+}
+
+.table-striped tbody td {
+    font-size: 16px;
+    color: #343a40;
+    padding: 10px; /* padding을 줄여서 간결하게 */
+}
+
+/* 버튼 스타일 */
+.btn-primary {
+    background-color: #6c63ff;
+    border-color: #6c63ff;
+    border-radius: 30px; /* 버튼 모서리 둥글게 */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #5753c9;
+    border-color: #5753c9;
+}
+
+.heading-section {
+    margin-bottom: 10px;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
     </style>
 </head>
 <body>
