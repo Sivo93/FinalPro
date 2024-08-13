@@ -17,8 +17,8 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "free_like_table", uniqueConstraints = {@UniqueConstraint(columnNames = {"loginid", "freeboard_seq"})})
-public class FreeBoardLikeEntity {
+@Table(name = "bitic_like_table", uniqueConstraints = {@UniqueConstraint(columnNames = {"loginid", "biticboard_seq"})})
+public class BiticBoardLikeEntity {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seq;
@@ -28,6 +28,6 @@ public class FreeBoardLikeEntity {
     private UserEntity user;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "freeboard_seq")
-    private FreeBoardEntity freeBoardEntity;
+    @JoinColumn(name = "biticboard_seq")
+    private BiticBoardEntity biticBoardEntity;
 }

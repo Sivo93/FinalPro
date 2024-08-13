@@ -423,26 +423,26 @@
 				<div class="col-md-8 ftco-animate">
 					<h2 class="mb-3">
 						<div class="board-container">
-							<span class="post-tag" th:text="${freeBoard.tag}"></span> <!-- 태그 -->
+							<span class="post-tag" th:text="${biticBoard.tag}"></span> <!-- 태그 -->
 							<span class="board-tag">자유게시판</span>
 
 							<!-- 구분선 -->
 							<hr class="separator">
 							<!-- 제목과 조회수 컨테이너 -->
 							<div class="title-container">
-								<h2 class="title" th:text="${freeBoard.title}">제목</h2> <!-- 글 제목 -->
-								<span class="views-count">조회수: <span th:text="${freeBoard.views}"></span></span>
+								<h2 class="title" th:text="${biticBoard.title}">제목</h2> <!-- 글 제목 -->
+								<span class="views-count">조회수: <span th:text="${biticBoard.views}"></span></span>
 							</div>
 
-							<p class="created-time" th:text="${freeBoard.createdTime}"></p> <!-- 작성일 -->
+							<p class="created-time" th:text="${biticBoard.createdTime}"></p> <!-- 작성일 -->
 							<!-- 구분선 -->
 							<hr class="separator">
 							<div class="content-section">
-								<div class="content" th:utext="${freeBoard.contents}"></div> <!-- 글 내용 -->
+								<div class="content" th:utext="${biticBoard.contents}"></div> <!-- 글 내용 -->
 
 								<!-- 이미지가 있는 경우에만 표시 -->
-								<div th:if="${freeBoard.fileAttached == 1}" class="image-section">
-									<a th:each="fileName : ${freeBoard.storedFileName}"
+								<div th:if="${biticBoard.fileAttached == 1}" class="image-section">
+									<a th:each="fileName : ${biticBoard.storedFileName}"
 										th:href="@{|/upload/${fileName}|}" target="_blank">
 										<img th:src="@{|/upload/${fileName}|}" class="post-image">
 									</a>
@@ -455,7 +455,7 @@
 								<div class="like-container">
 									<button id="likeButton" onclick="toggleLike()">좋아요</button>
 									<span class="like-count">추천수: <span id="likeCount"
-											th:text="${freeBoard.likeCount}"></span></span>
+											th:text="${biticBoard.likeCount}"></span></span>
 								</div>
 
 								<!-- 로그인한 사용자가 작성자인 경우에만 수정 버튼을 표시 -->
@@ -481,7 +481,7 @@
 							<!-- 댓글 출력 부분 -->
 							<div id="comment-list">
 								<table>
-									<tr th:each="comment : ${freeBoardCommentList}">
+									<tr th:each="comment : ${biticBoardCommentList}">
 										<td class="comment-author">
 											<div class="author-name">
 												<span th:text="${comment.nickname}"></span>
@@ -502,7 +502,7 @@
 							<h3>속닥속닥</h3>
 							<li><a href="/freeboard/paging" class="active">자유게시판 <span></span></a></li>
 							<li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
-							<li><a href="/noriceboard/paging">공지사항 <span></span></a></li>
+							<li><a href="/noticeboard/paging">공지사항 <span></span></a></li>
 						</div>
 					</div>
 					<div class="sidebar-box ftco-animate">
@@ -511,7 +511,7 @@
 							class="block-21 mb-4 d-flex">
 							<div class="text">
 								<h3 class="heading">
-									<a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}"
+									<a th:href="@{/biticboard/{seq}(seq=${popularPost.seq})}"
 										th:text="${popularPost.title}" class="truncate-title"></a>
 								</h3>
 								<div class="meta">
@@ -545,17 +545,17 @@
 	const commentWrite = () => {
 		const writer = document.getElementById("commentWriter").value;
 		const contents = document.getElementById("commentContents").value;
-		const seq = `[[${freeBoard.seq}]]`;
+		const seq = `[[${biticBoard.seq}]]`;
 		const writerId = document.getElementById("commentLoginid").value;
 
 		$.ajax({
 			type: "POST",
-			url: "/comment/free/save",
+			url: "/comment/bitic/save",
 			contentType: "application/json",
 			data: JSON.stringify({
 				"commentWriter": writer,
 				"commentContents": contents,
-				"freeBoardSeq": seq,
+				"biticBoardSeq": seq,
 				"commentLoginid": writerId
 			}),
 			success: function (res) {
@@ -612,26 +612,26 @@
 	const listReq = () => {
 		console.log("목록 요청");
 		const page = `[[${page}]]`;
-		location.href = "/freeboard/paging?page=" + page;
+		location.href = "/biticboard/paging?page=" + page;
 	}
 	const updateReq = () => {
 		console.log("수정 요청");
-		const seq = `[[${freeBoard.seq}]]`;
+		const seq = `[[${biticBoard.seq}]]`;
 		console.log(seq);
-		location.href = "/freeboard/update/" + seq;
+		location.href = "/biticboard/update/" + seq;
 	}
 	const deleteReq = () => {
 		console.log("삭제 요청");
-		const seq = `[[${freeBoard.seq}]]`;
-		location.href = "/freeboard/delete/" + seq;
+		const seq = `[[${biticBoard.seq}]]`;
+		location.href = "/biticboard/delete/" + seq;
 	}
 
 	const toggleLike = () => {
-		const boardSeq = `[[${freeBoard.seq}]]`;
+		const boardSeq = `[[${biticBoard.seq}]]`;
 
 		$.ajax({
 			type: "POST",
-			url: "/freeboard/like",
+			url: "/biticboard/like",
 			data: {boardSeq: boardSeq},
 			success: function (response) {
 				if (response === "not_logged_in") {
@@ -649,10 +649,10 @@
 	};
 
 	$(document).ready(function () {
-		const boardSeq = `[[${freeBoard.seq}]]`;
+		const boardSeq = `[[${biticBoard.seq}]]`;
 		$.ajax({
 			type: "POST",
-			url: "/freeboard/isliked",
+			url: "/biticboard/isliked",
 			data: {boardSeq: boardSeq},
 			success: function (isLiked) {
 				if (isLiked) {

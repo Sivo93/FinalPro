@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
-    <title>자유게시판 글쓰기</title>
+    <title>자랑게시판 글쓰기</title>
     <!-- CKEditor CDN -->
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 
@@ -145,8 +145,8 @@
             <div class="row">
                 <div class="col-md-8 ftco-animate">
                     <!-- 제목 추가 -->
-                    <h1>자유게시판 글쓰기</h1>
-<form action="/freeboard/save" method="post" enctype="multipart/form-data">
+                    <h1>자랑게시판 글쓰기</h1>
+<form action="/biticboard/save" method="post" enctype="multipart/form-data">
     <input type="hidden" name="loginid" th:value="${session.loginid}">
     
     <label for="nickname">작성자:</label>
@@ -175,7 +175,7 @@
         <label for="file" class="file-input-label">
             <i class="fas fa-upload"></i>
         </label>
-        <input type="file" name="freeboardFile" id="file" class="file-input" multiple>
+        <input type="file" name="biticboardFile" id="file" class="file-input" multiple>
     </div>
     
     <input type="submit" value="글작성">
@@ -191,9 +191,9 @@
                     <div class="sidebar-box ftco-animate">
                         <div class="categories">
                             <h3>속닥속닥</h3>
-                            <li><a href="sokdakfree.html">자유게시판 <span></span></a></li>
-                            <li><a href="sokdakbitic.html">자랑게시판 <span></span></a></li>
-                            <li><a href="sokdaknotice.html">공지사항 <span></span></a></li>
+                            <li><a href="/freeboard/paging">자유게시판 <span></span></a></li>
+                            <li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
+                            <li><a href="/noticeboard/paging">공지사항 <span></span></a></li>
                         </div>
                     </div>
                     <div class="sidebar-box ftco-animate">
@@ -202,7 +202,7 @@
 						<div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
 						    <div class="text">
 						        <h3 class="heading">
-						            <a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}"></a>
+						            <a th:href="@{/biticboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}"></a>
 						        </h3>
 						        <div class="meta">
 						            <div>
@@ -234,7 +234,7 @@
             .create(document.querySelector('#editor'), {
                 language: "ko",
                 ckfinder: {
-                    uploadUrl: '/uploadImageFreeBoard', // 파일 업로드 엔드포인트 설정
+                    uploadUrl: '/uploadImageBiticBoard', // 파일 업로드 엔드포인트 설정
                     withCredentials: true
                 }
             })

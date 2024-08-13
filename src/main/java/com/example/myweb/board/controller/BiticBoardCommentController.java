@@ -11,33 +11,29 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.example.myweb.board.dto.FreeBoardCommentDTO;
-import com.example.myweb.board.service.FreeBoardCommentService;
-import com.example.myweb.user.dto.UserDTO;
+import com.example.myweb.board.dto.BiticBoardCommentDTO;
+import com.example.myweb.board.service.BiticBoardCommentService;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/comment")
-public class FreeBoardCommentController {
-	private final FreeBoardCommentService freeBoardCommentService;
+public class BiticBoardCommentController {
+	private final BiticBoardCommentService biticBoardCommentService;
 	
-	@PostMapping("/free/save")
+	@PostMapping("/bitic/save")
 	@ResponseBody
-	public ResponseEntity<?> save(@RequestBody FreeBoardCommentDTO freeBoardCommentDTO) {
-	    System.out.println("freeBoardCommentDTO = " + freeBoardCommentDTO);
-	    Long saveResult = freeBoardCommentService.save(freeBoardCommentDTO);
+	public ResponseEntity<?> save(@RequestBody BiticBoardCommentDTO biticBoardCommentDTO) {
+	    System.out.println("biticBoardCommentDTO = " + biticBoardCommentDTO);
+	    Long saveResult = biticBoardCommentService.save(biticBoardCommentDTO);
 	    if(saveResult != null) {
-	        List<FreeBoardCommentDTO> freeBoardCommentDTOList = freeBoardCommentService.findAll(freeBoardCommentDTO.getFreeBoardSeq());
-	        return new ResponseEntity<>(freeBoardCommentDTOList, HttpStatus.OK);
+	        List<BiticBoardCommentDTO> biticBoardCommentDTOList = biticBoardCommentService.findAll(biticBoardCommentDTO.getBiticBoardSeq());
+	        return new ResponseEntity<>(biticBoardCommentDTOList, HttpStatus.OK);
 	    } else {
 	        return new ResponseEntity<>("해당 게시글이 존재하지 않습니다.", HttpStatus.NOT_FOUND);
 	    }
 	}
-
-
 
 
 }

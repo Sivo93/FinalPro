@@ -71,15 +71,7 @@ public class SecurityConfig {
         //로그인 disable
         http
         		.formLogin((auth) -> auth.disable());        
-//        http
-//        		.formLogin()
-//        			.loginPage("/user/login").permitAll();
-        
-//        http
-//        		.rememberMe()
-//        			.key("uniqueAndSecret")
-//        			.rememberMeParameter("rememberMe")
-//        			.tokenValiditySeconds(86400);
+
 
 		//http basic 인증 방식 disable
         http

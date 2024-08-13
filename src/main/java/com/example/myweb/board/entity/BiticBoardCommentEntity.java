@@ -1,6 +1,6 @@
 package com.example.myweb.board.entity;
 
-import com.example.myweb.board.dto.FreeBoardCommentDTO;
+import com.example.myweb.board.dto.BiticBoardCommentDTO;
 import com.example.myweb.user.entity.UserEntity;
 
 import jakarta.persistence.Column;
@@ -19,16 +19,14 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "free_board_comment_table")
-public class FreeBoardCommentEntity extends BaseBoardEntity {
+@Table(name = "bitic_board_comment_table")
+public class BiticBoardCommentEntity extends BaseBoardEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long seq;
 
 	@Column(nullable = false)
 	private String commentContentes;
-
-
 
 	@ManyToOne
     @JoinColumns({
@@ -38,18 +36,16 @@ public class FreeBoardCommentEntity extends BaseBoardEntity {
     private UserEntity user;
 //	board : comment = 1 : N
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "freeBoard_seq")
-	private FreeBoardEntity freeBoardEntity;
+	@JoinColumn(name = "biticBoard_seq")
+	private BiticBoardEntity biticBoardEntity;
 
-	public static FreeBoardCommentEntity toSaveEntity(FreeBoardCommentDTO freeBoardCommentDTO,
-			FreeBoardEntity freeBoardEntity, UserEntity userEntity) {
-		FreeBoardCommentEntity freeBoardCommentEntity = new FreeBoardCommentEntity();
-		freeBoardCommentEntity.setCommentContentes(freeBoardCommentDTO.getCommentContents());
-		freeBoardCommentEntity.setFreeBoardEntity(freeBoardEntity);
-//		freeBoardCommentEntity.setLoginid(userEntity.getLoginid());
-//		freeBoardCommentEntity.setNickname(userEntity.getNickname());
-		freeBoardCommentEntity.setUser(userEntity);
+	public static BiticBoardCommentEntity toSaveEntity(BiticBoardCommentDTO biticBoardCommentDTO,
+			BiticBoardEntity biticBoardEntity, UserEntity userEntity) {
+		BiticBoardCommentEntity biticBoardCommentEntity = new BiticBoardCommentEntity();
+		biticBoardCommentEntity.setCommentContentes(biticBoardCommentDTO.getCommentContents());
+		biticBoardCommentEntity.setBiticBoardEntity(biticBoardEntity);
+		biticBoardCommentEntity.setUser(userEntity);
 
-		return freeBoardCommentEntity;
+		return biticBoardCommentEntity;
 	}
 }

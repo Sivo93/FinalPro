@@ -27,21 +27,7 @@ public class FreeBoardCommentService {
 	private final UserRepository userRepository;
 	private final HttpSession session;
 	
-//	public Long save(FreeBoardCommentDTO freeBoardCommentDTO) {
-//		// 부모엔티티(freeBoardEntity)조회
-//		Optional<FreeBoardEntity> optionalFreeBoardEntity = freeBoardRepository.findById(freeBoardCommentDTO.getFreeBoardSeq());
-//		Optional<UserEntity> optionalUserEntity = userRepository.findByLoginidAndNickname(freeBoardCommentDTO.getLoginid(), freeBoardCommentDTO.getNickname());
-//		if(optionalFreeBoardEntity.isPresent() && optionalUserEntity.isPresent()) {
-//			FreeBoardEntity freeBoardEntity = optionalFreeBoardEntity.get();
-//			UserEntity userEntity = optionalUserEntity.get();
-//			FreeBoardCommentEntity freeBoardCommentEntity = FreeBoardCommentEntity.toSaveEntity(freeBoardCommentDTO, freeBoardEntity, userEntity );
-//			
-//			return freeBoardCommentRepository.save(freeBoardCommentEntity).getSeq();
-//		} else {
-//			return null;
-//		}
-//		
-//	}
+
 	
 	public Long save(FreeBoardCommentDTO freeBoardCommentDTO) {
         // 세션에서 loginid와 nickname 가져오기

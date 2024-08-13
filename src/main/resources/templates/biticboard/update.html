@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
-    <title>자유게시판 글쓰기</title>
+    <title>글 수정</title>
     <!-- CKEditor CDN -->
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 
@@ -145,41 +145,20 @@
             <div class="row">
                 <div class="col-md-8 ftco-animate">
                     <!-- 제목 추가 -->
-                    <h1>자유게시판 글쓰기</h1>
-<form action="/freeboard/save" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="loginid" th:value="${session.loginid}">
-    
-    <label for="nickname">작성자:</label>
-    <input type="text" name="nickname" id="nickname" th:value="${session.nickname}" readonly>
-
-    <div style="display: flex; flex-direction: column;">
-        <label for="tag">태그:</label>
-        <select name="tag">
-            <option value="운동">운동</option>
-            <option value="여가">여가</option>
-            <option value="여행">여행</option>
-            <option value="동물">동물</option>
-            <option value="질문">질문</option>
-            <option value="꿀팁">꿀팁</option>
-        </select>
-        
-        <label for="title">제목:</label>
-        <input type="text" name="title" id="title" style="width: 100%;">
-    </div>
-
-    <label for="contents">내용:</label>
-    <textarea name="contents" id="editor" cols="30" rows="10"></textarea>
-
-    <div class="file-input-container">
-        <!-- 파일 선택 부분 -->
-        <label for="file" class="file-input-label">
-            <i class="fas fa-upload"></i>
-        </label>
-        <input type="file" name="freeboardFile" id="file" class="file-input" multiple>
-    </div>
-    
-    <input type="submit" value="글작성">
-</form>
+                    <h1>글 수정</h1>
+                    <form action="/biticboard/update" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="seq" th:value="${biticBoardUpdate.seq}">
+                        <input type="hidden" name="loginid" th:value="${biticBoardUpdate.loginid}">
+                        작성자: <input type="text" name="nickname" th:value="${biticBoardUpdate.nickname}" readonly> <br>
+                        태그: <input type="text" name="tag" th:value="${biticBoardUpdate.tag}" readonly> <br>
+                        제목: <input type="text" name="title" th:value="${biticBoardUpdate.title}"> <br>
+                        내용: <textarea name="contents" id="editor" cols="30" rows="10" th:text="${biticBoardUpdate.contents}"></textarea> <br>
+                        파일: <input type="file" name="files" multiple> <br />
+                        <input type="hidden" name="views" th:value="${biticBoardUpdate.views}">
+                        <input type="hidden" name="likeCount" th:value="${biticBoardUpdate.likeCount}">
+                        <input type="hidden" name="fileAttached" th:value="${biticBoardUpdate.fileAttached}">
+                        <input type="submit" value="글수정">
+                    </form>
                 </div>
 
                 <div class="col-md-4 sidebar ftco-animate">
@@ -191,36 +170,35 @@
                     <div class="sidebar-box ftco-animate">
                         <div class="categories">
                             <h3>속닥속닥</h3>
-                            <li><a href="sokdakfree.html">자유게시판 <span></span></a></li>
-                            <li><a href="sokdakbitic.html">자랑게시판 <span></span></a></li>
-                            <li><a href="sokdaknotice.html">공지사항 <span></span></a></li>
+                            <li><a href="/freeboard/paging">자유게시판 <span></span></a></li>
+                            <li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
+                            <li><a href="/noticeboard/paging">공지사항 <span></span></a></li>
                         </div>
                     </div>
                     <div class="sidebar-box ftco-animate">
-					    <h3>인기글</h3>
-					    
-						<div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
-						    <div class="text">
-						        <h3 class="heading">
-						            <a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}"></a>
-						        </h3>
-						        <div class="meta">
-						            <div>
-						                <a href="#">
-						                    <span class="icon-calendar"></span>
-						                    <span th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
-						                </a>
-						            </div>
-						            <div>
-						                <a href="#">
-						                    <span class="icon-person"></span>
-						                    <span th:text="${popularPost.nickname}"></span>
-						                    (<span th:text="${popularPost.likeCount}"></span> 추천)
-						                </a>
-						            </div>
-						        </div>
-						    </div>
-						</div>
+                        <h3>인기글</h3>
+                        <div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
+                            <div class="text">
+                                <h3 class="heading">
+                                    <a th:href="@{/biticboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}"></a>
+                                </h3>
+                                <div class="meta">
+                                    <div>
+                                        <a href="#">
+                                            <span class="icon-calendar"></span>
+                                            <span th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <a href="#">
+                                            <span class="icon-person"></span>
+                                            <span th:text="${popularPost.nickname}"></span>
+                                            (<span th:text="${popularPost.likeCount}"></span> 추천)
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -228,14 +206,13 @@
     </section>
 
     <div th:replace="~{common/footer :: footer}"></div>
+    
     <!-- CKEditor 인스턴스 초기화 -->
     <script>
         ClassicEditor
             .create(document.querySelector('#editor'), {
-                language: "ko",
                 ckfinder: {
-                    uploadUrl: '/uploadImageFreeBoard', // 파일 업로드 엔드포인트 설정
-                    withCredentials: true
+                    uploadUrl: '/uploadImage' // 파일 업로드 엔드포인트 설정
                 }
             })
             .catch(error => {
@@ -243,5 +220,3 @@
             });
     </script>
 </body>
-
-</html>
