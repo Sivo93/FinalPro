@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>자유게시판</title>
+    <title>자랑게시판</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
@@ -256,7 +256,7 @@
                             <span class="text">
                                 <thead>
 <div class="filter-and-search">
-    <form id="tagFilterForm" action="/freeboard/paging" method="get" class="tag-filter-form">
+    <form id="tagFilterForm" action="/noticeboard/paging" method="get" class="tag-filter-form">
         <select name="tag" onchange="document.getElementById('tagFilterForm').submit()">
             <option value="" ${currentTag==null ? 'selected' : '' }>전체</option>
             <option value="운동" ${currentTag=='운동' ? 'selected' : '' }>운동</option>
@@ -284,39 +284,39 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="freeboard: ${freeBoardList}">
-                                        <td th:text="${freeboard.seq}"></td>
-                                        <td th:text="${freeboard.tag}"></td>
-                                        <td><a th:href="@{|/freeboard/${freeboard.seq}|(page=${freeBoardList.number + 1})}" th:text="${freeboard.title}"></a></td>
+                                    <tr th:each="noticeboard: ${noticeBoardList}">
+                                        <td th:text="${noticeboard.seq}"></td>
+                                        <td th:text="${noticeboard.tag}"></td>
+                                        <td><a th:href="@{|/noticeboard/${noticeboard.seq}|(page=${noticeBoardList.number + 1})}" th:text="${noticeboard.title}"></a></td>
                                         <td>
-                                            <span class="user-name" th:data-nickname="${freeboard.nickname}" th:text="${freeboard.nickname}" style="cursor: pointer;"></span>
+                                            <span class="user-name" th:data-nickname="${noticeboard.nickname}" th:text="${noticeboard.nickname}" style="cursor: pointer;"></span>
                                             <div class="toggle-menu">
                                                 <ul>
-                                                    <li class="start-chat" th:data-nickname="${freeboard.nickname}">1대1 채팅</li>
+                                                    <li class="start-chat" th:data-nickname="${noticeboard.nickname}">1대1 채팅</li>
                                                 </ul>
                                             </div>
                                         </td>
-                                        <td th:text="*{#temporals.format(freeboard.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
-                                        <td th:text="${freeboard.views}"></td>
-                                        <td th:text="${freeboard.likeCount}"></td>
+                                        <td th:text="*{#temporals.format(noticeboard.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
+                                        <td th:text="${noticeboard.views}"></td>
+                                        <td th:text="${noticeboard.likeCount}"></td>
                                     </tr>
                                 </tbody>
                             </span>
                         </table>
                         <div class="pagination">
-                            <a th:href="@{/freeboard/paging(page=1)}"><<</a>
-                            <a th:href="${freeBoardList.first} ? '#' : @{/freeboard/paging(page=${freeBoardList.number})}"><</a>
+                            <a th:href="@{/noticeboard/paging(page=1)}"><<</a>
+                            <a th:href="${noticeBoardList.first} ? '#' : @{/noticeboard/paging(page=${noticeBoardList.number})}"><</a>
                             <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
-                                <span th:if="${page == freeBoardList.number + 1}" th:text="${page}" class="current-page"></span>
+                                <span th:if="${page == noticeBoardList.number + 1}" th:text="${page}" class="current-page"></span>
 
-                                <span th:unless="${page == freeBoardList.number + 1}">
-                                    <a th:href="@{/freeboard/paging(page=${page})}" th:text="${page}"></a>
+                                <span th:unless="${page == noticeBoardList.number + 1}">
+                                    <a th:href="@{/noticeboard/paging(page=${page})}" th:text="${page}"></a>
                                 </span>
                             </span>
-                            <a th:href="${freeBoardList.last} ? '#' : @{/freeboard/paging(page=${freeBoardList.number + 2})}">></a>
-                            <a th:href="@{/freeboard/paging(page=${freeBoardList.totalPages})}">>></a>
+                            <a th:href="${noticeBoardList.last} ? '#' : @{/noticeboard/paging(page=${noticeBoardList.number + 2})}">></a>
+                            <a th:href="@{/noticeboard/paging(page=${noticeBoardList.totalPages})}">>></a>
                         </div>
-                        <a href="/freeboard/save" class="btn">글작성</a>
+                        <a href="/noticeboard/save" class="btn">글작성</a>
                 </div>
                 <div class="col-md-3 sidebar ftco-animate">
                     <div class="sidebar-box ftco-animate">
@@ -332,7 +332,7 @@
 					    <div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
 					        <div class="text">
 					            <h3 class="heading">
-					                <a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}" class="truncate-title"></a>
+					                <a th:href="@{/noticeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}" class="truncate-title"></a>
 					            </h3>
 					            <div class="meta">
 					                <div>
@@ -361,7 +361,7 @@
 </body>
 <script>
     const saveReq = () => {
-        location.href = "/freeboard/save";
+        location.href = "/noticeboard/save";
     }
 
     function openChatWithUser(receiver) {
@@ -402,7 +402,7 @@
 		function loadBoardData(tag = '') {
 			// 태그에 따라 게시글 데이터를 가져오는 AJAX 요청
 			$.ajax({
-				url: '/freeboard/paging', // 서버의 API 엔드포인트
+				url: '/noticeboard/paging', // 서버의 API 엔드포인트
 				method: 'GET',
 				data: {tag: tag},
 				success: function (response) {
@@ -420,16 +420,16 @@
 			boardList.empty(); // 기존 게시글 목록을 지우고
 
 			// 가져온 게시글 데이터를 반복하며 테이블에 추가
-			boardData.forEach(freeboard => {
+			boardData.forEach(noticeboard => {
 				const boardRow = `
                 <tr>
-                    <td>${freeboard.seq}</td>
-                    <td>${freeboard.tag}</td>
-                    <td><a href="/freeboard/${freeboard.seq}">${freeboard.title}</a></td>
-                    <td>${freeboard.nickname}</td>
-                    <td>${new Date(freeboard.createdTime).toLocaleDateString()}</td>
-                    <td>${freeboard.views}</td>
-                    <td>${freeboard.likeCount}</td>
+                    <td>${noticeboard.seq}</td>
+                    <td>${noticeboard.tag}</td>
+                    <td><a href="/noticeboard/${noticeboard.seq}">${noticeboard.title}</a></td>
+                    <td>${noticeboard.nickname}</td>
+                    <td>${new Date(noticeboard.createdTime).toLocaleDateString()}</td>
+                    <td>${noticeboard.views}</td>
+                    <td>${noticeboard.likeCount}</td>
                 </tr>
             `;
 				boardList.append(boardRow);
