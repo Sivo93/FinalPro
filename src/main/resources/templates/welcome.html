@@ -1,0 +1,268 @@
+<!--<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>환영 페이지</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        .notification-icon {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+	        .notification-icon img {
+	            width: 30px;
+	            height: 30px;
+	        }
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 5px;
+            font-size: 12px;
+            display: none;
+        }
+        .popup {
+            position: fixed;
+            right: 10px;
+            top: 50px;
+            background: white;
+            border: 1px solid #ccc;
+            width: 300px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .popup .notification {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .popup .notification.unread {
+            background: #f9f9f9;
+        }
+        .popup .notification.read {
+            background: #fff;
+            color: gray;
+        }
+        .popup-header {
+            padding: 10px;
+            background: #f1f1f1;
+            border-bottom: 1px solid #ccc;
+        }
+        .popup-close {
+            float: right;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="notification-icon" id="notification-icon">
+        <img src="/img/bell.png" alt="Notifications">
+        <div class="notification-count" id="notification-count">0</div>
+    </div>
+    <div class="popup" id="notification-popup">
+        <div class="popup-header">
+            <span>알림</span>
+            <span class="popup-close" id="popup-close">&times;</span>
+        </div>
+        <div id="notification-list"></div>
+    </div>
+    <h1>환영합니다, <span id="nickname" th:text="${nickname}"></span>님!</h1>
+    <h2>다른 사용자들:</h2>
+    <ul>
+        <li th:each="user : ${users}" th:if="${user.nickname} != ${nickname}">
+            <span class="user-name" th:data-nickname="${user.nickname}" th:text="${user.nickname}" style="cursor: pointer;"></span>
+        </li>
+    </ul>
+    <div style="margin-top: 20px;">
+        <a id="chat-list-link" href="javascript:void(0);">채팅 목록으로 이동</a>
+    </div>
+    <a href="/freeboard/boardList">자유게시판 보기</a>
+    <a href="/freeboard/paging">자유게시판으로 이동</a>
+
+    <script>
+        let notifications = [];
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === 'granted') {
+                        console.log('Notification permission granted.');
+                    } else {
+                        console.log('Notification permission denied.');
+                    }
+                }).catch(function(error) {
+                    console.error('Notification permission request failed:', error);
+                });
+            }
+
+            // 페이지 로드 시 읽지 않은 메시지 개수를 가져옴
+            fetchUnreadCount();
+            // 기존 알림 목록을 로드
+            loadNotifications();
+        });
+
+        function fetchUnreadCount() {
+            $.ajax({
+                url: '/chat/unreadCount',
+                method: 'GET',
+                success: function(data) {
+                    updateNotificationCount(data.unreadCount);
+                },
+                error: function(error) {
+                    console.error('Error fetching unread count:', error);
+                }
+            });
+        }
+
+        function loadNotifications() {
+            $.ajax({
+                url: '/chat/allNotifications', // 모든 알림을 가져오는 엔드포인트 설정 필요
+                method: 'GET',
+                success: function(data) {
+                    data.forEach(message => addNotificationToList(message));
+                    updateNotificationList();
+                },
+                error: function(error) {
+                    console.error('Error fetching notifications:', error);
+                }
+            });
+        }
+
+        function openChat(receiver, notificationItem) {
+            const sender = document.getElementById('nickname').innerText;
+            const chatWindow = window.open(`/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`, 'ChatWindow', 'width=800,height=600');
+            chatWindow.focus();
+            markAsRead(receiver); // 알림을 읽음으로 표시
+        }
+
+        $(document).ready(function() {
+            const nickname = $('#nickname').text();
+
+            $('.user-name').click(function() {
+                const receiver = $(this).data('nickname');
+                openChat(receiver, null);
+            });
+
+            $('#chat-list-link').click(function() {
+                const sender = document.getElementById('nickname').innerText;
+                window.location.href = `/chat?sender=${encodeURIComponent(sender)}&receiver=`;
+            });
+
+            $('#notification-icon').click(function() {
+                const popup = $('#notification-popup');
+                popup.toggle(); // 팝업 표시 여부 전환
+            });
+
+            $('#popup-close').click(function() {
+                $('#notification-popup').hide();
+            });
+
+            connect();
+        });
+
+        function incrementNotificationCount() {
+            const notificationCountElement = document.getElementById('notification-count');
+            let notificationCount = parseInt(notificationCountElement.textContent) || 0;
+            notificationCount++;
+            notificationCountElement.textContent = notificationCount;
+            notificationCountElement.style.display = 'block';
+        }
+
+        function updateNotificationCount(count) {
+            const notificationCountElement = document.getElementById('notification-count');
+            notificationCountElement.textContent = count;
+            notificationCountElement.style.display = count > 0 ? 'block' : 'none';
+        }
+
+        function onNotificationReceived(payload) {
+            const message = JSON.parse(payload.body);
+            if (message.sender.nickname !== $('#nickname').text()) {
+                addNotificationToList(message);
+                fetchUnreadCount(); // 새 알림이 오면 읽지 않은 메시지 개수 갱신
+                showBrowserNotification(message);
+                updateNotificationList(); // 알림 목록을 갱신
+            }
+        }
+
+        function showBrowserNotification(message) {
+            if (Notification.permission === "granted") {
+                const notification = new Notification(`새 메시지: ${message.sender.nickname}`, {
+                    body: message.content,
+                    icon: '/img/bell.png'
+                });
+                notification.onclick = function () {
+                    window.focus();
+                };
+            }
+        }
+
+        function addNotificationToList(message) {
+            const existingIndex = notifications.findIndex(n => n.sender.nickname === message.sender.nickname);
+            if (existingIndex !== -1) {
+                // 동일한 발신자의 알림이 이미 있는 경우, 최신 내용으로 교체
+                notifications[existingIndex] = message;
+            } else {
+                // 새로운 알림인 경우 추가
+                notifications.push(message);
+            }
+            if (notifications.length > 5) {
+                notifications.shift(); // 알림이 5개를 초과하면 오래된 알림을 제거
+            }
+        }
+
+        function updateNotificationList() {
+            const notificationList = document.getElementById('notification-list');
+            notificationList.innerHTML = '';
+            notifications.forEach(message => {
+                const notificationItem = document.createElement('div');
+                notificationItem.classList.add('notification');
+                if (message.read) {
+                    notificationItem.classList.add('read');
+                    notificationItem.innerHTML = `<span style="color: gray;"><strong>${message.sender.nickname}</strong>님에게 메시지가 도착했습니다.</span>`;
+                } else {
+                    notificationItem.classList.add('unread');
+                    notificationItem.innerHTML = `<strong>${message.sender.nickname}</strong>님에게 메시지가 도착했습니다.`;
+                }
+                notificationItem.onclick = function () {
+                    openChat(message.sender.nickname, notificationItem);
+                };
+                notificationList.appendChild(notificationItem);
+            });
+        }
+
+        function markAsRead(nickname) {
+            const notification = notifications.find(n => n.sender.nickname === nickname);
+            if (notification) {
+                notification.read = true;
+                updateNotificationList();
+                fetchUnreadCount(); // 알림을 읽었을 때 읽지 않은 메시지 개수 갱신
+            }
+        }
+
+        let stompClient = null;
+
+        function connect() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, onConnected, onError);
+        }
+
+        function onConnected() {
+            stompClient.subscribe('/topic/notifications/' + $('#nickname').text(), onNotificationReceived);
+        }
+
+        function onError(error) {
+            console.error('Could not connect to WebSocket server. Please refresh this page to try again!');
+        }
+    </script>
+</body>
+</html>
