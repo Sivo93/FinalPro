@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.example.myweb.user.dto.UserDTO;
 import com.example.myweb.user.service.UserService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -46,18 +49,65 @@ public class UserController {
         return "user/login.html";
     }
 
+//    @GetMapping("/user/login")
+//    public String loginForm() {
+//        return "user/login.html";
+//    }
+    
     @GetMapping("/user/login")
-    public String loginForm() {
+    public String loginPage(Model model, HttpServletRequest request) {
+        // 쿠키에서 저장된 아이디를 읽어옵니다.
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("rememberedId")) {
+                    model.addAttribute("rememberedId", cookie.getValue());
+                    break;
+                }
+            }
+        }
         return "user/login.html";
     }
 
+//    @PostMapping("/user/login")
+//    public String login(@ModelAttribute UserDTO userDTO, HttpSession session) {
+//        UserDTO loginResult = userService.login(userDTO);
+//        if (loginResult != null) {
+//            session.setAttribute("loginid", loginResult.getLoginid());
+//            session.setAttribute("nickname", loginResult.getNickname());
+//            session.setAttribute("userSeq", loginResult.getSeq());
+//            return "redirect:/";
+//        } else {
+//            return "user/login.html";
+//        }
+//    }
+    
     @PostMapping("/user/login")
-    public String login(@ModelAttribute UserDTO userDTO, HttpSession session) {
+    public String login(@ModelAttribute UserDTO userDTO,
+                        @RequestParam(value = "rememberMe", defaultValue = "false") boolean rememberId,
+                        HttpSession session,
+                        HttpServletResponse response) {
+
         UserDTO loginResult = userService.login(userDTO);
         if (loginResult != null) {
             session.setAttribute("loginid", loginResult.getLoginid());
             session.setAttribute("nickname", loginResult.getNickname());
             session.setAttribute("userSeq", loginResult.getSeq());
+
+            if (rememberId) {
+                // 아이디 저장 쿠키 설정
+                Cookie cookie = new Cookie("rememberedId", loginResult.getLoginid());
+                cookie.setMaxAge(60 * 60 * 24 * 30); // 30일 동안 저장
+                cookie.setPath("/");
+                response.addCookie(cookie);
+            } else {
+                // 아이디 저장을 선택하지 않은 경우, 기존 쿠키 삭제
+                Cookie cookie = new Cookie("rememberedId", null);
+                cookie.setMaxAge(0); // 쿠키 삭제
+                cookie.setPath("/");
+                response.addCookie(cookie);
+            }
+
             return "redirect:/";
         } else {
             return "user/login.html";
