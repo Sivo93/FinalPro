@@ -80,4 +80,9 @@ public class UserEntity {
         return userEntity;
     }
 
+	public void setResetToken(String token) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

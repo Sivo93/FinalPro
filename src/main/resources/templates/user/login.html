@@ -1,151 +1,152 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-	<meta charset="UTF-8">
-	<title>로그인</title>
-	<link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,,500,600,700" rel="stylesheet">
-	<style>
-		body {
-			font-family: 'Gmarket Sans', sans-serif;
-			background-color: #f8f9fa;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			height: 100vh;
-			margin: 0;
-			justify-content: center;
-		}
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Gmarket Sans', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            justify-content: center;
+        }
 
-		.logo-container {
-			margin-bottom: 20px;
-		}
+        .logo-container {
+            margin-bottom: 20px;
+        }
 
-		.logo-container img {
-			max-width: 250px;
-			height: auto;
-		}
+        .logo-container img {
+            max-width: 250px;
+            height: auto;
+        }
 
-		.login-container {
-			background-color: white;
-			padding: 40px;
-			border-radius: 10px;
-			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-			max-width: 400px;
-			width: 100%;
-			text-align: center;
-		}
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
 
-		.login-container h1 {
-			color: #343a40;
-			margin-bottom: 30px;
-		}
+        .login-container h1 {
+            color: #343a40;
+            margin-bottom: 30px;
+        }
 
-		.login-container input[type="text"],
-		.login-container input[type="password"] {
-			width: calc(100% - 20px);
-			padding: 10px;
-			margin: 10px 0;
-			border: 1px solid #ced4da;
-			border-radius: 4px;
-			font-size: 16px;
-		}
+        .login-container input[type="text"],
+        .login-container input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 16px;
+        }
 
-		.login-container input[type="submit"] {
-			background-color: #6f42c1;
-			color: white;
-			border: none;
-			padding: 10px;
-			border-radius: 4px;
-			cursor: pointer;
-			width: 100%;
-			font-size: 18px;
-			font-weight: 600;
-		}
+        .login-container input[type="submit"] {
+            background-color: #6f42c1;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 18px;
+            font-weight: 600;
+        }
 
-		.login-container input[type="submit"]:hover {
-			background-color: #563d7c;
-		}
+        .login-container input[type="submit"]:hover {
+            background-color: #563d7c;
+        }
 
-		.login-container a {
-			display: block;
-			margin: 15px 0;
-			color: #6f42c1;
-			text-decoration: none;
-		}
+        .login-container .links {
+            margin-top: 20px;
+        }
 
-		.login-container a:hover {
-			text-decoration: underline;
-		}
-	</style>
-	<script>
-		// 쿠키에서 특정 이름의 쿠키 값을 가져오는 함수
-		function getCookie(name) {
-			let matches = document.cookie.match(new RegExp(
-				"(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-			));
-			return matches ? decodeURIComponent(matches[1]) : undefined;
-		}
+        .login-container .links .row {
+            margin: 10px 0;
+        }
 
-		// 쿠키에 아이디를 저장하는 함수
-		function setCookie(name, value, days) {
-			const date = new Date();
-			date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-			const expires = "expires=" + date.toUTCString();
-			document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+        .login-container .links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #6f42c1;
+            text-decoration: none;
+        }
 
-			// 쿠키 설정 확인용 로그
-			console.log("Cookie set:", document.cookie);
-		}
+        .login-container .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        // 쿠키에서 특정 이름의 쿠키 값을 가져오는 함수
+        function getCookie(name) {
+            let matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            ));
+            return matches ? decodeURIComponent(matches[1]) : undefined;
+        }
 
+        // 쿠키에 아이디를 저장하는 함수
+        function setCookie(name, value, days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+        }
 
-		// 로그인 페이지가 로드될 때 실행
-		window.onload = function () {
-			console.log("Page loaded"); // 페이지 로드 확인용 로그
-			const rememberedId = getCookie('rememberedId');
+        // 로그인 페이지가 로드될 때 실행
+        window.onload = function () {
+            const rememberedId = getCookie('rememberedId');
+            if (rememberedId) {
+                document.getElementsByName('loginid')[0].value = rememberedId;
+                document.getElementsByName('rememberMe')[0].checked = true;
+            }
+        }
 
-			if (rememberedId) {
-				document.getElementsByName('loginid')[0].value = rememberedId;
-				document.getElementsByName('rememberMe')[0].checked = true;
-				console.log("Remembered ID loaded:", rememberedId); // 쿠키에서 로드된 아이디 로그
-			}
-		}
-
-
-		// 로그인 폼이 제출될 때 아이디 저장 체크박스를 확인하여 쿠키에 아이디를 저장하거나 삭제
-		function handleRememberMe() {
-			console.log("handleRememberMe called"); // 함수 호출 확인용 로그
-
-			const rememberMe = document.getElementsByName('rememberMe')[0].checked;
-			const loginid = document.getElementsByName('loginid')[0].value;
-
-			if (rememberMe) {
-				setCookie('rememberedId', loginid, 30); // 30일 동안 아이디 저장
-			} else {
-				setCookie('rememberedId', '', -1); // 쿠키 삭제
-			}
-		}
-
-	</script>
+        // 로그인 폼이 제출될 때 아이디 저장 체크박스를 확인하여 쿠키에 아이디를 저장하거나 삭제
+        function handleRememberMe() {
+            const rememberMe = document.getElementsByName('rememberMe')[0].checked;
+            const loginid = document.getElementsByName('loginid')[0].value;
+            if (rememberMe) {
+                setCookie('rememberedId', loginid, 30); // 30일 동안 아이디 저장
+            } else {
+                setCookie('rememberedId', '', -1); // 쿠키 삭제
+            }
+        }
+    </script>
 </head>
-
 <body>
-	<div class="logo-container">
-		<img src="/images/logo.png" alt="사이트 로고">
-	</div>
-	<div class="login-container">
-		<h1>로그인 화면</h1>
-		<form action="/user/login" method="post" onsubmit="handleRememberMe()">
-			<input type="text" name="loginid" placeholder="아이디"> <br />
-			<input type="password" name="pw" placeholder="비밀번호"> <br />
-			<div class="options">
-				<label><input type="checkbox" name="rememberMe"> 아이디 저장</label><br />
-			</div>
-			<input type="submit" value="로그인">
-		</form>
-		<a href="/user/save">회원가입</a>
-		<a href="/">홈으로</a>
-	</div>
+    <div class="logo-container">
+        <img src="/images/logo.png" alt="사이트 로고">
+    </div>
+    <div class="login-container">
+        <h1>로그인 화면</h1>
+        <form action="/user/login" method="post" onsubmit="handleRememberMe()">
+            <input type="text" name="loginid" placeholder="아이디"> <br />
+            <input type="password" name="pw" placeholder="비밀번호"> <br />
+            <div class="options">
+                <label><input type="checkbox" name="rememberMe"> 아이디 저장</label><br />
+            </div>
+            <input type="submit" value="로그인">
+        </form>
+        <div class="links">
+            <div class="row">
+                <a href="/user/find-id">아이디 찾기</a>
+                <a href="/user/find-password">비밀번호 찾기</a>
+            </div>
+            <div class="row">
+                <a href="/user/save">회원가입</a>
+                <a href="/">홈으로</a>
+            </div>
+        </div>
+    </div>
 </body>
-
 </html>

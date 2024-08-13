@@ -3,6 +3,7 @@ package com.example.myweb.user.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.myweb.user.dto.UserDTO;
+import com.example.myweb.user.entity.UserEntity;
 import com.example.myweb.user.service.UserService;
 
 import jakarta.servlet.http.Cookie;
@@ -209,6 +211,71 @@ public class UserController {
         UserDTO userDTO = userService.findBySeq(userSeq);
         model.addAttribute("user", userDTO);
         return "user/detail.html";
+    }
+    
+    @GetMapping("user/find-id")
+    public String findIdForm() {
+    	
+    	return "user/findLoginId.html";
+    }
+    
+    @PostMapping("/user/find-id")
+    public String findId(@RequestParam String name, @RequestParam String email, Model model) {
+        // 이름과 이메일로 사용자 정보를 조회
+        UserDTO userDTO = userService.findByNameAndEmail(name, email);
+        if (userDTO != null) {
+            model.addAttribute("loginid", userDTO.getLoginid());
+            System.out.println(userDTO.getLoginid());
+            return "user/findLoginIdResult.html";
+        } else {
+            model.addAttribute("error", "해당 이름과 이메일에 대한 계정을 찾을 수 없습니다.");
+            return "user/findLoginIdResult.html";
+        }
+    }
+    
+    @GetMapping("user/find-password")
+    public String findPasswordForm() {
+    	
+    	return "user/findpassword.html";
+    }
+    
+    @PostMapping("/user/request-reset")
+    public String requestResetPassword(@RequestParam String loginid, @RequestParam String email, Model model) {
+        // 로그 찍기 (디버깅용)
+        System.out.println("Requesting password reset for loginid: " + loginid + ", email: " + email);
+        
+        boolean userExists = userService.checkUserExists(loginid, email);
+        
+        if (userExists) {
+            model.addAttribute("loginid", loginid);
+            model.addAttribute("email", email);
+            return "user/resetpassword.html";
+        } else {
+            model.addAttribute("error", "비밀번호 재설정에 실패했습니다. 아이디와 이메일을 확인해주세요.");
+            return "user/findpassword.html";
+        }
+    }
+
+    @PostMapping("/user/reset-password")
+    public String resetPassword(@RequestParam String loginid, @RequestParam String email, 
+                                @RequestParam String newPassword, @RequestParam String confirmPassword, 
+                                Model model) {
+        // 비밀번호와 비밀번호 확인이 일치하는지 확인
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("error", "비밀번호가 일치하지 않습니다.");
+            return "user/resetpassword.html";
+        }
+        
+        // 비밀번호를 실제로 변경하는 로직
+        boolean success = userService.updatePassword(loginid, email, newPassword);
+        
+        if (success) {
+            model.addAttribute("message", "비밀번호가 성공적으로 변경되었습니다.");
+            return "user/resetPasswordSuccess.html";
+        } else {
+            model.addAttribute("error", "비밀번호 변경에 실패했습니다. 아이디와 이메일을 확인해주세요.");
+            return "user/resetpassword.html";
+        }
     }
 
 }
