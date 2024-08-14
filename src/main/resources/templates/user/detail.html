@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>내 정보</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="/css/animate.css">
+    <link rel="stylesheet" href="/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/css/magnific-popup.css">
+    <link rel="stylesheet" href="/css/aos.css">
+    <link rel="stylesheet" href="/css/ionicons.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="/css/jquery.timepicker.css">
+    <link rel="stylesheet" href="/css/flaticon.css">
+    <link rel="stylesheet" href="/css/icomoon.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+/* Custom table styles */
+.table-responsive {
+    margin-top: 10px;
+}
+
+.table-striped {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    background: #fff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 추가 */
+}
+
+.table-striped thead {
+    background: #6c63ff; /* 헤더 배경색 */
+    color: #fff;
+    border-bottom: none; /* 헤더와 바디 사이의 구분선 제거 */
+}
+
+.table-striped th, .table-striped td {
+    padding: 12px 15px;
+    border: none; /* 테두리 제거 */
+    text-align: left;
+}
+
+.table-striped thead th {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.table-striped tbody tr {
+    transition: background-color 0.3s ease;
+    background-color: #ffffff; /* 행 배경색을 동일하게 설정 */
+}
+
+.table-striped tbody tr:hover {
+    background: rgb(255, 255, 255); /* 호버 시 배경색 변경 */
+}
+
+.table-striped tbody td {
+    font-size: 16px;
+    color: #343a40;
+    padding: 10px; /* padding을 줄여서 간결하게 */
+}
+
+/* 버튼 스타일 */
+.btn-primary {
+    background-color: #6c63ff;
+    border-color: #6c63ff;
+    border-radius: 30px; /* 버튼 모서리 둥글게 */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #5753c9;
+    border-color: #5753c9;
+}
+
+.heading-section {
+    margin-bottom: 10px;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+    </style>
+</head>
+<body>
+    <!-- 공통 헤더 포함 -->
+    <div th:replace="~{common/header :: fragment}"></div>
+
+    <section class="ftco-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 ftco-animate">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>항목</th>
+                                    <th>내용</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>아이디</td>
+                                    <td th:text="${user.loginid}"></td>
+                                </tr>
+                                <tr>
+                                    <td>닉네임</td>
+                                    <td th:text="${user.nickname}"></td>
+                                </tr>
+                                <tr>
+                                    <td>이름</td>
+                                    <td th:text="${user.name}"></td>
+                                </tr>
+                                <tr>
+                                    <td>주소</td>
+                                    <td th:text="${user.address}"></td>
+                                </tr>
+                                <tr>
+                                    <td>이메일</td>
+                                    <td th:text="${user.email}"></td>
+                                </tr>
+                                <tr>
+                                    <td>전화번호</td>
+                                    <td th:text="${user.tel}"></td>
+                                </tr>
+                                <tr>
+                                    <td>역할</td>
+                                    <td th:text="${user.role}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-5">
+                        <a href="/user/update" class="btn btn-primary px-4 py-3">수정</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </section>
+
+    <!-- 공통 푸터 포함 -->
+    <div th:replace="~{common/footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script>
+      AOS.init();
+    </script>
+</body>
+</html>
