@@ -36,7 +36,11 @@ public class ShopService {
     
     //상품 삭제합니다.
     public void deleteShopById(Long nom) {
-        shopRepository.deleteById(nom);
+    	if(shopRepository.existsById(nom)) {
+    		shopRepository.deleteById(nom);
+    	}else {
+    		throw new RuntimeException("상품이 존재하지 않습니다.");
+    	}
     }
     
 }

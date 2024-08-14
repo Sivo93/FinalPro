@@ -2,6 +2,15 @@ package com.example.myweb.shop;
 
 import com.example.myweb.shop.ShopEntity;
 import com.example.myweb.shop.ShopService;
+<<<<<<< Updated upstream
+=======
+import com.example.myweb.user.dto.UserDTO;
+import com.example.myweb.user.service.UserService;
+
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
+
+>>>>>>> Stashed changes
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/shop")
@@ -22,6 +32,15 @@ public class ShopController {
     @Autowired
     private ShopService shopService;
 
+<<<<<<< Updated upstream
+=======
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private ServletContext servletContext;
+
+>>>>>>> Stashed changes
     // 모든 상품 목록을 가져옵니다. 검색어가 있을 경우 검색 결과를 반환합니다.
     @GetMapping("/shoplist")
     public String getAllShops(@RequestParam(required = false) String keyword, Model model) {
@@ -70,6 +89,7 @@ public class ShopController {
         shopService.saveShop(shop);
         return "redirect:/shop/shoplist";
     }
+<<<<<<< Updated upstream
     
     //이미지 저장 로직
     private String saveImage(MultipartFile image)throws IOException{
@@ -95,6 +115,34 @@ public class ShopController {
     }
     
     //상품 삭제
+=======
+
+    // 이미지 저장 로직
+    private String saveImage(MultipartFile image) throws IOException {
+    	
+    	//상대경로로 파일저장경로
+        String uploadDir = servletContext.getRealPath("/uploads/images");
+        
+        //파일 이름에 uuid 추가해 파일 이름 생성
+        String originalFilename = image.getOriginalFilename();
+        String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
+        String filePath = Paths.get(uploadDir, uniqueFilename).toString();
+        
+        // 저장 디렉토리가 없으면 생성
+        File dir = new File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        
+        // 파일 저장
+        Files.write(Paths.get(filePath), image.getBytes());
+
+        // 반환 URL 경로
+        return "/uploads/images/" + uniqueFilename;
+    }
+    
+    // 상품 삭제
+>>>>>>> Stashed changes
     @PostMapping("/delete/{nom}")
     public String deleteShop(@PathVariable Long nom) {
     	shopService.deleteShopById(nom);
