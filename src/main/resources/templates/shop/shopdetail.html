@@ -1,50 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Shop Detail</title>
+    <title>상품 상세</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
-<<<<<<< Updated upstream
-		.product-image{
-			width: 200px;
-			height: 200px;
-			object-fit: cover;
-			cursor: pointer;
-		}
-		.modal{
-			display: none;
-			position: fixed;
-			z-index: 1000;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(red, green, blue, alpha);
-			justify-content: center;
-			align-items: center;
-		}
-		.modal img{
-			max-width: 90%;
-			max-height: 90%;
-		}
-		.modal-buttons{
-			margin-top: 20%;
-		}
-		.slide-container{
-			position: relative;
-			max-width: 100%;
-			margin: auto;
-		}
-		.slide{
-			display: none;
-		}
-		.slide img{
-			width: 100%;
-			height: auto;
-		}
-	</style>
-=======
         .product-image {
             width: 200px;
             height: 200px;
@@ -101,7 +61,6 @@
     <link rel="stylesheet" href="/css/flaticon.css">
     <link rel="stylesheet" href="/css/icomoon.css">
     <link rel="stylesheet" href="/css/style.css">
->>>>>>> Stashed changes
 </head>
 <body>
     <!-- 공통 헤더 포함 -->
@@ -111,148 +70,79 @@
     
     <!-- 이미지 출력 -->
     <div class="slide" th:each="imageUrl, iter: ${shop.imageUrls}">
-		<img th:src="@{${imageUrl}}" alt="Product Image">
+        <img th:src="@{${imageUrl}}" alt="Product Image" onclick="openModal(this.src)">
     </div>
     
-    <!--좌우 버튼-->
-	<a class="prev" onclick="changeSlide(-1)">&#10094;</a>
-	<a class="next" onclick="changeSlide(1)">&#10095;</a>
+    <!-- 좌우 버튼 -->
+    <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
+    <a class="next" onclick="changeSlide(1)">&#10095;</a>
     <br>
     
     <p><strong>상품번호:</strong> <span th:text="${shop.nom}"></span></p>
-    <p><strong>상품명:</strong> <span th:text="${shop.name}"></span></p>
-    <p><strong>판매자:</strong><span th:text="${user.nickname}"></span></p>
+    <p><strong>상품명:</strong> <span th:text="${shop.productname}"></span></p>
+    <p><strong>판매자:</strong> <span th:text="${shop.sellernickname}"></span></p>
     <p><strong>설명:</strong> <span th:text="${shop.description}"></span></p>
     <p><strong>가격:</strong> <span th:text="${shop.price}"></span></p>
     <br>
     
-    <!-- 판매자와 1:1 대화방 열기 -->
-    <div th:if="${user != null}">
-        <button onclick="showChatModal()">대화하기</button>
-        <br>
+    <!-- 대화하기 버튼 -->
+    <div th:if="${user != null and user.nickname != shop.sellernickname}">
+        <button type="button" onclick="openChatWindow()">대화하기</button>
     </div>
-    <!-- 판매자에게 쪽지 보내기
-    <div th:if="${user != null}">
-        <button onclick="showMessageModal()">구매 연락하기</button>
+
+    <!-- 삭제 버튼 (사용자와 판매자가 같은 경우 활성화) -->
+    <div th:if="${user != null and user.nickname == shop.sellernickname}">
+        <form id="deleteForm" th:action="@{/shop/delete/{nom}(nom=${shop.nom})}" method="post">
+            <button type="button" onclick="showDeleteModal()">판매 그만두기</button>
+        </form>
         <br>
-    </div> -->
-    
-    <!--삭제버튼 사용자와 판매자가 같은 경우 활성화-->
-    <div th:if="${user != null and user.id == shop.sellerId}">
-	    <form th:action="@{/shop/delete/{nom} (nom=${shop.nom})}" method="post">
-			<button type="button" onclick="showDeleteModal()">판매 그만두기</button>
-	    </form>
-	    <br>
     </div>
     
     <a href="/shop/shoplist">돌아가기</a>
     
-    <!--이미지 모달-->
-    <div id="imageModal" class="modal" onclilck="closeModal()">
-		<img id="modalImage" src="" alt="Large Image">
+    <!-- 이미지 모달 -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <img id="modalImage" src="" alt="Large Image">
     </div>
     
-    <!--삭제확인 모달-->
+    <!-- 삭제 확인 모달 -->
     <div id="deleteModal" class="modal">
-		<div class="modal-content">
-			<p>정말 삭제하시겠습니까?</p>
-			<div class="modal-buttons">
-				<button onclick="confirmDelete()">삭제하기</button>
-				<button onclick="closeDeleteModal()">취소하기</button>
-			</div>
-		</div>
+        <div class="modal-content">
+            <p>정말 삭제하시겠습니까?</p>
+            <div class="modal-buttons">
+                <button onclick="confirmDelete()">삭제하기</button>
+                <button onclick="closeDeleteModal()">취소하기</button>
+            </div>
+        </div>
     </div>
     
-    <!-- 1:1 대화방 모달 -->
-    <div id="chatModal" class="modal">
-        <div class="modal-content">
-            <div class="chat-box" id="chatBox">
-                <!-- 대화 내용이 여기에 표시됩니다. -->
-            </div>
-            <form id="chatForm" th:action="@{/chat/send}" method="post">
-                <input type="hidden" name="recipient" th:value="${shop.sellerId}">
-                <textarea name="message" placeholder="메시지를 입력하세요..." required></textarea>
-                <div class="modal-buttons">
-                    <button type="submit">전송</button>
-                    <button type="button" onclick="closeChatModal()">닫기</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- 쪽지 보내기 모달
-    <div id="messageModal" class="modal">
-        <div class="modal-content">
-            <form id="messageForm" th:action="@{/message/send}" method="post">
-                <input type="hidden" name="recipient" th:value="${shop.sellerId}">
-                <textarea name="message" placeholder="쪽지를 입력하세요..." required></textarea>
-                <div class="modal-buttons">
-                    <button type="submit">쪽지 보내기</button>
-                    <button type="button" onclick="closeMessageModal()">취소하기</button>
-                </div>
-            </form>
-        </div>
-    </div> -->
-
     <script>
-		function openModal(src){
-			const modal=document.getElementById('imageModal');
-			const modalImage=document.getElementById('modalImage');
-			modalImage.src=src;
-			modal.style.display='flex';
-		}
-		function closeModal(){
-			const modal=document.getElementById('imageModal');
-			modal.style.display='none';
-			
-		}
-		function showDeleteModal(){
-			const modal=document.getElementById('deleteModal');
-			modal.style.display='flex';
-		}
-		function closeDeleteModal(){
-			const modal=document.getElementById('deleteModal');
-			modal.style.display='none';
-		}
-		function confirmDelete(){
-			const form=document.getElementById('deleteForm');
-			form.submit();
-		}
-		/*
-        function showMessageModal() {
-            const modal = document.getElementById('messageModal');
+        function openModal(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = src;
             modal.style.display = 'flex';
         }
-        function closeMessageModal() {
-            const modal = document.getElementById('messageModal');
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
             modal.style.display = 'none';
         }
-        */
-        function showChatModal() {
-            const modal = document.getElementById('chatModal');
+
+        function showDeleteModal() {
+            const modal = document.getElementById('deleteModal');
             modal.style.display = 'flex';
-            loadChatHistory(); // 대화 내역 로드
         }
-        function closeChatModal() {
-            const modal = document.getElementById('chatModal');
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
             modal.style.display = 'none';
         }
-        function loadChatHistory() {
-            // 여기에 AJAX 요청 등을 통해 대화 내역을 로드하는 로직을 추가합니다.
-            // 예: fetch('/chat/history?recipient=' + shop.sellerId)
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         const chatBox = document.getElementById('chatBox');
-            //         chatBox.innerHTML = data.messages.map(msg => `<div class="chat-message">${msg}</div>`).join('');
-            //     });
+
+        function confirmDelete() {
+            const form = document.getElementById('deleteForm');
+            form.submit();
         }
-<<<<<<< Updated upstream
-        
-	</script>
-	
-	<!--삭제 폼 숨김처리-->
-	<form id="deleteForm" th:action="@{/shop/delete/{nom} (nom=${shop.nom})}" method="post" style="display: none;">
-	</form>
-=======
 
         function changeSlide(n) {
             showSlides(slideIndex += n);
@@ -284,6 +174,5 @@
     <!-- 공통 푸터 포함 -->
     <div th:replace="~{common/footer :: footer}"></div>
 
->>>>>>> Stashed changes
 </body>
 </html>

@@ -1,7 +1,5 @@
 package com.example.myweb.shop;
 
-import com.example.myweb.shop.ShopEntity;
-import com.example.myweb.shop.ShopRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +29,10 @@ public class ShopService {
 
     // 키워드를 사용하여 상품을 검색합니다.
     public List<ShopEntity> searchShops(String keyword) {
-        return shopRepository.findByNameContainingOrDescriptionContaining(keyword, keyword);
+        return shopRepository.findByProductnameContainingOrDescriptionContaining(keyword, keyword);
     }
-    
-    //상품 삭제합니다.
+
+    // 상품 삭제합니다.
     public void deleteShopById(Long nom) {
     	if(shopRepository.existsById(nom)) {
     		shopRepository.deleteById(nom);
@@ -42,5 +40,4 @@ public class ShopService {
     		throw new RuntimeException("상품이 존재하지 않습니다.");
     	}
     }
-    
 }

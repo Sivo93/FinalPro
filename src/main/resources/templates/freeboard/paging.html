@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>자유게시판</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+        <!-- SockJS와 Stomp.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/open-iconic-bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/animate.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
+    <link rel="stylesheet" th:href="@{/css/magnific-popup.css}">
+    <link rel="stylesheet" th:href="@{/css/aos.css}">
+    <link rel="stylesheet" th:href="@{/css/ionicons.min.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap-datepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/jquery.timepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/flaticon.css}">
+    <link rel="stylesheet" th:href="@{/css/icomoon.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+		
+		       /* 테이블 스타일링 */
+        table.board {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table.board th,
+        table.board td {
+            padding: 15px;
+            text-align: center;
+        }
+
+        table.board thead th {
+            background-color: rgb(106, 0, 213);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        table.board tbody tr {
+            border-bottom: 1px solid #e8e8e8;
+            transition: background-color 0.3s ease;
+        }
+
+        table.board tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        table.board tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        /* 페이지 이동 버튼을 포함하는 div 스타일링 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+/* 현재 페이지 숫자 스타일 */
+.pagination span.current-page {
+    display: inline-block; /* 너비와 높이를 적용하기 위해 inline-block으로 설정 */
+    width: 90px; /* 숫자의 너비를 고정 */
+    text-align: center; /* 텍스트를 중앙에 위치 */
+    font-weight: bold; /* 현재 페이지를 강조 */
+    color: #6c63ff; /* 텍스트 색상 */
+    background-color: #f0f0f0; /* 배경 색상 */
+    border-radius: 4px; /* 둥근 모서리 */
+    padding: 8px 0; /* 상하 패딩 조절 */
+}
+
+		.pagination a {
+		    color: #6c63ff;
+		    padding: 8px 12px; /* 패딩으로 버튼의 내부 여백을 조절 */
+		    text-decoration: none;
+		    margin: 0 5px; /* 버튼 사이의 간격 */
+		    border: 1px solid #ddd;
+		    border-radius: 4px; /* 버튼의 둥근 모서리 조절 */
+		    font-size: 14px; /* 버튼 글자의 크기 */
+		    width: 40px; /* 버튼의 너비를 고정 */
+		    height: 40px; /* 버튼의 높이를 고정 */
+		    display: inline-flex;
+		    justify-content: center; /* 텍스트를 수평 중앙에 위치 */
+		    align-items: center; /* 텍스트를 수직 중앙에 위치 */
+		}
+
+        .pagination a:hover {
+            background-color: #6c63ff;
+            color: #fff;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            table.board th,
+            table.board td {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .hero-wrap {
+                background-size: cover;
+                background-position: center;
+            }
+
+            .board-main {
+                padding: 0 15px;
+            }
+
+            .pagination {
+                flex-direction: column;
+            }
+
+            .pagination a {
+                margin-bottom: 10px;
+            }
+        }
+
+        /* 링크 스타일 */
+        a {
+            color: #6c63ff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            background-color: #6c63ff;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: #5753d3;
+        }
+
+        /* 검색 폼 스타일 */
+        .search-form {
+            margin-top: 20px;
+        }
+
+        .search-form input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+		.toggle-menu {
+		    display: none;
+		    position: absolute;
+		    background: #fff;
+		    border: 1px solid #ccc;
+		    z-index: 1000;
+		    border-radius: 8px; /* 모서리를 둥글게 설정 */
+		}
+		.toggle-menu ul {
+		    list-style: none;
+		    padding: 0;
+		    margin: 0;
+		    border-radius: 8px; /* 모서리를 둥글게 설정 */
+		}
+		.toggle-menu ul li {
+		    padding: 10px;
+		    cursor: pointer;
+		    border-radius: 8px; /* 리스트 아이템도 둥글게 설정 */
+		}
+		.toggle-menu ul li:hover {
+		    background: #f1f1f1;
+		    border-radius: 8px; /* 호버 시에도 모서리가 둥글게 유지되도록 설정 */
+		}
+        
+		
+		select[name="tag"] {
+		    width: 10%;
+		    padding: 10px;
+		    margin-bottom: 15px;
+		    border: 1px solid #ddd;
+		    border-radius: 30px; /* 둥근 모서리 */
+		    font-size: 16px;
+		    background-color: #fff; /* 배경색 */
+		    appearance: none; /* 드롭다운 화살표 제거 */
+		    -webkit-appearance: none;
+		    -moz-appearance: none;
+		    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/></svg>');
+		    background-repeat: no-repeat;
+		    background-position: right 10px center;
+		    background-size: 10px;
+		    text-align: center;
+		}
+		    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: fragment}"></div>
+    <section class="ftco-section">
+        <div class="board-main">
+            <div class="row">
+                <div class="col-md-8 ftco-animate">
+                    <h2 class="mb-3">
+                        <table class="board">
+                            <span class="text">
+                                <thead>
+                                    <ul>
+                                        <li><a href="/freeboard/paging">자유게시판</a></li>
+                                        <li><a href="/biticboard/paing">자랑게시판</a></li>
+                                        <li><a href="/notice/paging">공지사항</a></li>
+                                    </ul>
+									<form id="tagFilterForm" action="/freeboard/paging" method="get">
+										<select name="tag" onchange="document.getElementById('tagFilterForm').submit()">
+											태그별 보기:
+											<option value="" ${currentTag==null ? 'selected' : '' }>전체</option>
+											<option value="운동" ${currentTag=='운동' ? 'selected' : '' }>운동</option>
+											<option value="여가" ${currentTag=='여가' ? 'selected' : '' }>여가</option>
+											<option value="여행" ${currentTag=='여행' ? 'selected' : '' }>여행</option>
+											<option value="동물" ${currentTag=='동물' ? 'selected' : '' }>동물</option>
+											<option value="질문" ${currentTag=='질문' ? 'selected' : '' }>질문</option>
+											<option value="꿀팁" ${currentTag=='꿀팁' ? 'selected' : '' }>꿀팁</option>
+										</select>
+									</form>
+                                    <tr>
+                                        <th>번호</th>
+                                        <th>태그</th>
+                                        <th>제목</th>
+                                        <th>작성자</th>
+                                        <th>작성일</th>
+                                        <th>조회수</th>
+                                        <th>추천</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="freeboard: ${freeBoardList}">
+                                        <td th:text="${freeboard.seq}"></td>
+                                        <td th:text="${freeboard.tag}"></td>
+                                        <td><a th:href="@{|/freeboard/${freeboard.seq}|(page=${freeBoardList.number + 1})}" th:text="${freeboard.title}"></a></td>
+                                        <td>
+                                            <span class="user-name" th:data-nickname="${freeboard.nickname}" th:text="${freeboard.nickname}" style="cursor: pointer;"></span>
+                                            <div class="toggle-menu">
+                                                <ul>
+                                                    <li class="start-chat" th:data-nickname="${freeboard.nickname}">1대1 채팅</li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td th:text="*{#temporals.format(freeboard.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
+                                        <td th:text="${freeboard.views}"></td>
+                                        <td th:text="${freeboard.likeCount}"></td>
+                                    </tr>
+                                </tbody>
+                            </span>
+                        </table>
+                        <div class="pagination">
+                            <a th:href="@{/freeboard/paging(page=1)}"><<</a>
+                            <a th:href="${freeBoardList.first} ? '#' : @{/freeboard/paging(page=${freeBoardList.number})}"><</a>
+                            <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+                                <span th:if="${page == freeBoardList.number + 1}" th:text="${page}"></span>
+                                <span th:unless="${page == freeBoardList.number + 1}">
+                                    <a th:href="@{/freeboard/paging(page=${page})}" th:text="${page}"></a>
+                                </span>
+                            </span>
+                            <a th:href="${freeBoardList.last} ? '#' : @{/freeboard/paging(page=${freeBoardList.number + 2})}">></a>
+                            <a th:href="@{/freeboard/paging(page=${freeBoardList.totalPages})}">>></a>
+                        </div>
+                        <a href="/freeboard/save" class="btn">글작성</a>
+                </div>
+                <div class="col-md-4 sidebar ftco-animate">
+                    <div class="sidebar-box">
+                        <form action="#" class="search-form">
+				<div class="sidebar-box">
+				    <form action="#" class="search-form">
+				        <div class="form-group">
+				            <div class="icon">
+				                <span class="icon-search"></span>
+				            </div>
+				            <input type="text" class="form-control" placeholder="제목으로 검색" name="search" th:value="${search}">
+				        </div>
+				    </form>
+				</div>
+                        </form>
+                    </div>
+                    <div class="sidebar-box ftco-animate">
+                        <div class="categories">
+                            <h3>속닥속닥</h3>
+                            <li><a href="/freeboard/paging">자유게시판 <span></span></a></li>
+                            <li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
+                            <li><a href="/noriceboard/paging">공지사항 <span></span></a></li>
+                        </div>
+                    </div>
+					<div class="sidebar-box ftco-animate">
+					    <h3>인기글</h3>
+					    
+						<div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
+						    <div class="text">
+						        <h3 class="heading">
+						            <a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}"></a>
+						        </h3>
+						        <div class="meta">
+						            <div>
+						                <a href="#">
+						                    <span class="icon-calendar"></span>
+						                    <span th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
+						                </a>
+						            </div>
+						            <div>
+						                <a href="#">
+						                    <span class="icon-person"></span>
+						                    <span th:text="${popularPost.nickname}"></span>
+						                    (<span th:text="${popularPost.likeCount}"></span> 추천)
+						                </a>
+						            </div>
+						        </div>
+						    </div>
+						</div>
+					</div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <div th:replace="~{common/footer :: footer}"></div>
+</body>
+<script>
+    const saveReq = () => {
+        location.href = "/freeboard/save";
+    }
+
+    function openChatWithUser(receiver) {
+        const sender = document.getElementById('nickname').innerText;
+        const chatWindow = window.open(`/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`, 'ChatWindow', 'width=800,height=600');
+        chatWindow.focus();
+    }
+
+    $(document).ready(function() {
+        // 사용자 이름 클릭 시 이벤트 처리
+        $('.user-name').click(function() {
+            const currentUser = $('#nickname').text().trim(); // 현재 사용자 닉네임
+            const nickname = $(this).data('nickname');
+            if (currentUser !== nickname) {
+                const toggleMenu = $(this).siblings('.toggle-menu');
+                $('.toggle-menu').not(toggleMenu).hide(); // 다른 모든 토글 메뉴를 숨김
+                toggleMenu.toggle(); // 현재 토글 메뉴를 토글
+            }
+        });
+
+        // "1대1 채팅" 클릭 시 이벤트 처리
+        $(document).on('click', '.start-chat', function() {
+            const receiver = $(this).data('nickname');
+            openChatWithUser(receiver);
+        });
+    });
+    
+    	$(document).ready(function () {
+		// 태그 선택 시 게시글 필터링
+		$('#tagSelect').change(function () {
+			const selectedTag = $(this).val();
+			loadBoardData(selectedTag);
+		});
+
+		// 페이지 로드 시 전체 게시글 로드
+		loadBoardData();
+
+		function loadBoardData(tag = '') {
+			// 태그에 따라 게시글 데이터를 가져오는 AJAX 요청
+			$.ajax({
+				url: '/freeboard/paging', // 서버의 API 엔드포인트
+				method: 'GET',
+				data: {tag: tag},
+				success: function (response) {
+					// 게시글 데이터를 렌더링
+					renderBoardList(response);
+				},
+				error: function (error) {
+					console.error('Error loading board data:', error);
+				}
+			});
+		}
+
+		function renderBoardList(boardData) {
+			const boardList = $('#boardList');
+			boardList.empty(); // 기존 게시글 목록을 지우고
+
+			// 가져온 게시글 데이터를 반복하며 테이블에 추가
+			boardData.forEach(freeboard => {
+				const boardRow = `
+                <tr>
+                    <td>${freeboard.seq}</td>
+                    <td>${freeboard.tag}</td>
+                    <td><a href="/freeboard/${freeboard.seq}">${freeboard.title}</a></td>
+                    <td>${freeboard.nickname}</td>
+                    <td>${new Date(freeboard.createdTime).toLocaleDateString()}</td>
+                    <td>${freeboard.views}</td>
+                    <td>${freeboard.likeCount}</td>
+                </tr>
+            `;
+				boardList.append(boardRow);
+			});
+		}
+	});
+
+</script>
+</html>

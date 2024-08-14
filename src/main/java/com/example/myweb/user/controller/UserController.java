@@ -1,108 +1,174 @@
 package com.example.myweb.user.controller;
 
-import com.example.myweb.user.entity.UserEntity;
-import com.example.myweb.user.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.example.myweb.user.dto.UserDTO;
+import com.example.myweb.user.entity.UserEntity;
+import com.example.myweb.user.service.UserService;
+
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 
 @Controller
-@RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
+    private final UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
+    @GetMapping("/")
+    public String index(HttpSession session, Model model) {
+        String loginid = (String) session.getAttribute("loginid");
+        String nickname = (String) session.getAttribute("nickname");
+        model.addAttribute("loginid", loginid);
+        model.addAttribute("nickname", nickname);
 
-    @GetMapping("/signup")
-    public String signup() {
-        return "user/save";
+        return "index.html";
     }
 
-    @PostMapping("/signup")
-    public String signup(@RequestParam("loginid") String loginid, @RequestParam("email") String email, @RequestParam("pw") String pw, @RequestParam("signupType") String signupType, @RequestParam("nickname") String nickname, @RequestParam("name") String name, @RequestParam("address") String address, @RequestParam("tel") String tel, Model model) {
-        if (userRepository.findByLoginid(loginid) != null) {
-            model.addAttribute("error", "아이디가 이미 존재합니다.");
-            return "user/save";
-        }
-        if (userRepository.findByEmail(email) != null) {
-            model.addAttribute("error", "이메일이 이미 존재합니다.");
-            return "user/save";
-        }
-        if (userRepository.findByNickname(nickname) != null) {
-            model.addAttribute("error", "별명이 이미 존재합니다.");
-            return "user/save";
-        }
+    @GetMapping("/user/save")
+    public String saveForm() {
+        return "user/save.html";
+    }
 
-        UserEntity user = new UserEntity();
-        user.setLoginid(loginid);
-        user.setEmail(email);
-        user.setPw(pw); // 암호화 함?
-        user.setSignupType(signupType); // 변경된 부분
-        user.setNickname(nickname);
-        user.setName(name);
-        user.setAddress(address);
-        user.setTel(tel);
-        userRepository.save(user);
+    @PostMapping("/user/save")
+    public String save(@ModelAttribute UserDTO userDTO) {
+        userService.save(userDTO);
+        return "user/login.html";
+    }
+
+    @GetMapping("/user/login")
+    public String loginForm() {
+        return "user/login.html";
+    }
+
+    @PostMapping("/user/login")
+    public String login(@ModelAttribute UserDTO userDTO, HttpSession session) {
+        UserDTO loginResult = userService.login(userDTO);
+        if (loginResult != null) {
+            session.setAttribute("loginid", loginResult.getLoginid());
+            session.setAttribute("nickname", loginResult.getNickname());
+            session.setAttribute("userSeq", loginResult.getSeq());
+            return "redirect:/";
+        } else {
+            return "user/login.html";
+        }
+    }
+
+    @GetMapping("/user/userList")
+    public String findAll(Model model) {
+        List<UserDTO> userDTOList = userService.findAll();
+        model.addAttribute("userList", userDTOList);
+        return "user/userList.html";
+    }
+
+    @GetMapping("/user/{seq}")
+    public String findBySeq(@PathVariable Long seq, Model model) {
+        UserDTO userDTO = userService.findBySeq(seq);
+        model.addAttribute("user", userDTO);
+        return "user/detail.html";
+    }
+
+    @GetMapping("/user/update")
+    public String updateForm(HttpSession session, Model model) {
+        String myLoginid = (String) session.getAttribute("loginid");
+        UserDTO userDTO = userService.updateForm(myLoginid);
+        model.addAttribute("updateUser", userDTO);
+        return "user/update.html";
+    }
+
+    @PostMapping("/user/update")
+    public String update(@ModelAttribute UserDTO userDTO) {
+        userService.update(userDTO);
+        return "redirect:/user/" + userDTO.getSeq();
+    }
+
+    @GetMapping("/user/delete/{seq}")
+    public String deleteBySeq(@PathVariable Long seq) {
+        userService.deleteBySeq(seq);
+        return "redirect:/user/userList";
+    }
+
+    @GetMapping("/user/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
         return "redirect:/";
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
+    @PostMapping("/user/id-check")
+    public @ResponseBody String idCheck(@RequestParam("loginid") String loginid) {
+        String checkResult = userService.loginidCheck(loginid);
+        return checkResult;
     }
 
-    @PostMapping("/login")
-    public String login(@RequestParam("loginid") String loginid, @RequestParam("pw") String pw, Model model) {
-        UserEntity user = userRepository.findByLoginid(loginid);
-        if (user != null && user.getPw().equals(pw)) {
-            try {
-                String encodedNickname = URLEncoder.encode(user.getNickname(), StandardCharsets.UTF_8.toString());
-                return "redirect:/userWelcome?nickname=" + encodedNickname;
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+    @PostMapping("/user/email-check")
+    public @ResponseBody String emailCheck(@RequestParam("email") String email) {
+        String checkResult = userService.emailCheck(email);
+        return checkResult;
+    }
+
+    @PostMapping("/user/nickname-check")
+    public @ResponseBody String nicknameCheck(@RequestParam("nickname") String nickname) {
+        String checkResult = userService.nicknameCheck(nickname);
+        return checkResult;
+    }
+
+    @GetMapping("/api/check-login")
+    public ResponseEntity<Map<String, Object>> checkLogin(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        String loginid = (String) session.getAttribute("loginid");
+        String nickname = (String) session.getAttribute("nickname");
+        Long userSeq = (Long) session.getAttribute("userSeq");
+
+        if (loginid != null && nickname != null && userSeq != null) {
+            response.put("isLoggedIn", true);
+            response.put("nickname", nickname);
+            response.put("userSeq", userSeq);
+        } else {
+            response.put("isLoggedIn", false);
         }
-        model.addAttribute("error", "비밀번호가 틀립니다.");
-        return "login";
+
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/check-duplicate")
-    @ResponseBody
-    public Map<String, Boolean> checkDuplicate(@RequestParam("field") String field, @RequestParam("value") String value) {
-        boolean exists = false;
-        switch (field) {
-            case "loginid":
-                exists = userRepository.findByLoginid(value) != null;
-                break;
-            case "email":
-                exists = userRepository.findByEmail(value) != null;
-                break;
-            case "nickname":
-                exists = userRepository.findByNickname(value) != null;
-                break;
+    @GetMapping("/shop")
+    public String shop() {
+        return "shop";
+    }
+
+    @GetMapping("/outside")
+    public String outside() {
+        return "outside";
+    }
+
+    @GetMapping("/user/detail")
+    public String userDetail(HttpSession session, Model model) {
+        Long userSeq = (Long) session.getAttribute("userSeq");
+        if (userSeq == null) {
+            return "redirect:/user/login";
         }
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("exists", exists);
-        return response;
+        UserDTO userDTO = userService.findBySeq(userSeq);
+        model.addAttribute("user", userDTO);
+        return "user/detail.html";
     }
 
-    @GetMapping("/userWelcome")
-    public String welcomePage(@RequestParam("nickname") String nickname, Model model) {
-        model.addAttribute("nickname", nickname);
-        List<UserEntity> users = userRepository.findAll();
-        model.addAttribute("users", users);
-        return "welcome";
+    // 아이디 찾기 페이지 로드
+    @GetMapping("/user/find-loginid")
+    public String findLoginIdForm() {
+        return "user/find-loginid.html";
     }
+  
+
+
 }

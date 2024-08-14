@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
+<title>Insert title here</title>
+</head>
+<body>
+<table border="1">
+    <tr>
+        <th>번호</th>
+        <th>태그</th>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>작성일</th>
+        <th>조회수</th>
+        <th>추천</th>
+    </tr>
+    <tr th:each="freeboard: ${freeBoardList}">
+        <td th:text="${freeboard.seq}"></td>
+        <td th:text="${freeboard.tag}"></td>
+        <td><a th:href="@{|/freeboard/${freeboard.seq}|}" th:text="${freeboard.title}"></a></td>
+        <td th:text="${freeboard.nickname}"></td>
+        <td th:text="*{#temporals.format(freeboard.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
+        <td th:text="${freeboard.views}"></td>
+        <td th:text="${freeboard.likeCount}"></td>
+    </tr>
+</table>
+
+<a href="/">홈으로</a>
+</body>
+</html>

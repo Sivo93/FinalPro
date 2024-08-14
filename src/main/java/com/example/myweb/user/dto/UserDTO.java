@@ -1,6 +1,9 @@
 package com.example.myweb.user.dto;
 
+import java.util.Set;
+import com.example.myweb.board.entity.FreeBoardLikeEntity;
 import com.example.myweb.user.entity.UserEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +25,9 @@ public class UserDTO {
     private String address;
     private String email;
     private String tel;
-    private String signupType; // 변경된 부분
+    private String role;
+    @JsonIgnore
+    private Set<FreeBoardLikeEntity> likes; // 추가
 
     public static UserDTO toUserDTO(UserEntity userEntity) {
         UserDTO userDTO = new UserDTO();
@@ -34,7 +39,8 @@ public class UserDTO {
         userDTO.setAddress(userEntity.getAddress());
         userDTO.setEmail(userEntity.getEmail());
         userDTO.setTel(userEntity.getTel());
-        userDTO.setSignupType(userEntity.getSignupType()); // 변경된 부분
+        userDTO.setRole(userEntity.getRole());
+        userDTO.setLikes(userEntity.getLikes()); // 추가
 
         return userDTO;
     }
