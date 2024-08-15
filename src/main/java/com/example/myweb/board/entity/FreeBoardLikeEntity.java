@@ -17,7 +17,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "free_like_table", uniqueConstraints = {@UniqueConstraint(columnNames = {"loginid", "freeboard_seq"})})
+@Table(name = "like_table", uniqueConstraints = {@UniqueConstraint(columnNames = {"loginid", "freeboard_seq"})})
 public class FreeBoardLikeEntity {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

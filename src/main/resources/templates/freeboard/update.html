@@ -146,20 +146,19 @@
                 <div class="col-md-8 ftco-animate">
                     <!-- 제목 추가 -->
                     <h1>글 수정</h1>
-                    <form action="/freeboard/update" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="seq" th:value="${freeBoardUpdate.seq}">
-                        <input type="hidden" name="loginid" th:value="${freeBoardUpdate.loginid}">
-                        <input type="hidden" name="currentPage" th:value="${page}"> <!-- 현재 페이지 정보 추가 -->
-                        작성자: <input type="text" name="nickname" th:value="${freeBoardUpdate.nickname}" readonly> <br>
-                        태그: <input type="text" name="tag" th:value="${freeBoardUpdate.tag}" readonly> <br>
-                        제목: <input type="text" name="title" th:value="${freeBoardUpdate.title}"> <br>
-                        내용: <textarea name="contents" id="editor" cols="30" rows="10" th:text="${freeBoardUpdate.contents}"></textarea> <br>
-                        파일: <input type="file" name="files" multiple> <br />
-                        <input type="hidden" name="views" th:value="${freeBoardUpdate.views}">
-                        <input type="hidden" name="likeCount" th:value="${freeBoardUpdate.likeCount}">
-                        <input type="hidden" name="fileAttached" th:value="${freeBoardUpdate.fileAttached}">
-                        <input type="submit" value="글수정">
-                    </form>
+	<form action="/freeboard/update" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="seq" th:value="${freeBoardUpdate.seq}">
+		<input type="hidden" name="loginid" th:value="${freeBoardUpdate.loginid}">
+		작성자: <input type="text" name="nickname" th:value="${freeBoardUpdate.nickname}" readonly> <br>
+		태그: <input type="text" name="tag" th:value="${freeBoardUpdate.tag}" readonly> <br>
+		제목: <input type="text" name="title" th:value="${freeBoardUpdate.title}"> <br>
+		내용: <textarea name="contents" id="editor" cols="30" rows="10" th:text="${freeBoardUpdate.contents}"></textarea> <br>
+		파일: <input type="file" name="files" multiple> <br />
+		<input type="hidden" name="views" th:value="${freeBoardUpdate.views}">
+		<input type="hidden" name="likeCount" th:value="${freeBoardUpdate.likeCount}">
+		<input type="hidden" name="fileAttached" th:value="${freeBoardUpdate.fileAttached}">
+		<input type="submit" value="글수정">
+	</form>
                 </div>
 
                 <div class="col-md-4 sidebar ftco-animate">
@@ -177,29 +176,30 @@
                         </div>
                     </div>
                     <div class="sidebar-box ftco-animate">
-                        <h3>인기글</h3>
-                        <div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
-                            <div class="text">
-                                <h3 class="heading">
-                                    <a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}"></a>
-                                </h3>
-                                <div class="meta">
-                                    <div>
-                                        <a href="#">
-                                            <span class="icon-calendar"></span>
-                                            <span th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
-                                        </a>
-                                    </div>
-                                    <div>
-                                        <a href="#">
-                                            <span class="icon-person"></span>
-                                            <span th:text="${popularPost.nickname}"></span>
-                                            (<span th:text="${popularPost.likeCount}"></span> 추천)
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+					    <h3>인기글</h3>
+					    
+						<div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
+						    <div class="text">
+						        <h3 class="heading">
+						            <a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}"></a>
+						        </h3>
+						        <div class="meta">
+						            <div>
+						                <a href="#">
+						                    <span class="icon-calendar"></span>
+						                    <span th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
+						                </a>
+						            </div>
+						            <div>
+						                <a href="#">
+						                    <span class="icon-person"></span>
+						                    <span th:text="${popularPost.nickname}"></span>
+						                    (<span th:text="${popularPost.likeCount}"></span> 추천)
+						                </a>
+						            </div>
+						        </div>
+						    </div>
+						</div>
                     </div>
                 </div>
             </div>
@@ -207,17 +207,16 @@
     </section>
 
     <div th:replace="~{common/footer :: footer}"></div>
-    
-    <!-- CKEditor 인스턴스 초기화 -->
-    <script>
-        ClassicEditor
-            .create(document.querySelector('#editor'), {
-                ckfinder: {
-                    uploadUrl: '/uploadImage' // 파일 업로드 엔드포인트 설정
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    </script>
+	<!-- CKEditor 인스턴스 초기화 -->
+	<script>
+		ClassicEditor
+			.create(document.querySelector('#editor'), {
+				ckfinder: {
+					uploadUrl: '/uploadImage' // 파일 업로드 엔드포인트 설정
+				}
+			})
+			.catch(error => {
+				console.error(error);
+			});
+	</script>
 </body>

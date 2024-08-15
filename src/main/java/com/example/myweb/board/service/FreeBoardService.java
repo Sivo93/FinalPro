@@ -146,40 +146,74 @@ public class FreeBoardService {
 	}
 
 
-
+//	@Transactional
+//	public Page<FreeBoardDTO> paging(Pageable pageable) {
+//		int page = pageable.getPageNumber();
+//		if (page < 0) {
+//			page = 0;
+//		} else {
+//			page -= 1;
+//		}
+//		int pageLimit = 3; // 한 페이지에 보여줄 글 갯수
+//		// 한페이지당 3개씩 글을 보여주고 정렬 기준은 seq 기준으로 내림차순 정렬
+//		// page 위치에 있는 값은 0부터 시작
+//		Page<FreeBoardEntity> freeBoardEntities = freeBoardRepository
+//				.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+//
+//		System.out.println("freeBoardEntities.getContent() = " + freeBoardEntities.getContent()); // 요청 페이지에 해당하는 글
+//		System.out.println("freeBoardEntities.getTotalElements() = " + freeBoardEntities.getTotalElements()); // 전체 글갯수
+//		System.out.println("freeBoardEntities.getNumber() = " + freeBoardEntities.getNumber()); // DB로 요청한 페이지 번호
+//		System.out.println("freeBoardEntities.getTotalPages() = " + freeBoardEntities.getTotalPages()); // 전체 페이지 갯수
+//		System.out.println("freeBoardEntities.getSize() = " + freeBoardEntities.getSize()); // 한 페이지에 보여지는 글 갯수
+//		System.out.println("freeBoardEntities.hasPrevious() = " + freeBoardEntities.hasPrevious()); // 이전 페이지 존재 여부
+//		System.out.println("freeBoardEntities.isFirst() = " + freeBoardEntities.isFirst()); // 첫 페이지 여부
+//		System.out.println("freeBoardEntities.isLast() = " + freeBoardEntities.isLast()); // 마지막 페이지 여부
+//
+//		// 목록: seq, nickname, title, views, likeCount, createdTime
+//		// seq, tag, title, createdTime, views, lickCount, nickname
+//		Page<FreeBoardDTO> freeBoardDTOS = freeBoardEntities.map(freeBoard -> new FreeBoardDTO(freeBoard.getSeq(),
+//				freeBoard.getTag(), freeBoard.getTitle(), freeBoard.getCreatedTime(), freeBoard.getViews(),
+//				freeBoard.getLikeCount(), freeBoard.getNickname()));
+//
+//		return freeBoardDTOS;
+//	}
 	
 	@Transactional
-    public Page<FreeBoardDTO> paging(Pageable pageable, String tag) {
-        int page = pageable.getPageNumber();
-        if (page < 0) {
-            page = 0;
-        } else {
-            page -= 1;
-        }
-        int pageLimit = 5; // 한 페이지에 보여줄 글 갯수
+	public Page<FreeBoardDTO> paging(Pageable pageable, String tag, String search) {
+	    int page = pageable.getPageNumber();
+	    if (page < 0) {
+	        page = 0;
+	    } else {
+	        page -= 1;
+	    }
+	    int pageLimit = 5; // 한 페이지에 보여줄 글 갯수
 
-        Page<FreeBoardEntity> freeBoardEntities;
-        
-        if (tag == null || tag.isEmpty()) {
-            // 태그가 없을 경우 전체 게시글을 가져옴
-            freeBoardEntities = freeBoardRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
-        } else {
-            // 태그가 있을 경우 해당 태그의 게시글을 가져옴
-            freeBoardEntities = freeBoardRepository.findByTag(tag, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
-        }
+	    Page<FreeBoardEntity> freeBoardEntities;
+	    
+	    if (search != null && !search.isEmpty()) {
+	        // 검색어가 있을 경우 제목으로 검색
+	        freeBoardEntities = freeBoardRepository.findByTitleContaining(search, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    } else if (tag != null && !tag.isEmpty()) {
+	        // 태그가 있을 경우 해당 태그의 게시글을 가져옴
+	        freeBoardEntities = freeBoardRepository.findByTag(tag, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    } else {
+	        // 태그와 검색어가 모두 없을 경우 전체 게시글을 가져옴
+	        freeBoardEntities = freeBoardRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    }
 
-        Page<FreeBoardDTO> freeBoardDTOS = freeBoardEntities.map(freeBoard -> new FreeBoardDTO(
-            freeBoard.getSeq(),
-            freeBoard.getTag(),
-            freeBoard.getTitle(),
-            freeBoard.getCreatedTime(),
-            freeBoard.getViews(),
-            freeBoard.getLikeCount(),
-            freeBoard.getNickname()
-        ));
+	    Page<FreeBoardDTO> freeBoardDTOS = freeBoardEntities.map(freeBoard -> new FreeBoardDTO(
+	        freeBoard.getSeq(),
+	        freeBoard.getTag(),
+	        freeBoard.getTitle(),
+	        freeBoard.getCreatedTime(),
+	        freeBoard.getViews(),
+	        freeBoard.getLikeCount(),
+	        freeBoard.getNickname()
+	    ));
 
-        return freeBoardDTOS;
-    }
+	    return freeBoardDTOS;
+	}
+
 
 	// 좋아요 기능
 	@Transactional

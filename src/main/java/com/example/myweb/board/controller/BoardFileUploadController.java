@@ -21,13 +21,13 @@ import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
-public class FreeBoardFileUploadController {
+public class BoardFileUploadController {
 
 //    private static final String UPLOAD_DIR = "src/main/resources/static/upload/";
     
     private final FreeBoardService freeBoardService;
 
-    @PostMapping("/uploadImageFreeBoard")
+    @PostMapping("/uploadImage")
     @ResponseBody
     public Map<String, Object> handleFileUpload(@RequestParam("upload") MultipartFile file) {
         Map<String, Object> responseData = new HashMap<>();
@@ -52,5 +52,23 @@ public class FreeBoardFileUploadController {
     }
 
     
-
+//    @PostMapping("/uploadImage")
+//    @ResponseBody
+//    public String handleFileUpload(@RequestParam("upload") MultipartFile file, RedirectAttributes redirectAttributes) {
+//        if (file.isEmpty()) {
+//            return "파일이 업로드되지 않았습니다.";
+//        }
+//
+//        try {
+//            // 파일 저장 및 FileEntity 저장
+//            String fileUrl = freeBoardService.saveFile(file);
+//
+//            // CKEditor에 반환할 JSON 데이터
+//            return "{\"uploaded\": true, \"url\": \"" + fileUrl + "\"}";
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return "{\"uploaded\": false, \"error\": {\"message\": \"파일 업로드 실패\"}}";
+//        }
+//    }
 }

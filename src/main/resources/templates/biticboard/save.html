@@ -133,7 +133,27 @@
 		    background-size: 10px;
 		    text-align: center;
 		}
-
+.board-tag {
+    background-color: rgb(255, 255, 255); /* 태그 배경색 */
+    color: rgb(0, 0, 0); /* 태그 글자색 */
+    padding: 5px 10px; /* 태그 패딩 */
+    border-radius: 5px; /* 태그의 모서리를 둥글게 */
+    font-size: 14px; /* 태그 글자 크기 */
+    margin-right: 10px; /* 태그와 제목 사이의 간격 */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+    font-weight: bold;
+}
+.board-main {
+    margin-top: 30px; /* 헤더와의 간격을 추가 */
+    padding-top: 30px; /* 원하는 경우 내부 여백 추가 */
+}
+  
+.categories li a.active {
+	display: inline-block; /* 글자 크기에 맞게 배경색*/
+	color :  rgb(64, 0, 64); /*글자색*/
+	background-color: rgb(239, 223, 255); /*배경색*/
+	border-radius: 30px
+}  
     </style>
 </head>
 
@@ -145,7 +165,9 @@
             <div class="row">
                 <div class="col-md-8 ftco-animate">
                     <!-- 제목 추가 -->
-                    <h1>자랑게시판 글쓰기</h1>
+                    <span class="board-tag">자랑게시판</span>
+                    	<!-- 구분선 -->
+    <hr class="separator">
 <form action="/biticboard/save" method="post" enctype="multipart/form-data">
     <input type="hidden" name="loginid" th:value="${session.loginid}">
     
@@ -183,16 +205,11 @@
                 </div>
 
                 <div class="col-md-4 sidebar ftco-animate">
-                    <div class="sidebar-box">
-                        <form action="#" class="search-form">
-                            <!-- 검색폼 -->
-                        </form>
-                    </div>
                     <div class="sidebar-box ftco-animate">
                         <div class="categories">
                             <h3>속닥속닥</h3>
-                            <li><a href="/freeboard/paging">자유게시판 <span></span></a></li>
-                            <li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
+                            <li><a href="/freeboard/paging" >자유게시판 <span></span></a></li>
+                            <li><a href="/biticboard/paging" class = "active">자랑게시판 <span></span></a></li>
                             <li><a href="/noticeboard/paging">공지사항 <span></span></a></li>
                         </div>
                     </div>

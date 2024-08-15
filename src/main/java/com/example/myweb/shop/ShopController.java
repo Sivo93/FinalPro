@@ -105,13 +105,13 @@ public class ShopController {
     	// 폴더 오류나면 해당 폴더 우클릭 후 읽기 전용 체크를 푸세요
         // 프로젝트 루트 디렉토리 경로를 얻습니다.
         String projectDir = System.getProperty("user.dir");
-        String uploadDir = projectDir + "\\uploads\\images";  // 프로젝트 내의 uploads 디렉토리 경로
+        String uploadDir = projectDir + "/uploads/images";
         String originalFilename = image.getOriginalFilename();
-        
-        // 파일 이름에 시간을 추가하여 고유한 파일 이름을 만듭니다.
         String uniqueFilename = System.currentTimeMillis() + "_" + originalFilename;
         String filePath = Paths.get(uploadDir, uniqueFilename).toString();
 
+        
+        // 파일 이름에 시간을 추가하여 고유한 파일 이름을 만듭니다.
         // 저장 디렉토리가 없으면 생성
         File dir = new File(uploadDir);
         if (!dir.exists()) {

@@ -170,32 +170,35 @@
 		}
         
 		
-		select[name="tag"] {
-		    width: 10%;
-		    padding: 10px;
-		    margin-bottom: 15px;
-		    border: 1px solid #ddd;
-		    border-radius: 30px; /* 둥근 모서리 */
-		    font-size: 16px;
-		    background-color: #fff; /* 배경색 */
-		    appearance: none; /* 드롭다운 화살표 제거 */
-		    -webkit-appearance: none;
-		    -moz-appearance: none;
-		    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/></svg>');
-		    background-repeat: no-repeat;
-		    background-position: right 10px center;
-		    background-size: 10px;
-		    text-align: center;
-		}
-		
+select[name="tag"] {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    font-size: 16px;
+    background-color: #fff;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px;
+    text-align: center;
+    width: auto; /* 내용에 따라 너비가 자동으로 조절되도록 설정 */
+    min-width: 80px; /* 최소 너비를 설정하여 너무 좁아지지 않도록 방지 */
+    max-width: 150px; /* 최대 너비를 설정하여 너무 넓어지지 않도록 방지 */
+}
 		/* */
 .filter-and-search {
-    display: flex !important; /* Flexbox로 수평 정렬을 강제 */
-    align-items: center !important; /* 수직 중앙 정렬을 강제 */
-    gap: 10px !important; /* 두 요소 사이의 간격 */
-    margin-bottom: 15px !important; /* 아래쪽 여백 */
+    display: flex;
+    justify-content: space-between; /* 태그와 검색 입력란을 양쪽 끝에 배치 */
+    align-items: center; /* 세로 중앙 정렬 */
+    margin-bottom: 15px; /* 아래쪽 여백 */
 }
-
+.tag-filter-form {
+    flex: 1; /* 왼쪽에 위치한 태그 선택 박스가 일정한 공간을 차지하게 함 */
+}
 .tag-filter-form select {
     padding: 10px !important;
     border: 1px solid #ddd !important;
@@ -217,21 +220,41 @@
     padding-top: 30px; /* 원하는 경우 내부 여백 추가 */
 }
 .search-form {
-    position: relative !important; /* 검색 입력란과 아이콘을 포지셔닝하기 위해 필요 */
+    flex: 1;
+    display: flex;
+    justify-content: flex-end; /* 검색 입력란과 아이콘을 오른쪽으로 정렬 */
+    position: relative;
+    background-color: white;
 }
 
 .search-container {
-    position: relative !important; /* 검색 입력란과 아이콘을 감싸는 컨테이너 */
+    position: relative;
+    display: inline-block;
 }
 
 .search-form input {
-    width: 250px !important; /* 검색 입력란의 너비 */
-    padding: 10px 40px 10px 10px !important; /* 아이콘이 들어갈 자리 확보 (오른쪽 여백 추가) */
-    border-radius: 5px !important;
-    border: 1px solid #ddd !important;
-    font-size: 16px !important;
+    width: 250px;
+    padding: 10px 40px 10px 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
 }
 
+.search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.search-icon .icon-search {
+    font-size: 18px;
+    color: #666;
+}
 .current-page {
     font-size: 22px; /* 글자크기 */
     font-weight: bold; /* 굵게 */
@@ -241,90 +264,95 @@
 .categories li a.active {
 	display: inline-block; /* 글자 크기에 맞게 배경색*/
 	color :  rgb(64, 0, 64); /*글자색*/
-	background-color: lightgray; /*배경색*/
+	background-color: rgb(239, 223, 255); /*배경색*/
+	border-radius: 30px
 }
+
+
 		    </style>
 </head>
 <body>
     <div th:replace="~{common/header :: fragment}"></div>
     <section class="ftco-section">
-        <div class="board-main">
-            <div class="row">
-                <div class="col-md-9 ftco-animate">
-                    <h2 class="mb-3">
-                        <table class="board">
-                            <span class="text">
-                                <thead>
-<div class="filter-and-search">
-    <form id="tagFilterForm" action="/freeboard/paging" method="get" class="tag-filter-form">
-        <select name="tag" onchange="document.getElementById('tagFilterForm').submit()">
-            <option value="" ${currentTag==null ? 'selected' : '' }>전체</option>
-            <option value="운동" ${currentTag=='운동' ? 'selected' : '' }>운동</option>
-            <option value="여가" ${currentTag=='여가' ? 'selected' : '' }>여가</option>
-            <option value="여행" ${currentTag=='여행' ? 'selected' : '' }>여행</option>
-            <option value="동물" ${currentTag=='동물' ? 'selected' : '' }>동물</option>
-            <option value="질문" ${currentTag=='질문' ? 'selected' : '' }>질문</option>
-            <option value="꿀팁" ${currentTag=='꿀팁' ? 'selected' : '' }>꿀팁</option>
-        </select>
-    </form>
-    <form action="#" class="search-form">
-        <div class="search-container">
-            <input type="text" class="form-control" placeholder="제목으로 검색" name="search" th:value="${search}">
-        </div>
-    </form>
-</div>
-                                    <tr>
-                                        <th>번호</th>
-                                        <th>태그</th>
-                                        <th>제목</th>
-                                        <th>작성자</th>
-                                        <th>작성일</th>
-                                        <th>조회수</th>
-                                        <th>추천</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="freeboard: ${freeBoardList}">
-                                        <td th:text="${freeboard.seq}"></td>
-                                        <td th:text="${freeboard.tag}"></td>
-                                        <td><a th:href="@{|/freeboard/${freeboard.seq}|(page=${freeBoardList.number + 1})}" th:text="${freeboard.title}"></a></td>
-                                        <td>
-                                            <span class="user-name" th:data-nickname="${freeboard.nickname}" th:text="${freeboard.nickname}" style="cursor: pointer;"></span>
-                                            <div class="toggle-menu">
-                                                <ul>
-                                                    <li class="start-chat" th:data-nickname="${freeboard.nickname}">1대1 채팅</li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                        <td th:text="*{#temporals.format(freeboard.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
-                                        <td th:text="${freeboard.views}"></td>
-                                        <td th:text="${freeboard.likeCount}"></td>
-                                    </tr>
-                                </tbody>
-                            </span>
-                        </table>
-                        <div class="pagination">
-                            <a th:href="@{/freeboard/paging(page=1)}"><<</a>
-                            <a th:href="${freeBoardList.first} ? '#' : @{/freeboard/paging(page=${freeBoardList.number})}"><</a>
-                            <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
-                                <span th:if="${page == freeBoardList.number + 1}" th:text="${page}" class="current-page"></span>
+<div class="board-main">
+    <div class="row">
+        <div class="col-md-9 ftco-animate">
+            <div class="filter-and-search">
+                <form id="tagFilterForm" action="/freeboard/paging" method="get" class="tag-filter-form">
+                    <select name="tag" onchange="document.getElementById('tagFilterForm').submit()">
+                        <option value="" ${currentTag==null ? 'selected' : '' }>전체</option>
+                        <option value="운동" ${currentTag=='운동' ? 'selected' : '' }>운동</option>
+                        <option value="여가" ${currentTag=='여가' ? 'selected' : '' }>여가</option>
+                        <option value="여행" ${currentTag=='여행' ? 'selected' : '' }>여행</option>
+                        <option value="동물" ${currentTag=='동물' ? 'selected' : '' }>동물</option>
+                        <option value="질문" ${currentTag=='질문' ? 'selected' : '' }>질문</option>
+                        <option value="꿀팁" ${currentTag=='꿀팁' ? 'selected' : '' }>꿀팁</option>
+                    </select>
+                </form>
+<form action="#" class="search-form" id="searchForm">
+    <div class="search-container">
+        <input type="text" class="form-control" placeholder="제목으로 검색" name="search" th:value="${searchKeyword}">
+        <button type="submit" class="search-icon">
+            <span class="icon-search"></span>
+        </button>
+    </div>
+</form>
+            </div>
+            <h2 class="mb-3">
+                <table class="board">
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>태그</th>
+                            <th>제목</th>
+                            <th>작성자</th>
+                            <th>작성일</th>
+                            <th>조회수</th>
+                            <th>추천</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="freeboard: ${freeBoardList}">
+                            <td th:text="${freeboard.seq}"></td>
+                            <td th:text="${freeboard.tag}"></td>
+                            <td><a th:href="@{|/freeboard/${freeboard.seq}|(page=${freeBoardList.number + 1})}" th:text="${freeboard.title}"></a></td>
+                            <td>
+                                <span class="user-name" th:data-nickname="${freeboard.nickname}" th:text="${freeboard.nickname}" style="cursor: pointer;"></span>
+                                <div class="toggle-menu">
+                                    <ul>
+                                        <li class="start-chat" th:data-nickname="${freeboard.nickname}">1대1 채팅</li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td th:text="*{#temporals.format(freeboard.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td th:text="${freeboard.views}"></td>
+                            <td th:text="${freeboard.likeCount}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </h2>
+<div class="pagination">
+    <a th:href="@{/freeboard/paging(page=1, tag=${currentTag}, search=${searchKeyword})}"><<</a>
+    <a th:href="${freeBoardList.first} ? '#' : @{/freeboard/paging(page=${freeBoardList.number}, tag=${currentTag}, search=${searchKeyword})}"><</a>
+    <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+        <span th:if="${page == freeBoardList.number + 1}" th:text="${page}" class="current-page"></span>
 
-                                <span th:unless="${page == freeBoardList.number + 1}">
-                                    <a th:href="@{/freeboard/paging(page=${page})}" th:text="${page}"></a>
-                                </span>
-                            </span>
-                            <a th:href="${freeBoardList.last} ? '#' : @{/freeboard/paging(page=${freeBoardList.number + 2})}">></a>
-                            <a th:href="@{/freeboard/paging(page=${freeBoardList.totalPages})}">>></a>
-                        </div>
-                        <a href="/freeboard/save" class="btn">글작성</a>
-                </div>
+        <span th:unless="${page == freeBoardList.number + 1}">
+            <a th:href="@{/freeboard/paging(page=${page}, tag=${currentTag}, search=${searchKeyword})}" th:text="${page}"></a>
+        </span>
+    </span>
+    <a th:href="${freeBoardList.last} ? '#' : @{/freeboard/paging(page=${freeBoardList.number + 2}, tag=${currentTag}, search=${searchKeyword})}">></a>
+    <a th:href="@{/freeboard/paging(page=${freeBoardList.totalPages}, tag=${currentTag}, search=${searchKeyword})}">>></a>
+</div>
+            <a href="/freeboard/save" class="btn">글작성</a>
+        </div>
                 <div class="col-md-3 sidebar ftco-animate">
                     <div class="sidebar-box ftco-animate">
                         <div class="categories">
                             <h3>속닥속닥</h3>
                             <li><a href="/freeboard/paging" class = "active">자유게시판 <span></span></a></li>
                             <li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
-                            <li><a href="/noticeboard/paging">공지사항 <span></span></a></li>
+                            <li><a href="/noriceboard/paging">공지사항 <span></span></a></li>
                         </div>
                     </div>
 					<div class="sidebar-box ftco-animate">
@@ -389,12 +417,20 @@
         });
     });
     
-    	$(document).ready(function () {
-		// 태그 선택 시 게시글 필터링
-		$('#tagSelect').change(function () {
-			const selectedTag = $(this).val();
-			loadBoardData(selectedTag);
-		});
+$(document).ready(function() {
+    // 태그 선택 시 게시글 필터링
+    $('#tagFilterForm select[name="tag"]').change(function() {
+        const selectedTag = $(this).val();
+        const messageDiv = $('#searchTagMessage');
+        
+        if (selectedTag) {
+            messageDiv.text(`'${selectedTag}' 태그에 대한 검색 결과입니다.`).show();
+        } else {
+            messageDiv.hide();
+        }
+        
+        loadBoardData(selectedTag);
+    });
 
 		// 페이지 로드 시 전체 게시글 로드
 		loadBoardData();
@@ -415,26 +451,35 @@
 			});
 		}
 
-		function renderBoardList(boardData) {
-			const boardList = $('#boardList');
-			boardList.empty(); // 기존 게시글 목록을 지우고
+function renderBoardList(boardData) {
+    //console.log(boardData); // 응답 데이터를 콘솔에 출력하여 확인
+    const boardList = $('#boardList');
+    boardList.empty(); // 기존 게시글 목록을 지웁니다.
 
-			// 가져온 게시글 데이터를 반복하며 테이블에 추가
-			boardData.forEach(freeboard => {
-				const boardRow = `
-                <tr>
-                    <td>${freeboard.seq}</td>
-                    <td>${freeboard.tag}</td>
-                    <td><a href="/freeboard/${freeboard.seq}">${freeboard.title}</a></td>
-                    <td>${freeboard.nickname}</td>
-                    <td>${new Date(freeboard.createdTime).toLocaleDateString()}</td>
-                    <td>${freeboard.views}</td>
-                    <td>${freeboard.likeCount}</td>
-                </tr>
-            `;
-				boardList.append(boardRow);
-			});
-		}
+    if (!Array.isArray(boardData)) {
+        boardData = [boardData];
+    }
+
+    if (boardData.length === 0) {
+        boardList.append('<tr><td colspan="7">게시글이 없습니다.</td></tr>');
+        return;
+    }
+
+    boardData.forEach(freeboard => {
+        const boardRow = `
+            <tr>
+                <td>${freeboard.seq}</td>
+                <td>${freeboard.tag}</td>
+                <td><a href="/freeboard/${freeboard.seq}">${freeboard.title}</a></td>
+                <td>${freeboard.nickname}</td>
+                <td>${new Date(freeboard.createdTime).toLocaleDateString()}</td>
+                <td>${freeboard.views}</td>
+                <td>${freeboard.likeCount}</td>
+            </tr>
+        `;
+        boardList.append(boardRow);
+    });
+}
 	});
 	
 	    $(document).ready(function () {
@@ -458,6 +503,23 @@
         }
     });
 });
+
+$('#searchForm').on('submit', function(e) {
+    e.preventDefault(); // 기본 제출 동작 막기
+    const searchKeyword = $('input[name="search"]').val();
+    const tag = $('#tagFilterForm select[name="tag"]').val();
+    const messageDiv = $('#searchTagMessage');
+
+    if (searchKeyword) {
+        messageDiv.text(`'${searchKeyword}'에 대한 검색 결과입니다.`).show();
+    } else {
+        messageDiv.hide();
+    }
+
+    // 태그와 검색어를 URL에 포함하여 페이지를 이동합니다.
+    window.location.href = `/freeboard/paging?search=${encodeURIComponent(searchKeyword)}&tag=${encodeURIComponent(tag)}&page=1`;
+});
+
 
 </script>
 </html>

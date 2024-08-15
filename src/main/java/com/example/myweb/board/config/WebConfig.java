@@ -24,8 +24,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/freeboard/**")
-                .excludePathPatterns("/login", "/signup", "/css/**", "/js/**", "/freeboard/paging", "/freeboard/*");
+                .addPathPatterns("/freeboard/save", "/biticboard/save", "/noticeboard/save")
+                .excludePathPatterns("/login", "/signup", "/css/**", "/js/**");
     }
 
     @Override

@@ -132,7 +132,7 @@
         formData.append("file", file);
 
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/uploadFile", true);
+        xhr.open("POST", "/uploadFile/chat", true);
 
         xhr.upload.onprogress = function(event) {
             if (event.lengthComputable) {
@@ -475,36 +475,46 @@ function displayMessage(message, isHistory = false) {
             chatSidebar.style.width = savedWidth;
         }
     }
-    // 파일 선택 시 미리보기 처리 함수
-    function handleFileSelect(event) {
-        const fileInput = event.target;
-        const file = fileInput.files[0];
-        if (file) {
-            const filePreview = document.getElementById('file-preview');
-            const reader = new FileReader();
+// 파일 선택 시 미리보기 처리 함수
+function handleFileSelect(event) {
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+    if (file) {
+        const filePreview = document.getElementById('file-preview');
+        const reader = new FileReader();
 
-            reader.onload = function(e) {
-                const fileType = getFileType(file.name);
-                if (fileType === 'image') {
-                    filePreview.innerHTML = `
-                        <div class="file-preview-item">
-                            <img src="${e.target.result}" alt="file" style="max-width: 100px; max-height: 100px;">
-                            <button class="file-remove-btn" onclick="removeFile()">X</button>
-                        </div>
-                    `;
-                } else {
-                    filePreview.innerHTML = `
-                        <div class="file-preview-item">
-                            <span>${file.name}</span>
-                            <button class="file-remove-btn" onclick="removeFile()">X</button>
-                        </div>
-                    `;
-                }
-            };
+        reader.onload = function(e) {
+            const fileType = getFileType(file.name);
+            if (fileType === 'image') {
+                filePreview.innerHTML = `
+                    <div class="file-preview-item">
+                        <img src="${e.target.result}" alt="file" style="max-width: 100px; max-height: 100px;">
+                        <button class="file-remove-btn" onclick="removeFile()">X</button>
+                    </div>
+                `;
+            } else if (fileType === 'video') {
+                filePreview.innerHTML = `
+                    <div class="file-preview-item">
+                        <video controls style="max-width: 200px;">
+                            <source src="${e.target.result}" type="${file.type}">
+                            Your browser does not support the video tag.
+                        </video>
+                        <button class="file-remove-btn" onclick="removeFile()">X</button>
+                    </div>
+                `;
+            } else {
+                filePreview.innerHTML = `
+                    <div class="file-preview-item">
+                        <span>${file.name}</span>
+                        <button class="file-remove-btn" onclick="removeFile()">X</button>
+                    </div>
+                `;
+            }
+        };
 
-            reader.readAsDataURL(file);
-        }
+        reader.readAsDataURL(file);
     }
+}
 
     // 파일 미리보기 제거
     function removeFile() {
@@ -566,17 +576,17 @@ function displayMessage(message, isHistory = false) {
         }, 3000); // 3초 후에 사라지도록 설정
     }
 
-    // 파일 확장자를 보고 파일 유형 결정
-    function getFileType(fileName) {
-        const fileExtension = fileName.split('.').pop().toLowerCase();
-        if (["jpeg", "jpg", "png", "gif"].includes(fileExtension)) {
-            return "image";
-        } else if (["mp4", "webm", "ogg"].includes(fileExtension)) {
-            return "video";
-        } else {
-            return "unsupported";
-        }
+// 파일 확장자를 보고 파일 유형 결정
+function getFileType(fileName) {
+    const fileExtension = fileName.split('.').pop().toLowerCase();
+    if (["jpeg", "jpg", "png", "gif"].includes(fileExtension)) {
+        return "image";
+    } else if (["mp4", "webm", "ogg"].includes(fileExtension)) {
+        return "video";
+    } else {
+        return "unsupported";
     }
+}
 
     // 모든 메시지를 읽음으로 표시
     function markAllMessagesAsRead() {

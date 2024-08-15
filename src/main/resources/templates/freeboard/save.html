@@ -134,6 +134,34 @@
 		    text-align: center;
 		}
 
+.categories li a.active {
+	display: inline-block; /* 글자 크기에 맞게 배경색*/
+	color :  rgb(64, 0, 64); /*글자색*/
+	background-color: rgb(239, 223, 255); /*배경색*/
+	border-radius: 30px
+}
+
+.board-tag {
+    background-color: rgb(255, 255, 255); /* 태그 배경색 */
+    color: rgb(0, 0, 0); /* 태그 글자색 */
+    padding: 5px 10px; /* 태그 패딩 */
+    border-radius: 5px; /* 태그의 모서리를 둥글게 */
+    font-size: 14px; /* 태그 글자 크기 */
+    margin-right: 10px; /* 태그와 제목 사이의 간격 */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+    font-weight: bold;
+}
+/*구분선*/
+hr.separator {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 20px 0; /* 구분선 위아래의 여백 */
+}
+
+.board-main {
+    margin-top: 30px; /* 헤더와의 간격을 추가 */
+    padding-top: 30px; /* 원하는 경우 내부 여백 추가 */
+}
     </style>
 </head>
 
@@ -145,7 +173,9 @@
             <div class="row">
                 <div class="col-md-8 ftco-animate">
                     <!-- 제목 추가 -->
-                    <h1>자유게시판 글쓰기</h1>
+                    <span class="board-tag">자유게시판</span>
+                    	<!-- 구분선 -->
+    <hr class="separator">
 <form action="/freeboard/save" method="post" enctype="multipart/form-data">
     <input type="hidden" name="loginid" th:value="${session.loginid}">
     
@@ -153,7 +183,7 @@
     <input type="text" name="nickname" id="nickname" th:value="${session.nickname}" readonly>
 
     <div style="display: flex; flex-direction: column;">
-        <label for="tag">태그:</label>
+        <label for="tag">태그를 선택해주세요</label>
         <select name="tag">
             <option value="운동">운동</option>
             <option value="여가">여가</option>
@@ -168,12 +198,12 @@
     </div>
 
     <label for="contents">내용:</label>
-    <textarea name="contents" id="editor" cols="30" rows="10"></textarea>
+    <textarea name="contents" id="editor" style="min-height: 300px; width: 100%;"></textarea>
+
 
     <div class="file-input-container">
         <!-- 파일 선택 부분 -->
         <label for="file" class="file-input-label">
-            <i class="fas fa-upload"></i>
         </label>
         <input type="file" name="freeboardFile" id="file" class="file-input" multiple>
     </div>
@@ -183,15 +213,10 @@
                 </div>
 
                 <div class="col-md-4 sidebar ftco-animate">
-                    <div class="sidebar-box">
-                        <form action="#" class="search-form">
-                            <!-- 검색폼 -->
-                        </form>
-                    </div>
                     <div class="sidebar-box ftco-animate">
                         <div class="categories">
                             <h3>속닥속닥</h3>
-                            <li><a href="sokdakfree.html">자유게시판 <span></span></a></li>
+                            <li><a href="sokdakfree.html" class ="active">자유게시판 <span></span></a></li>
                             <li><a href="sokdakbitic.html">자랑게시판 <span></span></a></li>
                             <li><a href="sokdaknotice.html">공지사항 <span></span></a></li>
                         </div>
@@ -234,7 +259,7 @@
             .create(document.querySelector('#editor'), {
                 language: "ko",
                 ckfinder: {
-                    uploadUrl: '/uploadImageFreeBoard', // 파일 업로드 엔드포인트 설정
+                    uploadUrl: '/uploadImage', // 파일 업로드 엔드포인트 설정
                     withCredentials: true
                 }
             })
