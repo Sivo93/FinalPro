@@ -28,18 +28,6 @@ public class FreeBoardCommentEntity extends BaseBoardEntity {
 	@Column(nullable = false)
 	private String commentContentes;
 
-//	@Column(name = "nickname")
-//    private String nickname;
-//
-//    @Column(name = "loginid")
-//    private String loginid;
-//
-//    @ManyToOne
-//    @JoinColumns({
-//        @JoinColumn(name = "nickname", referencedColumnName = "nickname", insertable = false, updatable = false),
-//        @JoinColumn(name = "loginid", referencedColumnName = "loginid", insertable = false, updatable = false)
-//    })
-//    private UserEntity user;
 
 	@ManyToOne
     @JoinColumns({

@@ -48,13 +48,9 @@ public class UserController {
 	@PostMapping("/user/save")
 	public String save(@ModelAttribute UserDTO userDTO) {
 		userService.save(userDTO);
-		return "user/login.html";
+		return "index.html";
 	}
 
-//    @GetMapping("/user/login")
-//    public String loginForm() {
-//        return "user/login.html";
-//    }
 
 	@GetMapping("/user/login")
 	public String loginPage(Model model, HttpServletRequest request) {

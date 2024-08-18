@@ -21,17 +21,6 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-//	public void save(UserDTO userDTO) {
-//		// 1. dto -> entity 변환
-//
-//		// 2. repository의 save 메서드 호출
-//		UserEntity userEntity = UserEntity.toUserEntity(userDTO);
-//		userRepository.save(userEntity);
-//		System.out.println("회원가입 성공");
-//
-//		// repository의 save 메서드 호출 (조건. entity객체를 넘겨줘야 함)
-//	}
-
 	public void save(UserDTO userDTO) {
 		String loginid = userDTO.getLoginid();
 		String pw = userDTO.getPw();
@@ -58,31 +47,6 @@ public class UserService {
 		// repository의 save 메서드 호출 (조건. entity객체를 넘겨줘야 함)
 	}
 
-//	public UserDTO login(UserDTO userDTO) {
-//		// 1. 회원이 입력한 이메일로 db에서 조회를 함
-//		// 2. db에서 조회한 비밀번호와 사용자가 입력한 비밀번호가 일치하는지 판단
-//		Optional<UserEntity> byLoginid = userRepository.findByLoginid(userDTO.getLoginid());
-//		if (byLoginid.isPresent()) {
-//			// 조회 결과가 있다(해당 아이디를 가진 회원 정보가 있다)
-//			UserEntity userEntity = byLoginid.get();
-//			if (userEntity.getPw().equals(userDTO.getPw())) {
-//				// 비밀번호 일치
-//				// entity -> dto 변환 후 리턴
-//				UserDTO dto = UserDTO.toUserDTO(userEntity);
-//				System.out.println("로그인 성공!");
-//				return dto;
-//			} else {
-//				// 비밀번호 불일치(로그인실패)
-//				System.out.println("비밀번호 틀림!");
-//				return null;
-//			}
-//		} else {
-//			// 조회 결과가 없다(해당 아이디를 가진 회원 정보가 없다)
-//			System.out.println("아이디가 없습니다!");
-//			return null;
-//		}
-//
-//	}
 
 	public UserDTO login(UserDTO userDTO) {
 		Optional<UserEntity> byLoginid = userRepository.findByLoginid(userDTO.getLoginid());

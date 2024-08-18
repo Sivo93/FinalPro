@@ -1,7 +1,10 @@
 package com.example.myweb.user.dto;
 
 import java.util.Set;
+
+import com.example.myweb.board.entity.BiticBoardLikeEntity;
 import com.example.myweb.board.entity.FreeBoardLikeEntity;
+import com.example.myweb.board.entity.NoticeBoardLikeEntity;
 import com.example.myweb.user.entity.UserEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -27,7 +30,11 @@ public class UserDTO {
     private String tel;
     private String role;
     @JsonIgnore
-    private Set<FreeBoardLikeEntity> likes; // 추가
+    private Set<FreeBoardLikeEntity> freelikes; // 추가
+    @JsonIgnore
+    private Set<NoticeBoardLikeEntity> noticelikes; // 추가
+    @JsonIgnore
+    private Set<BiticBoardLikeEntity> biticlikes; // 추가
 
     public static UserDTO toUserDTO(UserEntity userEntity) {
         UserDTO userDTO = new UserDTO();
@@ -40,7 +47,9 @@ public class UserDTO {
         userDTO.setEmail(userEntity.getEmail());
         userDTO.setTel(userEntity.getTel());
         userDTO.setRole(userEntity.getRole());
-        userDTO.setLikes(userEntity.getLikes()); // 추가
+        userDTO.setFreelikes(userEntity.getFreelikes()); // 추가
+        userDTO.setNoticelikes(userEntity.getNoticelikes()); // 추가
+        userDTO.setBiticlikes(userEntity.getBiticlikes()); // 추가
 
         return userDTO;
     }

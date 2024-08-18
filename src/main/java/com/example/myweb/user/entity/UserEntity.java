@@ -2,7 +2,9 @@ package com.example.myweb.user.entity;
 
 import java.util.Set;
 
+import com.example.myweb.board.entity.BiticBoardLikeEntity;
 import com.example.myweb.board.entity.FreeBoardLikeEntity;
+import com.example.myweb.board.entity.NoticeBoardLikeEntity;
 import com.example.myweb.user.dto.UserDTO;
 
 import jakarta.persistence.CascadeType;
@@ -50,7 +52,13 @@ public class UserEntity {
 	private String role;
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<FreeBoardLikeEntity> likes;
+	private Set<FreeBoardLikeEntity> freelikes;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<NoticeBoardLikeEntity> noticelikes;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<BiticBoardLikeEntity> biticlikes;
 
     public static UserEntity toUserEntity(UserDTO userDTO) {
         UserEntity userEntity = new UserEntity();

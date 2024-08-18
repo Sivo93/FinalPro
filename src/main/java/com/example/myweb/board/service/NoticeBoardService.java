@@ -139,37 +139,41 @@ public class NoticeBoardService {
 
 	
 	@Transactional
-    public Page<NoticeBoardDTO> paging(Pageable pageable, String tag) {
-        int page = pageable.getPageNumber();
-        if (page < 0) {
-            page = 0;
-        } else {
-            page -= 1;
-        }
-        int pageLimit = 5; // 한 페이지에 보여줄 글 갯수
+	public Page<NoticeBoardDTO> paging(Pageable pageable, String tag, String search) {
+	    int page = pageable.getPageNumber();
+	    if (page < 0) {
+	        page = 0;
+	    } else {
+	        page -= 1;
+	    }
+	    int pageLimit = 5; // 한 페이지에 보여줄 글 갯수
 
-        Page<NoticeBoardEntity> noticeBoardEntities;
-        
-        if (tag == null || tag.isEmpty()) {
-            // 태그가 없을 경우 전체 게시글을 가져옴
-        	noticeBoardEntities = noticeBoardRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
-        } else {
-            // 태그가 있을 경우 해당 태그의 게시글을 가져옴
-        	noticeBoardEntities = noticeBoardRepository.findByTag(tag, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
-        }
+	    Page<NoticeBoardEntity> noticeBoardEntities;
+	    
+	    if (search != null && !search.isEmpty()) {
+	        // 검색어가 있을 경우 제목으로 검색
+	        noticeBoardEntities = noticeBoardRepository.findByTitleContaining(search, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    } else if (tag != null && !tag.isEmpty()) {
+	        // 태그가 있을 경우 해당 태그의 게시글을 가져옴
+	        noticeBoardEntities = noticeBoardRepository.findByTag(tag, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    } else {
+	        // 태그와 검색어가 모두 없을 경우 전체 게시글을 가져옴
+	        noticeBoardEntities = noticeBoardRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "seq")));
+	    }
 
-        Page<NoticeBoardDTO> noticeBoardDTOS = noticeBoardEntities.map(noticeBoard -> new NoticeBoardDTO(
-    		noticeBoard.getSeq(),
-    		noticeBoard.getTag(),
-    		noticeBoard.getTitle(),
-    		noticeBoard.getCreatedTime(),
-    		noticeBoard.getViews(),
-    		noticeBoard.getLikeCount(),
-    		noticeBoard.getNickname()
-        ));
+	    Page<NoticeBoardDTO> noticeBoardDTOS = noticeBoardEntities.map(noticeBoard -> new NoticeBoardDTO(
+	        noticeBoard.getSeq(),
+	        noticeBoard.getTag(),
+	        noticeBoard.getTitle(),
+	        noticeBoard.getCreatedTime(),
+	        noticeBoard.getViews(),
+	        noticeBoard.getLikeCount(),
+	        noticeBoard.getNickname()
+	    ));
 
-        return noticeBoardDTOS;
-    }
+	    return noticeBoardDTOS;
+	}
+
 
 	// 좋아요 기능
 	@Transactional
@@ -209,6 +213,7 @@ public class NoticeBoardService {
 
 		return false; // 게시글 또는 사용자가 존재하지 않음을 반환
 	}
+
 	public boolean isLikedByUser(Long boardSeq, String loginid) {
 		Optional<NoticeBoardEntity> optionalBoard = noticeBoardRepository.findById(boardSeq);
 		Optional<UserEntity> optionalUser = userRepository.findByLoginid(loginid);
