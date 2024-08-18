@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
+	<title>게시글 보기</title>
+	<!-- jquery cdn -->
+	<script src="https://code.jquery.com/jquery-3.6.3.min.js"
+		integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+	<!-- SockJS와 Stomp.js -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+	<link rel="stylesheet" th:href="@{/css/header.css}">
+	<link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+	<link rel="stylesheet" th:href="@{/css/open-iconic-bootstrap.min.css}">
+	<link rel="stylesheet" th:href="@{/css/animate.css}">
+	<link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+	<link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
+	<link rel="stylesheet" th:href="@{/css/magnific-popup.css}">
+	<link rel="stylesheet" th:href="@{/css/aos.css}">
+	<link rel="stylesheet" th:href="@{/css/ionicons.min.css}">
+	<link rel="stylesheet" th:href="@{/css/bootstrap-datepicker.css}">
+	<link rel="stylesheet" th:href="@{/css/jquery.timepicker.css}">
+	<link rel="stylesheet" th:href="@{/css/flaticon.css}">
+	<link rel="stylesheet" th:href="@{/css/icomoon.css}">
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+
+	<!-- 좋아요 아이콘 -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+	<style>
+		.board-container {
+			background-color: #f9f7f7;
+			border: 1px solid #eaeaea;
+			border-radius: 8px;
+			padding: 20px;
+			max-width: 800px;
+			margin: 0 auto;
+			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+			font-family: 'Work Sans', sans-serif;
+			color: #333;
+		}
+
+		h2 {
+			font-size: 24px;
+			margin-bottom: 10px;
+		}
+
+		.created-time {
+			font-size: 14px;
+			color: #999;
+			margin-bottom: 20px;
+		}
+
+		.content-section {
+			margin-bottom: 20px;
+		}
+
+		.title-container {
+			display: flex;
+			justify-content: space-between;
+			/* 제목을 왼쪽, 조회수를 오른쪽에 배치 */
+			align-items: center;
+			/* 수직 정렬 */
+			margin-bottom: 10px;
+			/* 제목과 아래 요소 간의 간격 */
+		}
+
+		.title {
+			font-size: 24px;
+			margin: 0;
+			/* 제목의 기본 마진 제거 */
+		}
+
+		.views-count {
+			font-size: 14px;
+			color: #666;
+		}
+
+		.post-image {
+			max-width: 100%;
+			height: auto;
+			margin-top: 10px;
+			border-radius: 5px;
+			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		.stats {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 20px;
+			font-size: 14px;
+			color: #666;
+		}
+
+
+
+
+
+
+
+		.comment-section {
+			display: flex;
+			align-items: center;
+			margin-top: 30px;
+			margin-bottom: 20px;
+		}
+
+		.comment-section label {
+			margin-right: 10px;
+			font-size: 14px;
+			font-weight: 600;
+		}
+
+		#commentWriter {
+			display: inline-block;
+			padding: 10px;
+			border: 1px solid #ddd;
+			border-radius: 5px;
+			margin-right: 10px;
+			background-color: #f2f2f2;
+			font-size: 14px;
+			width: auto;
+			/* 기본 크기를 자동으로 설정 */
+			min-width: 50px;
+			/* 최소 너비를 설정 */
+			box-sizing: content-box;
+			/* 패딩을 제외한 내용만큼 크기를 조정 */
+			text-align: center;
+			/* 수평 가운데 정렬 */
+			vertical-align: middle;
+			/* 수직 가운데 정렬 */
+		}
+
+		#commentContents {
+			flex-grow: 1;
+			padding: 10px;
+			border: 1px solid #ddd;
+			border-radius: 5px;
+			margin-right: 10px;
+			font-size: 14px;
+		}
+
+		#comment-write-btn {
+			background-color: #8e24aa;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			padding: 10px 20px;
+			cursor: pointer;
+			height: 40%;
+			/* 입력란 높이에 맞춤 */
+			flex-shrink: 0;
+			/* 넓이를 줄이지 않도록 고정 */
+			display: flex;
+			/* Flexbox 사용 */
+			align-items: center;
+			/* 수직 정렬 */
+			justify-content: center;
+			/* 수평 정렬 */
+			font-size: 16px;
+		}
+
+		#comment-write-btn:hover {
+			background-color: #6a1b9a;
+		}
+
+		#comment-list {
+			margin-top: 20px;
+		}
+
+		#comment-list table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-top: 20px;
+			font-size: 14px;
+		}
+
+		#comment-list th {
+			text-align: left;
+			background-color: #f9f7f7;
+			padding: 10px;
+			font-weight: 600;
+		}
+
+		#comment-list td {
+			padding: 15px;
+			background-color: rgb(255, 255, 255);
+			vertical-align: top;
+			border-radius: 8px;
+			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+			margin-bottom: 10px;
+		}
+
+		.comment-author {
+			display: flex;
+			flex-direction: column;
+			/* 세로 정렬 */
+			align-items: flex-start;
+			/* 작성자 이름을 왼쪽 정렬 */
+		}
+
+		.author-name {
+			display: flex;
+			align-items: center;
+			margin-bottom: 5px;
+			/* 작성자 이름과 구분선 사이의 여백 */
+			width: 100%;
+			/* 구분선이 전체 너비에 걸쳐 표시되도록 */
+			position: relative;
+			/* 구분선 위치 조정을 위한 상대 위치 설정 */
+		}
+
+		.author-name span:first-child {
+			font-size: 14px;
+			font-weight: bold;
+			margin-right: 10px;
+		}
+
+		.comment-date {
+			font-size: 12px;
+			color: #999;
+		}
+
+		/* 구분선 스타일 추가 */
+		.author-name::after {
+			content: "";
+			position: absolute;
+			bottom: -5px;
+			/* 구분선이 작성자 이름 바로 아래에 표시되도록 */
+			left: 0;
+			width: 100%;
+			height: 1px;
+			background-color: #ddd;
+			/* 구분선 색상 */
+		}
+
+		.comment-content {
+			font-size: 14px;
+			color: #333;
+			margin-top: 10px;
+			/* 구분선과 댓글 내용 사이의 여백 */
+			padding-left: 0px;
+			/* 왼쪽 여백 제거 */
+			border-left: none;
+			/* 테두리 제거 */
+		}
+
+		.board-main {
+			margin-top: 30px;
+			/* 헤더와의 간격을 추가 */
+			padding-top: 30px;
+			/* 원하는 경우 내부 여백 추가 */
+		}
+
+
+		.post-tag {
+			background-color: rgb(255, 255, 255);
+			/* 태그 배경색 */
+			color: rgb(0, 0, 0);
+			/* 태그 글자색 */
+			padding: 5px 10px;
+			/* 태그 패딩 */
+			border-radius: 5px;
+			/* 태그의 모서리를 둥글게 */
+			font-size: 14px;
+			/* 태그 글자 크기 */
+			margin-right: 10px;
+			/* 태그와 제목 사이의 간격 */
+			margin-bottom: 15px;
+			/* 태그와 제목 사이의 간격 추가 */
+			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+			/* 그림자 추가 */
+			font-weight: bold;
+		}
+
+		.board-tag {
+			background-color: rgb(255, 255, 255);
+			/* 태그 배경색 */
+			color: rgb(0, 0, 0);
+			/* 태그 글자색 */
+			padding: 5px 10px;
+			/* 태그 패딩 */
+			border-radius: 5px;
+			/* 태그의 모서리를 둥글게 */
+			font-size: 14px;
+			/* 태그 글자 크기 */
+			margin-right: 10px;
+			/* 태그와 제목 사이의 간격 */
+			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+			/* 그림자 추가 */
+			font-weight: bold;
+		}
+
+		.board-container {
+			background-color: rgb(253, 251, 255);
+			border: 1px solid #eaeaea;
+			border-radius: 8px;
+			padding: 20px;
+			max-width: 800px;
+			margin: 0 auto;
+			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+			font-family: 'Work Sans', sans-serif;
+			color: #333;
+			word-wrap: break-word;
+			/* 긴 단어가 컨테이너 밖으로 나가지 않도록 함 */
+			overflow-wrap: break-word;
+			/* 긴 단어를 잘라서 다음 줄로 넘김 */
+			overflow: hidden;
+			/* 이미지나 콘텐츠가 넘칠 경우 숨김 */
+		}
+
+		.content-section img {
+			max-width: 100%;
+			/* 이미지가 컨테이너를 벗어나지 않도록 함 */
+			height: auto;
+			/* 이미지의 비율을 유지 */
+			display: block;
+			/* 블록 요소로 표시하여 다른 요소들과 겹치지 않도록 함 */
+			margin: 10px 0;
+			/* 이미지 위아래에 약간의 여백 추가 */
+		}
+
+		.post-image {
+			max-width: 100%;
+			height: auto;
+			margin-top: 10px;
+			border-radius: 5px;
+			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+
+		/*구분선*/
+		hr.separator {
+			border: none;
+			border-top: 1px solid #ddd;
+			margin: 20px 0;
+			/* 구분선 위아래의 여백 */
+		}
+
+
+		.likeandupdate-container {
+			display: flex;
+			flex-direction: column;
+			/* 수정 버튼을 아래로 배치 */
+			align-items: center;
+			/* 좋아요 버튼과 추천수를 가운데 정렬 */
+			margin-bottom: 20px;
+			/* 컨테이너와 아래 요소 간의 간격 */
+		}
+
+		.like-container {
+			display: flex;
+			align-items: center;
+			/* 좋아요 버튼과 추천수를 수직 정렬 */
+			justify-content: center;
+			/* 좋아요 버튼과 추천수를 가운데 정렬 */
+			margin-bottom: 10px;
+			/* 좋아요 버튼과 수정 버튼 사이 간격 */
+		}
+
+		.like-container #likeButton {
+			background-color: #6a1b9a;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			padding: 5px 10px;
+			/* 버튼의 패딩 조정 */
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 16px;
+			/* 아이콘 크기를 조정 */
+			margin-right: 10px;
+			/* 좋아요 버튼과 추천수 사이 간격 */
+		}
+
+		.like-container #likeButton:hover {
+			background-color: #4a148c;
+		}
+
+		.like-count {
+			font-size: 16px;
+			color: #666;
+		}
+
+		.update-button {
+			align-self: flex-end;
+			/* 수정 버튼을 오른쪽 정렬 */
+			margin-top: 10px;
+			/* 좋아요 컨테이너와 수정 버튼 사이 간격 */
+		}
+
+		.update-button #updateButton {
+			background-color: #6a1b9a;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			padding: 5px 10px;
+			/* 버튼의 패딩 조정 */
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 16px;
+			/* 아이콘 크기를 조정 */
+		}
+
+		.update-button #updateButton:hover {
+			background-color: #4a148c;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div th:replace="~{common/header :: fragment}"></div>
+	<section class="ftco-section">
+		<div class="board-main">
+			<div class="row">
+				<div class="col-md-8 ftco-animate">
+					<h2 class="mb-3">
+						<div class="board-container">
+							<span class="post-tag" th:text="${biticBoard.tag}"></span> <!-- 태그 -->
+							<span class="board-tag">자유게시판</span>
+
+							<!-- 구분선 -->
+							<hr class="separator">
+							<!-- 제목과 조회수 컨테이너 -->
+							<div class="title-container">
+								<h2 class="title" th:text="${biticBoard.title}">제목</h2> <!-- 글 제목 -->
+								<span class="views-count">조회수: <span th:text="${biticBoard.views}"></span></span>
+							</div>
+
+							<p class="created-time" th:text="${biticBoard.createdTime}"></p> <!-- 작성일 -->
+							<!-- 구분선 -->
+							<hr class="separator">
+							<div class="content-section">
+								<div class="content" th:utext="${biticBoard.contents}"></div> <!-- 글 내용 -->
+
+								<!-- 이미지가 있는 경우에만 표시 -->
+								<div th:if="${biticBoard.fileAttached == 1}" class="image-section">
+									<a th:each="fileName : ${biticBoard.storedFileName}"
+										th:href="@{|/upload/${fileName}|}" target="_blank">
+										<img th:src="@{|/upload/${fileName}|}" class="post-image">
+									</a>
+								</div>
+							</div>
+							<!-- 구분선 -->
+							<hr class="separator">
+
+							<div class="likeandupdate-container">
+								<div class="like-container">
+									<button id="likeButton" onclick="toggleLike()">좋아요</button>
+									<span class="like-count">추천수: <span id="likeCount"
+											th:text="${biticBoard.likeCount}"></span></span>
+								</div>
+
+								<!-- 로그인한 사용자가 작성자인 경우에만 수정 버튼을 표시 -->
+								<div class="update-button" th:if="${isAuthor}">
+									<button id="updateButton" onclick="updateReq()">수정</button>
+								</div>
+							</div>
+
+
+							<!-- 구분선 -->
+							<hr class="separator">
+							<!-- 댓글 작성 부분 -->
+							<div id="comment-write" class="comment-section">
+								<input type="hidden" id="commentLoginid" th:value="${session.loginid}">
+								<input type="text" id="commentWriter" th:value="${session.nickname}" readonly
+									oninput="adjustInputWidth(this)">
+
+								<input type="text" id="commentContents" placeholder="내용"
+									onclick="checkLoginBeforeComment()">
+								<button id="comment-write-btn" onclick="commentWrite()">등록</button>
+							</div>
+
+							<!-- 댓글 출력 부분 -->
+							<div id="comment-list">
+								<table>
+									<tr th:each="comment : ${biticBoardCommentList}">
+										<td class="comment-author">
+											<div class="author-name">
+												<span th:text="${comment.nickname}"></span>
+												<span class="comment-date"
+													th:text="${comment.formattedCommentCreatedTime}"></span>
+											</div>
+											<div class="comment-content" th:utext="${comment.commentContents}"></div>
+										</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+
+				</div>
+				<div class="col-md-3 sidebar ftco-animate">
+					<div class="sidebar-box ftco-animate">
+						<div class="categories">
+							<h3>속닥속닥</h3>
+							<li><a href="/freeboard/paging" class="active">자유게시판 <span></span></a></li>
+							<li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
+							<li><a href="/noticeboard/paging">공지사항 <span></span></a></li>
+						</div>
+					</div>
+					<div class="sidebar-box ftco-animate">
+						<h3>인기글</h3>
+						<div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}"
+							class="block-21 mb-4 d-flex">
+							<div class="text">
+								<h3 class="heading">
+									<a th:href="@{/biticboard/{seq}(seq=${popularPost.seq})}"
+										th:text="${popularPost.title}" class="truncate-title"></a>
+								</h3>
+								<div class="meta">
+									<div>
+										<a href="#">
+											<span class="icon-calendar"></span>
+											<span
+												th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
+										</a>
+									</div>
+									<div>
+										<a href="#">
+											<span class="icon-person"></span>
+											<span th:text="${popularPost.nickname}"></span>
+											(<span th:text="${popularPost.likeCount}"></span> 추천)
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<div th:replace="~{common/footer :: footer}"></div>
+
+</body>
+
+<script th:inline="javascript">
+	const commentWrite = () => {
+		const writer = document.getElementById("commentWriter").value;
+		const contents = document.getElementById("commentContents").value;
+		const seq = `[[${biticBoard.seq}]]`;
+		const writerId = document.getElementById("commentLoginid").value;
+
+		$.ajax({
+			type: "POST",
+			url: "/comment/bitic/save",
+			contentType: "application/json",
+			data: JSON.stringify({
+				"commentWriter": writer,
+				"commentContents": contents,
+				"biticBoardSeq": seq,
+				"commentLoginid": writerId
+			}),
+			success: function (res) {
+				console.log("요청 성공", res);
+				updateCommentList(res);
+				document.getElementById('commentContents').value = '';
+			},
+			error: function (err) {
+				console.log("요청 실패", err);
+			}
+		});
+	}
+
+
+	function updateCommentList(comments) {
+		let output = "<table>";
+
+		comments.forEach(comment => {
+			output += `
+            <tr>
+                <td class="comment-author">
+                    <div class="author-name">
+                        <span>${comment.nickname}</span>
+                        <span class="comment-date">${comment.formattedCommentCreatedTime}</span>
+                    </div>
+                    <div class="comment-content">${comment.commentContents}</div>
+                </td>
+            </tr>
+        `;
+		});
+
+		output += "</table>";
+		document.getElementById('comment-list').innerHTML = output;
+	}
+
+	<!--댓글 로그인 체크-->
+	function checkLoginBeforeComment() {
+		fetch('/api/check-login')
+			.then(response => response.json())
+			.then(isLoggedIn => {
+				if (!isLoggedIn) {
+					alert("로그인이 필요합니다.");
+					window.location.href = "/user/login";
+				} else {
+					// 요소가 존재하는지 확인 후에 focus를 호출합니다.
+					const commentInput = document.getElementById("commentInput");
+					if (commentInput) {
+						commentInput.focus();
+					}
+				}
+			})
+			.catch(error => console.error('Error:', error));
+	}
+	const listReq = () => {
+		console.log("목록 요청");
+		const page = `[[${page}]]`;
+		location.href = "/biticboard/paging?page=" + page;
+	}
+	const updateReq = () => {
+		console.log("수정 요청");
+		const seq = `[[${biticBoard.seq}]]`;
+		console.log(seq);
+		location.href = "/biticboard/update/" + seq;
+	}
+	const deleteReq = () => {
+		console.log("삭제 요청");
+		const seq = `[[${biticBoard.seq}]]`;
+		location.href = "/biticboard/delete/" + seq;
+	}
+
+	const toggleLike = () => {
+		const boardSeq = `[[${biticBoard.seq}]]`;
+
+		$.ajax({
+			type: "POST",
+			url: "/biticboard/like",
+			data: {boardSeq: boardSeq},
+			success: function (response) {
+				if (response === "not_logged_in") {
+					alert("로그인이 필요합니다.");
+				} else if (response === "success") {
+					location.reload();
+				} else {
+					alert("오류가 발생했습니다.");
+				}
+			},
+			error: function () {
+				alert("오류가 발생했습니다.");
+			}
+		});
+	};
+
+	$(document).ready(function () {
+		const boardSeq = `[[${biticBoard.seq}]]`;
+		$.ajax({
+			type: "POST",
+			url: "/biticboard/isliked",
+			data: {boardSeq: boardSeq},
+			success: function (isLiked) {
+				if (isLiked) {
+					$('#likeButton').html(`
+                        <span class="fa-stack" style="vertical-align: middle; font-size: 16px;">
+                            <i class="fas fa-thumbs-up fa-stack-1x"></i>
+                            <i class="fas fa-times fa-stack-2x" style="color:red;"></i>
+                        </span>
+                    `);
+				} else {
+					$('#likeButton').html(`
+                        <span class="fa-stack" style="vertical-align: middle; font-size: 16px;">
+                            <i class="fas fa-thumbs-up fa-stack-1x"></i>
+                        </span>
+                    `);
+				}
+			}
+		});
+	});
+
+	$(document).ready(function () {
+		// 인기글에서 제목이 10글자 이상이면 잘라내고 "..."을 추가
+		$('.truncate-title').each(function () {
+			var text = $(this).text();
+			if (text.length > 10) {
+				var truncated = text.substring(0, 10) + '...';
+				$(this).text(truncated);
+			}
+		});
+	});
+
+	// 입력된 텍스트의 길이에 맞게 입력란의 width 속성 조정
+	function adjustInputWidth(input) {
+		const tmp = document.createElement('span');
+		tmp.style.visibility = 'hidden';
+		tmp.style.whiteSpace = 'pre';
+		tmp.style.fontSize = window.getComputedStyle(input).fontSize;
+		tmp.style.fontFamily = window.getComputedStyle(input).fontFamily;
+		tmp.innerText = input.value || input.placeholder;
+
+		document.body.appendChild(tmp);
+		input.style.width = tmp.clientWidth + 'px';
+		document.body.removeChild(tmp);
+	}
+
+	// 페이지 로드 시 초기 닉네임의 크기에 맞게 입력란 크기 설정
+	document.addEventListener('DOMContentLoaded', function () {
+		adjustInputWidth(document.getElementById('commentWriter'));
+	});
+</script>
+
+</html>

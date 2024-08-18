@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
+    <title>글 수정</title>
+    <!-- CKEditor CDN -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+
+    <!-- SockJS와 Stomp.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/open-iconic-bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/animate.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
+    <link rel="stylesheet" th:href="@{/css/magnific-popup.css}">
+    <link rel="stylesheet" th:href="@{/css/aos.css}">
+    <link rel="stylesheet" th:href="@{/css/ionicons.min.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap-datepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/jquery.timepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/flaticon.css}">
+    <link rel="stylesheet" th:href="@{/css/icomoon.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        h2 {
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        form {
+            width: 100%;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 200px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+
+        input[type="submit"] {
+            background-color: #6c63ff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            margin-top: 10px; /* 간격을 위한 margin-top 추가 */
+        }
+
+        input[type="submit"]:hover {
+            background-color: #5753d3;
+        }
+
+        .sidebar-box {
+            margin-top: 20px;
+        }
+
+        .sidebar-box h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .sidebar-box a {
+            color: #6c63ff;
+            text-decoration: none;
+        }
+
+        .sidebar-box a:hover {
+            text-decoration: underline;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .board-main {
+                padding: 20px;
+            }
+        }
+        
+        /* 숨겨진 파일 입력 필드 */
+        .file-input {
+            display: none;
+        }
+
+        /* 파일 선택 아이콘 스타일 */
+        .file-input-label {
+            display: inline-block;
+            color: #6c63ff;
+            cursor: pointer;
+            font-size: 24px;
+            transition: color 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            color: #5753d3;
+        }
+        
+        
+        		select[name="tag"] {
+		    width: 10%;
+		    padding: 10px;
+		    margin-bottom: 15px;
+		    border: 1px solid #ddd;
+		    border-radius: 30px; /* 둥근 모서리 */
+		    font-size: 16px;
+		    background-color: #fff; /* 배경색 */
+		    appearance: none; /* 드롭다운 화살표 제거 */
+		    -webkit-appearance: none;
+		    -moz-appearance: none;
+		    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/></svg>');
+		    background-repeat: no-repeat;
+		    background-position: right 10px center;
+		    background-size: 10px;
+		    text-align: center;
+		}
+
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{common/header :: fragment}"></div>
+    
+    <section class="ftco-section">
+        <div class="board-main">
+            <div class="row">
+                <div class="col-md-8 ftco-animate">
+                    <!-- 제목 추가 -->
+                    <h1>글 수정</h1>
+	<form action="/freeboard/update" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="seq" th:value="${freeBoardUpdate.seq}">
+		<input type="hidden" name="loginid" th:value="${freeBoardUpdate.loginid}">
+		작성자: <input type="text" name="nickname" th:value="${freeBoardUpdate.nickname}" readonly> <br>
+		태그: <input type="text" name="tag" th:value="${freeBoardUpdate.tag}" readonly> <br>
+		제목: <input type="text" name="title" th:value="${freeBoardUpdate.title}"> <br>
+		내용: <textarea name="contents" id="editor" cols="30" rows="10" th:text="${freeBoardUpdate.contents}"></textarea> <br>
+		파일: <input type="file" name="files" multiple> <br />
+		<input type="hidden" name="views" th:value="${freeBoardUpdate.views}">
+		<input type="hidden" name="likeCount" th:value="${freeBoardUpdate.likeCount}">
+		<input type="hidden" name="fileAttached" th:value="${freeBoardUpdate.fileAttached}">
+		<input type="submit" value="글수정">
+	</form>
+                </div>
+
+                <div class="col-md-4 sidebar ftco-animate">
+                    <div class="sidebar-box">
+                        <form action="#" class="search-form">
+                            <!-- 검색폼 -->
+                        </form>
+                    </div>
+                    <div class="sidebar-box ftco-animate">
+                        <div class="categories">
+                            <h3>속닥속닥</h3>
+                            <li><a href="sokdakfree.html">자유게시판 <span></span></a></li>
+                            <li><a href="sokdakbitic.html">자랑게시판 <span></span></a></li>
+                            <li><a href="sokdaknotice.html">공지사항 <span></span></a></li>
+                        </div>
+                    </div>
+                    <div class="sidebar-box ftco-animate">
+					    <h3>인기글</h3>
+					    
+						<div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
+						    <div class="text">
+						        <h3 class="heading">
+						            <a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}"></a>
+						        </h3>
+						        <div class="meta">
+						            <div>
+						                <a href="#">
+						                    <span class="icon-calendar"></span>
+						                    <span th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
+						                </a>
+						            </div>
+						            <div>
+						                <a href="#">
+						                    <span class="icon-person"></span>
+						                    <span th:text="${popularPost.nickname}"></span>
+						                    (<span th:text="${popularPost.likeCount}"></span> 추천)
+						                </a>
+						            </div>
+						        </div>
+						    </div>
+						</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{common/footer :: footer}"></div>
+	<!-- CKEditor 인스턴스 초기화 -->
+	<script>
+		ClassicEditor
+			.create(document.querySelector('#editor'), {
+				ckfinder: {
+					uploadUrl: '/uploadImage' // 파일 업로드 엔드포인트 설정
+				}
+			})
+			.catch(error => {
+				console.error(error);
+			});
+	</script>
+</body>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Shop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <!-- SockJS와 Stomp.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/open-iconic-bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/animate.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
+    <link rel="stylesheet" th:href="@{/css/magnific-popup.css}">
+    <link rel="stylesheet" th:href="@{/css/aos.css}">
+    <link rel="stylesheet" th:href="@{/css/ionicons.min.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap-datepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/jquery.timepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/flaticon.css}">
+    <link rel="stylesheet" th:href="@{/css/icomoon.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .board-main {
+            max-width: 700px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="file"], textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus, input[type="file"]:focus, textarea:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 5px rgba(128, 189, 255, 0.5);
+        }
+
+        input[type="text"]:read-only {
+            background-color: #e9ecef;
+        }
+
+        button {
+            background-color: #6c5ce7;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 4px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        button:enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        button:hover:enabled {
+            background-color: #5a4bcf;
+        }
+
+        .image-upload {
+            margin-top: 10px;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .image-upload label {
+            display: inline-block;
+            cursor: pointer;
+            padding: 10px;
+            color: #6c5ce7;
+            font-size: 14px;
+        }
+
+        .image-upload input {
+            display: none;
+        }
+
+.preview {
+    width: 100%;
+    border: 1px dashed #ddd;
+    display: flex;
+    flex-direction: column; /* 이미지들을 수직으로 정렬 */
+    align-items: flex-start; /* 이미지들을 왼쪽에 정렬 */
+    justify-content: flex-start;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    color: #aaa;
+    font-size: 14px;
+    margin-bottom: 10px;
+    padding: 10px;
+    max-height: 400px; /* 프리뷰 영역의 최대 높이 설정 */
+    overflow-y: auto; /* 프리뷰 영역을 넘어가면 스크롤이 생기도록 설정 */
+}
+
+.preview img {
+    width: 100%; /* 이미지가 컨테이너의 가로 폭을 채우도록 */
+    max-width: 100%; /* 이미지의 최대 가로 크기 설정 */
+    height: auto; /* 이미지의 세로 비율을 유지하면서 크기 조정 */
+    object-fit: cover; /* 이미지가 컨테이너를 채우면서 잘리게 조정 */
+    border-radius: 4px;
+    margin-bottom: 10px;
+    position: relative; /* 삭제 버튼을 이미지에 겹치도록 하기 위해 position relative 설정 */
+}
+
+.preview .delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+
+        .price-info {
+            font-size: 12px;
+            color: #777;
+            margin-top: -15px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .upload-icon {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+            font-size: 18px;
+            color: #6c5ce7;
+        }
+
+        .preview .preview-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .preview .preview-icon {
+            margin-bottom: 8px;
+            font-size: 24px;
+            color: #6c5ce7;
+        }
+    </style>
+</head>
+<body>
+	<div th:replace="~{common/header :: fragment}"></div>
+    <section class="ftco-section">
+        <div class="board-main">
+            <form id="addShopForm" th:action="@{/shop/addshop}" th:object="${shop}" method="post" enctype="multipart/form-data">
+                <label for="productname">상품이름</label>
+                <input type="text" id="productname" th:field="*{productname}" placeholder="상품 이름을 입력하세요"/>
+                <div class="image-upload">
+                    <label for="images">
+                        <span class="upload-icon">&#x1F4F7;</span>사진 추가
+                    </label>
+                    <input type="file" id="images" name="images" accept="image/*" multiple>
+                      <div class="preview" id="imagePreview">
+                        사진을 추가해주세요
+                </div>
+                </div>
+
+
+
+
+                <label for="sellernickname">판매자 이름</label>
+                <input type="text" id="sellernickname" th:value="${session.nickname}" readonly/>
+
+                <label for="price">가격</label>
+                <input type="text" id="price" th:field="*{price}" placeholder="0.00"/>
+                <div class="price-info">가격은 나중에 변경할 수 있습니다.</div>
+
+                <label for="description">설명</label>
+                <textarea id="description" th:field="*{description}" placeholder="상품 설명을 입력하세요"></textarea>
+
+                <button type="submit" id="submitBtn" disabled>등록하기</button>
+                <a href="/shop/shoplist">돌아가기</a>
+            </form>
+        </div>
+    </section>
+    <div th:replace="~{common/footer :: footer}"></div>
+    <script>
+        const form = document.getElementById('addShopForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const fields = ['productname', 'price', 'description'];
+        
+        function checkForm() {
+            let allFilled = true;
+            
+            fields.forEach(field => {
+                const input = document.getElementById(field);
+                if (!input.value.trim()) {
+                    allFilled = false;
+                }
+            });
+
+            const imageUploaded = document.getElementById('imagePreview').children.length > 0;
+
+            if (allFilled && imageUploaded) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        document.getElementById('images').addEventListener('change', function(event) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = ''; // 이전에 표시된 이미지들을 초기화
+            
+            const files = event.target.files;
+            
+            if (files.length > 5) {
+                alert('최대 5개까지 이미지를 업로드할 수 있습니다.');
+                event.target.value = ''; // 파일 선택 초기화
+                return;
+            }
+            
+            Array.from(files).forEach((file, index) => {
+                if (!file.type.startsWith('image/')) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.style.position = 'relative';
+                    imgContainer.style.width = '100%';
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-image';
+                    imgContainer.appendChild(img);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.innerHTML = '&times;';
+                    deleteBtn.addEventListener('click', function() {
+                        preview.removeChild(imgContainer);
+                        checkForm(); // 이미지 삭제 후 폼 확인
+                        if (preview.children.length === 0) {
+                            const previewText = document.querySelector('.preview-text');
+                            if (previewText) {
+                                previewText.style.display = 'flex';
+                            }
+                        }
+                    });
+                    imgContainer.appendChild(deleteBtn);
+
+                    preview.appendChild(imgContainer);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // 파일이 업로드된 경우, 아이콘과 텍스트 숨기기
+            if (files.length > 0) {
+                const previewText = document.querySelector('.preview-text');
+                if (previewText) {
+                    previewText.style.display = 'none';
+                }
+            }
+
+            checkForm(); // 이미지 업로드 후 폼 확인
+        });
+
+        fields.forEach(field => {
+            document.getElementById(field).addEventListener('input', checkForm);
+        });
+
+        form.addEventListener('submit', function(event) {
+            if (submitBtn.disabled) {
+                event.preventDefault(); // 폼 제출을 막음
+                alert('모든 필드를 입력하고 이미지를 추가해야 합니다.');
+            }
+        });
+    </script>
+</body>
+</html>

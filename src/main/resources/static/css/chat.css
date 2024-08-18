@@ -1,0 +1,418 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .chat-container {
+        flex-direction: row;
+    }
+}
+
+.chat-sidebar {
+    width: 300px; /* 기본 너비 설정 */
+    border-right: 1px solid #ccc;
+    background-color: #fff;
+    padding: 20px;
+    overflow-y: auto;
+    position: relative;
+    flex-shrink: 0; /* 너비 고정 */
+}
+
+@media (min-width: 768px) {
+    .chat-sidebar {
+        max-width: none;
+    }
+}
+
+.resizer {
+    width: 5px;
+    cursor: col-resize;
+    background-color: #ccc;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+}
+
+.chat-sidebar h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.chat-sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.chat-sidebar li {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.chat-sidebar li:hover {
+    background-color: #e1e1f1;
+}
+
+.chat-sidebar li strong {
+    display: block;
+    font-size: 16px;
+}
+
+.chat-sidebar li span {
+    font-size: 14px;
+    color: #555;
+}
+
+.chat-sidebar li.active {
+    background-color: #e1e1f1;
+    font-weight: bold;
+}
+
+.chat-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+}
+
+.chat-header {
+    padding: 20px;
+    border-bottom: 1px solid #ccc;
+    background-color: #f7f7f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* 수정된 부분: 수평 정렬을 맞추기 위해 추가 */
+}
+
+.chat-header h3 {
+    margin: 0;
+}
+
+.search-container {
+    position: relative;
+}
+
+#search-icon {
+    cursor: pointer;
+}
+
+#message-search {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+#message-search.active {
+    display: block;
+}
+
+.chat-messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    position: relative; /* 추가된 부분: 검색 결과 메시지 가운데 정렬을 위해 추가 */
+}
+
+.no-results-popup {
+    display: none; /* 기본적으로 숨김 */
+    position: fixed; /* 화면에 고정 */
+    top: 50%; /* 화면 중앙에 배치 */
+    left: 50%; /* 화면 중앙에 배치 */
+    transform: translate(-50%, -50%); /* 중앙 정렬 */
+    padding: 20px 30px; /* 여백 추가 */
+    background-color: #f1f1f1; /* 배경 색상 */
+    border: 1px solid #ccc; /* 테두리 */
+    border-radius: 10px; /* 둥근 모서리 */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+    font-size: 16px; /* 글꼴 크기 */
+    color: #555; /* 글꼴 색상 */
+    text-align: center; /* 텍스트 가운데 정렬 */
+    z-index: 1000; /* 팝업이 최상위에 오도록 설정 */
+}
+/* 메시지 애니메이션 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-message {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.5s ease-out; /* 애니메이션 추가 */
+}
+
+.chat-message .message-content {
+    max-width: 60%;
+    padding: 10px;
+    border-radius: 10px;
+    position: relative;
+}
+
+.chat-message img {
+    max-width: 100px;
+    max-height: 100px;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.chat-message-left .message-content {
+    background-color: #f1f1f1;
+    margin-right: auto;
+}
+
+.chat-message-left .timestamp {
+    font-size: 12px;
+    color: #888;
+    text-align: left;
+    margin-top: 5px;
+}
+
+.chat-message-right {
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.chat-message-right .message-content {
+    background-color: rgb(128, 0, 255);
+    color: white;
+    margin-left: auto;
+}
+
+.chat-message-right .timestamp {
+    font-size: 12px;
+    color: #888;
+    text-align: right;
+    margin-top: 5px;
+}
+
+.chat-footer {
+    padding: 20px;
+    border-top: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    background-color: #f7f7f7;
+}
+
+.chat-footer input[type="text"] {
+    flex-grow: 1;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.chat-footer label.file-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.chat-footer label.file-label i {
+    font-size: 20px;
+    color: #555;
+    margin-right: 10px;
+}
+
+.chat-footer label.file-label input[type="file"] {
+    display: none;
+}
+
+.chat-footer button {
+    padding: 10px 20px;
+    background-color: rgb(128, 0, 255);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.date-separator {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.date-line {
+    display: inline-block;
+    width: 80%;
+    border-bottom: 1px solid #ccc;
+    line-height: 0.1em;
+}
+
+.date-line span {
+    background: #fff;
+    padding: 0 10px;
+}
+
+#upload-progress {
+    display: block;
+    width: 0;
+    height: 5px;
+    background-color: green;
+    transition: width 0.3s ease;
+}
+
+/* 이미지 및 파일 모달 스타일 추가 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.modal-content {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 80%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    text-align: center;
+    overflow: auto;
+}
+
+.modal img {
+    max-width: 100%;
+    max-height: 100%; /* 이미지가 모달 창의 최대 높이에 맞게 조정됩니다 */
+    object-fit: contain; /* 이미지가 모달 창 내에서 잘림 없이 유지됩니다 */
+    margin: auto; /* 이미지가 가운데 정렬되도록 설정 */
+    display: block;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.caption {
+    text-align: center;
+    padding: 10px 20px;
+    color: black;
+}
+
+#unsupportedMessage {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin: 20px auto; /* 중앙 배치 */
+    max-width: 80%;
+}
+
+.download-button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-top: 20px;
+    background-color: rgb(128, 0, 255);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.download-button:hover {
+    background-color: rgb(100, 0, 200);
+}
+
+/* 추가: 파일 미리보기 모달을 세로 중앙에 배치 */
+.modal .modal-content {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.file-preview {
+    margin-bottom: 10px; /* 메시지 입력란 상단에 공간을 확보하기 위해 margin-bottom 추가 */
+}
+
+.file-preview-item {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.file-remove-btn {
+    margin-left: 10px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+}
+.default-chat-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.default-chat-content {
+  max-width: 600px;
+  padding: 20px;
+}
+
+.default-chat-content h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.default-chat-content p {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+

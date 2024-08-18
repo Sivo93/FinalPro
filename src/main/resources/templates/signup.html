@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .signup-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        .signup-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .signup-container label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+        }
+        .signup-container input[type="text"],
+        .signup-container input[type="password"],
+        .signup-container input[type="submit"] {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .signup-container .address-container {
+            display: flex;
+            gap: 5px;
+        }
+        .signup-container .address-container input[type="text"] {
+            flex-grow: 1;
+        }
+        .signup-container .address-container button {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        .signup-container .address-container button:hover {
+            background-color: #0056b3;
+        }
+        .signup-container .email-container {
+            display: flex;
+            gap: 5px;
+        }
+        .signup-container .email-container input[type="text"] {
+            flex-grow: 1;
+        }
+        .signup-container select {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+            cursor: pointer;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script>
+        function searchAddress() {
+            // 이 함수는 주소 검색 API와 연동해야 합니다. 여기서는 예제로 고정된 값을 사용합니다.
+            const sampleAddress = "서울특별시 강남구 역삼동";
+            document.getElementById('address').value = sampleAddress;
+        }
+
+        function updateEmail() {
+            const emailSelect = document.getElementById('emailSelect').value;
+            const emailDomain = document.getElementById('emailDomain');
+
+            if (emailSelect === 'custom') {
+                emailDomain.classList.remove('hidden');
+                emailDomain.value = '';
+                emailDomain.focus();
+            } else {
+                emailDomain.classList.add('hidden');
+                emailDomain.value = emailSelect;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="signup-container">
+        <h2>회원가입</h2>
+        <form action="/signup" method="post">
+            <label for="username">아이디</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" required>
+            
+            <label for="nickname">닉네임</label>
+            <input type="text" id="nickname" name="nickname" required>
+            
+            <label for="email">이메일</label>
+            <div class="email-container">
+                <input type="text" id="emailLocal" name="emailLocal" required>
+                <span>@</span>
+                <select id="emailSelect" onchange="updateEmail()">
+                    <option value="gmail.com">gmail.com</option>
+                    <option value="naver.com">naver.com</option>
+                    <option value="daum.net">daum.net</option>
+                    <option value="custom">직접 입력</option>
+                </select>
+                <input type="text" id="emailDomain" name="emailDomain" class="hidden">
+            </div>
+            
+            <label for="address">주소</label>
+            <div class="address-container">
+                <input type="text" id="address" name="address" required readonly>
+                <button type="button" onclick="searchAddress()">검색</button>
+            </div>
+            
+            <label for="detailAddress">상세 주소</label>
+            <input type="text" id="detailAddress" name="detailAddress" required>
+            
+            <input type="submit" value="회원가입">
+        </form>
+    </div>
+</body>
+</html>
