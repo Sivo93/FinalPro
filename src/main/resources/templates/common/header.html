@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Header</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css"> <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/css/header.css"> <!-- Custom Header CSS -->
+  
+  <script type="text/javascript">
+    var loggedInUserNickname = '[[${nickname}]]';
+  </script>
+  
+  <style>
+    .dropdown-menu a {
+      color: #343a40;
+    }
+    .dropdown-menu a:hover {
+      background-color: #f8f9fa;
+    }
+    
+    /* 모달 스타일 */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0,0,0);
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #e9ecef;
+    }
+    li.read {
+      color: #6c757d;
+    }
+    li.unread {
+      font-weight: bold;
+    }
+    
+    #bell-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    #unread-count {
+      display: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: red;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 12px;
+      line-height: 1;
+      transform: translate(50%, -50%);
+    }
+    
+    #chat-icon-container {
+      position: fixed; /* Fixed position to keep it always visible */
+      bottom: 20px;
+      right: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      z-index: 1000; /* Ensure it is on top */
+    }
+    .icon-container img {
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+<div th:fragment="fragment">
+  <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+    <div class="container">
+      <a class="navbar-brand" href="/">이불밖은위험해</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="oi oi-menu"></span> Menu
+      </button>
+      <div class="collapse navbar-collapse" id="ftco-nav">
+        <ul class="navbar-nav ml-auto" id="navbar-menu">
+          <li class="nav-item active"><a href="/" class="nav-link">홈</a></li>
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" id="sokdakMenu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">속닥속닥</a>
+            <div class="dropdown-menu" aria-labelledby="sokdakMenu">
+              <a class="dropdown-item" href="/noticeboard/paging">공지사항</a>
+              <a class="dropdown-item" href="/freeboard/paging">자유게시판</a>
+              <a class="dropdown-item" href="/biticboard/paging">자랑게시판</a>
+            </div>
+          </li>
+          <li class="nav-item"><a href="/shop/shoplist" class="nav-link">쇼핑</a></li>
+          <li class="nav-item"><a href="/outside" class="nav-link">이불밖으로</a></li>
+          <li class="nav-item cta" id="login-item"><a href="/user/login" class="nav-link"><span>로그인</span></a></li>
+          <li class="nav-item cta" id="signup-item"><a href="/user/save" class="nav-link"><span>회원가입</span></a></li>
+          <li class="nav-item cta" id="nickname-item" style="display:none;">
+            <a href="/user/detail" id="nickname" class="nav-link"></a>
+          </li>
+          <li class="nav-item dropdown" id="bell-item" style="display:none;">
+            <a href="#" id="bell-icon" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <img src="/img/bell.png" alt="알림 아이콘" width="24" height="24">
+              <span id="unread-count" class="badge badge-pill badge-danger"></span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="bell-icon">
+              <h6 class="dropdown-header">알림</h6>
+              <div id="dropdown-notifications" style="max-height: 300px; overflow-y: auto;">
+                <!-- 알림 항목이 여기에 추가됩니다 -->
+              </div>
+
+          </li>
+          <li class="nav-item" id="chat-item" style="display:none;">
+            <div id="chat-icon-container" class="icon-container">
+              <a href="#" id="chat-icon-link">
+                <img src="/img/message.png" alt="채팅 아이콘" width="50" height="50" id="chat-icon">
+              </a>
+            </div>
+          </li>
+          <li class="nav-item cta" id="logout-item" style="display:none;"><a href="/user/logout" class="nav-link"><span>로그아웃</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<script src="/js/jquery.min.js"></script> <!-- jQuery -->
+<script src="/js/bootstrap.min.js"></script> <!-- Bootstrap JS -->
+<script src="/js/header.js"></script> <!-- 헤더 JS 파일 포함 -->
+
+</body>
+</html>

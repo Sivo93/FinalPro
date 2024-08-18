@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <!-- SockJS와 Stomp.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    
+    <!-- 외부 스타일시트를 마지막에 위치 -->
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/open-iconic-bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/animate.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
+    <link rel="stylesheet" th:href="@{/css/magnific-popup.css}">
+    <link rel="stylesheet" th:href="@{/css/aos.css}">
+    <link rel="stylesheet" th:href="@{/css/ionicons.min.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap-datepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/jquery.timepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/flaticon.css}">
+    <link rel="stylesheet" th:href="@{/css/icomoon.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>상품 상세</title>
+    <style>
+        .board-main {
+            margin-top: 30px;
+            padding-top: 30px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .product-container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+        .product-image-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            margin: auto;
+        }
+
+        .product-image {
+            width: 100%;
+            display: block;
+        }
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            margin-top: -22px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.6s ease;
+            border-radius: 0 3px 3px 0;
+            user-select: none;
+        }
+
+        .next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+        .prev:hover, .next:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .product-details {
+            flex: 1;
+        }
+        .product-details p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .related-products {
+            margin-top: 40px;
+        }
+        .related-products h3 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .related-product-list {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .related-product-item {
+            width: 150px;
+            text-align: center;
+        }
+        .related-product-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .related-product-item img:hover {
+            transform: scale(1.05);
+        }
+        .related-product-item p {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #6c63ff;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+        button:hover {
+            background-color: #4b42d2;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .modal-buttons {
+            margin-top: 20px;
+        }
+        .modal-buttons button {
+            margin: 5px;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #6c63ff;
+            font-weight: bold;
+        }
+        
+        
+                .no-image-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: fragment}"></div>
+    <section class="ftco-section">
+        <div class="board-main">
+            <div class="product-container">
+                <div class="product-image-container">
+                    <!-- 이미지 슬라이드 -->
+                    <div th:each="imageUrl, iterStat : ${shop.imageUrls}" class="slide" style="display:none;">
+                        <img class="product-image" th:src="@{${imageUrl}}" alt="Product Image">
+                    </div>
+                    
+                    <!-- 좌우 버튼 -->
+                    <a class="prev" th:if="${#lists.size(shop.imageUrls) > 1}" onclick="changeSlide(-1)">&#10094;</a>
+                    <a class="next" th:if="${#lists.size(shop.imageUrls) > 1}" onclick="changeSlide(1)">&#10095;</a>
+                </div>
+                <div class="product-details">
+                    <p><strong>상품명:</strong> <span th:text="${shop.productname}"></span></p>
+                    <p><strong>판매자:</strong> <span th:text="${shop.sellernickname}"></span></p>
+                    <p><strong>설명:</strong> <span th:text="${shop.description}"></span></p>
+                    <p><strong>가격:</strong> <span th:text="${shop.price}"></span></p>
+
+                    <!-- 대화하기 버튼 -->
+				    <div th:if="${user != null and user.nickname != shop.sellernickname}">
+				        <button type="button" onclick="openChatWindow2()">대화하기</button>
+				    </div>
+
+                    <!-- 삭제 버튼 (사용자와 판매자가 같은 경우 활성화) -->
+                    <div th:if="${user != null and user.nickname == shop.sellernickname}">
+                        <form id="deleteForm" th:action="@{/shop/delete/{nom}(nom=${shop.nom})}" method="post">
+                            <button type="button" onclick="showDeleteModal()">판매 그만두기</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 판매자의 다른 상품 -->
+            <div class="related-products">
+                <h3>판매자가 올린 다른 상품들</h3>
+					<div class="related-product-list">
+					    <div th:each="relatedShop : ${otherShops}" class="related-product-item">
+					        <a th:href="@{/shop/{nom}(nom=${relatedShop.nom})}">
+					            <div style="position: relative;">
+					                <img th:src="@{${#lists.isEmpty(relatedShop.imageUrls) ? '/images/logo.png' : relatedShop.imageUrls[0]}}" alt="상품 이미지">
+					                <div class="no-image-text" th:if="${#lists.isEmpty(relatedShop.imageUrls)}">
+					                    이미지가 존재하지 않습니다
+					                </div>
+					            </div>
+					            <p th:text="${relatedShop.productname}"></p>
+					        </a>
+					    </div>
+					</div>
+            </div>
+
+            <a href="/shop/shoplist">돌아가기</a>
+
+            <!-- 이미지 모달 -->
+            <div id="imageModal" class="modal" onclick="closeModal()">
+                <img id="modalImage" src="" alt="Large Image">
+            </div>
+
+            <!-- 삭제 확인 모달 -->
+            <div id="deleteModal" class="modal">
+                <div class="modal-content">
+                    <p>정말 삭제하시겠습니까?</p>
+                    <div class="modal-buttons">
+                        <button onclick="confirmDelete()">삭제하기</button>
+                        <button onclick="closeDeleteModal()">취소하기</button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    <div th:replace="~{common/footer :: footer}"></div>
+
+</body>    
+<script>
+        function openModal(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = src;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+        }
+
+        function showDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.style.display = 'none';
+        }
+
+        function confirmDelete() {
+            const form = document.getElementById('deleteForm');
+            form.submit();
+        }
+        
+        function changeSlide(n) {
+            showSlides(slideIndex += n);
+        }
+
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        function showSlides(n) {
+            let i;
+            const slides = document.getElementsByClassName("slide");
+            if (n > slides.length) { slideIndex = 1 }
+            if (n < 1) { slideIndex = slides.length }
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            slides[slideIndex - 1].style.display = "block";
+        }
+
+        function openChatWindow2() {
+            var sender = '[[${user.nickname}]]';
+            var receiver = '[[${shop.sellernickname}]]';
+            var chatUrl = '/chat?sender=' + encodeURIComponent(sender) + '&receiver=' + encodeURIComponent(receiver);
+            window.open(chatUrl, 'chatWindow', 'width=900,height=600');
+        }
+    </script>
+</html>
