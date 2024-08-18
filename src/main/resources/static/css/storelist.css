@@ -1,0 +1,26 @@
+/* storelist.css */
+#store-list-items {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.store-item {
+    display: flex;
+    margin-bottom: 20px;
+    align-items: center; /* 세로로 중앙 정렬 */
+}
+
+.store-item img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    margin-right: 20px; /* 이미지와 텍스트 사이 간격 */
+}
+
+.store-info h4 {
+    margin: 0 0 10px;
+}
+
+.store-info p {
+    margin: 5px 0;
+}
