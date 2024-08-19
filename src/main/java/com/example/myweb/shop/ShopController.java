@@ -7,6 +7,7 @@ import com.example.myweb.user.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
 
+import org.apache.poi.ss.util.ImageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -75,7 +76,9 @@ public class ShopController implements WebMvcConfigurer { // WebMvcConfigurer를
 
     // 새로운 상품을 등록
     @PostMapping("/addshop")
-    public String addShop(@ModelAttribute("shop") ShopEntity shop, @RequestParam("images") MultipartFile[] images, HttpSession session) throws IOException {
+	public String addShop(@ModelAttribute("shop") ShopEntity shop, 
+    						@RequestParam("images") MultipartFile[] images, 
+    						HttpSession session) throws IOException {
         List<String> imageUrls = new ArrayList<>();
 
         for (MultipartFile image : images) {
@@ -85,7 +88,7 @@ public class ShopController implements WebMvcConfigurer { // WebMvcConfigurer를
             }
         }
 
-        shop.setImageUrls(imageUrls.isEmpty() ? null : imageUrls); // 중복된 코드 제거 후 재사용
+        shop.setImageUrls(imageUrls.isEmpty() ? null : imageUrls); 
 
         String nickname = (String) session.getAttribute("nickname");
         if (nickname != null) {
@@ -116,9 +119,9 @@ public class ShopController implements WebMvcConfigurer { // WebMvcConfigurer를
     // 정적 리소스 경로를 설정합니다.
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String uploadDir = System.getProperty("user.dir") + "/uploads/images/";
-        registry.addResourceHandler("/uploads/images/**")
-                .addResourceLocations("file:" + uploadDir);
+    	String uploadDir = System.getProperty("user.dir") + "/uploads/images/";
+    	registry.addResourceHandler("/uploads/images/**")
+        		.addResourceLocations("file:" + uploadDir);
     }
 
     // 상품 삭제
@@ -179,18 +182,34 @@ public class ShopController implements WebMvcConfigurer { // WebMvcConfigurer를
 
     // 상품 업데이트 처리
     @PostMapping("/update/{nom}")
-    public String updateShop(@PathVariable("nom") Long nom, ShopEntity updatedShop) {
-        Optional<ShopEntity> optionalShop = shopService.getShopById(nom);
-        if (optionalShop.isPresent()) {
-            ShopEntity shop = optionalShop.get();
-            shop.setProductname(updatedShop.getProductname());
-            shop.setDescription(updatedShop.getDescription());
-            shop.setPrice(updatedShop.getPrice());
-            shop.setSellernickname(updatedShop.getSellernickname());
-            shopService.saveShop(shop);
+    public String updateShop(@PathVariable("nom") Long nom, 
+    		@RequestParam("productname") String productName, 
+    		@RequestParam("description") String description, 
+    		@RequestParam("price") double price, 
+    		@RequestParam(value = "images", required = false) MultipartFile[] images) throws IOException {
+    	
+    	Optional<ShopEntity> optionalShop = shopService.getShopById(nom);
+    	if (optionalShop.isPresent()) {
+    		ShopEntity shop = optionalShop.get();
+    		shop.setProductname(productName);
+    		shop.setDescription(description);
+    		shop.setPrice(price);
+    		
+    		List<String> imageUrls = new ArrayList<>();
+    		if(images != null) {
+    			for(MultipartFile image : images) {
+    				if(!image.isEmpty()) {
+    					String imageUrl = saveImage(image);
+    					imageUrls.add(imageUrl);
+    				}
+    			}
+    		}
+    		shop.setImageUrls(imageUrls.isEmpty() ? shop.getImageUrls() : imageUrls);
+
+    		shopService.saveShop(shop);
             return "redirect:/shop/" + nom; // 리다이렉션 경로 수정
         } else {
-            throw new ShopNotFoundException("Shop not found"); // 커스텀 예외를 던짐
+        	throw new ShopNotFoundException("Shop not found");
         }
     }
 

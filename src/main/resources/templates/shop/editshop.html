@@ -107,26 +107,34 @@
 			<input type="text" id="sellernickname" th:field="*{sellernickname}" required>
 			
             <!-- 기존 이미지 표시 -->
-			<label>기존 이미지</label>
-			<div th:if="${shop.imageUrls != null}">
-				<div th:each="imageUrl : ${shop.imageUrls}">
-                    <img th:src="@{${imageUrl}}" alt="상품 이미지">
+            <div class="form-group">
+				<label>기존 이미지</label>
+ 				<div th:if="${shop.imageUrls != null}">
+					<div th:each="imageUrl : ${shop.imageUrls}">
+	                    <img th:src="@{${shop.imageUrls[0]}}" alt="Current Image" style="max-width: 300px;">
+					</div>
 				</div>
-			</div>
-			<div th:if="${shop.imageUrls == null}">
-				<p>이미지가 없습니다.</p>
-			</div>
+				<div th:if="${shop.imageUrls == null}">
+					<p>이미지가 없습니다.</p>
+				</div>
+            </div>
 
             <!-- 새 이미지 업로드 -->
-			<label for="images">새 이미지 업로드</label>
-			<input type="file" id="images" name="images" multiple>
+            <div class="form-group">
+				<label for="images">새 이미지 업로드</label>
+				<input type="file" name="images" multiple>
+            </div>
 
             <!-- 저장 버튼 -->
-			<button type="submit">수정하기</button>
+            <div class="form-group">
+                <button type="submit">수정하기</button>
+            </div>
         </form>
 
         <!-- 취소 버튼 -->
-        <a th:href="@{/shop/shoplist}">취소</a>
+        <div class="form-group">
+            <a th:href="@{/shop/shoplist}">취소</a>
+        </div>
     </div>
     
     <div th:replace="~{common/footer :: footer}"></div>

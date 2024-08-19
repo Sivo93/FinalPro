@@ -186,7 +186,7 @@
                 <div class="product-image-container">
                     <!-- 이미지 슬라이드 -->
                     <div th:each="imageUrl, iterStat : ${shop.imageUrls}" class="slide" style="display:none;">
-                    	<img class="product-image" th:src="@{${imageUrl}}" alt="Product Image" onclick="openModal(this.src)">
+						<img class="product-image" th:src="@{${shop.imageUrls[0]}}" alt="Product Image" onclick="openModal(this.src)">
                     </div>
                     
                     <!-- 좌우 버튼 -->

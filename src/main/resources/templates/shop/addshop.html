@@ -187,6 +187,7 @@
 </head>
 <body>
 	<div th:replace="~{common/header :: fragment}"></div>
+	
     <section class="ftco-section">
         <div class="board-main">
             <form id="addShopForm" th:action="@{/shop/addshop}" th:object="${shop}" method="post" enctype="multipart/form-data">
