@@ -1,23 +1,275 @@
- /* 지도와 버튼의 스타일 */
+/* Custom 스타일 */
+.custom-container {
+    display: flex;
+    flex-direction: column;
+    padding: 0 15px;
+    margin: 0 auto; /* 중앙 정렬을 위한 여백 */
+    max-width: 1200px; /* 최대 너비를 설정하여 중앙에 배치 */
+    margin-top: 100px; /* 헤더와 내용 사이에 여백 추가 */
+}
+
+.custom-row {
+    display: flex;
+    flex-wrap: nowrap;
+    margin-bottom: 20px;
+}
+
+.custom-col-md-3 {
+    flex: 0 0 25%; /* 태그 필터의 너비 */
+    max-width: 25%;
+}
+
+.custom-col-md-9 {
+    flex: 0 0 75%; /* 지도 및 상가 리스트의 너비 */
+    max-width: 75%;
+    margin-top: 20px;
+}
+
+/* 지도 컨테이너 및 버튼 */
+.map-container {
+    position: relative;
+    width: 100%;
+    height: 500px; /* 원하는 높이 설정 */
+    margin-bottom: 20px; /* 지도와 상가 리스트 사이의 여백 */
+    overflow: visible; /* 버튼이 잘리지 않도록 설정 */
+}
+
 #map {
-            position: relative;
-            width: 100%;
-            height: 500px; /* 지도 높이 조정 가능 */
-        }
+    width: 100%;
+    height: 500px; /* 원하는 높이 설정 */
+}
 
-        /* 버튼의 스타일을 설정합니다. */
-        #moveToCurrentLocation {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+.divider {
+    width: 1px; /* 구분선의 두께 */
+    background-color: #ddd; /* 구분선의 색상 */
+    margin: 0 20px; /* 구분선 양옆 여백 */
+    height: auto; /* 구분선의 높이 자동 조절 */
+    border-left: 1px solid #ddd; /* 구분선의 스타일 */
+}
+#moveToCurrentLocation {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-image: url('/images/my-loca.png') !important; /* 이미지 경로 설정 */
+    background-size: cover;
+    background-color: transparent;
+    border: none;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    z-index: 500; /* 버튼이 지도를 위에 표시되도록 설정 */
+}
 
-        #moveToCurrentLocation:hover {
-            background-color: #0056b3;
+/* 태그 필터 스타일 */
+#tag-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* 체크박스 항목들 간의 수직 간격 */
+}
+
+.tag-checkbox {
+    margin-right: 10px; /* 체크박스와 텍스트 간의 수평 간격 */
+}
+
+.tag-item {
+    display: flex;
+    align-items: center;
+}
+
+.tag-item label {
+    font-size: 16px; /* 태그 텍스트 크기 조정 */
+}
+
+.tag-item i {
+    font-size: 20px;
+    color: #333;
+    margin-right: 10px;
+}
+
+.tag-item span {
+    font-size: 16px;
+}
+#store-list {
+    margin-top: 20px;
+}
+/* 상가 리스트 스타일 */
+#store-list-items {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+#store-list {
+            margin-top: 20px;
         }
+#store-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+.store-item {
+    list-style: none;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.store-item img {
+    width: 220px;
+    height: 220px;
+    object-fit: cover;
+    margin-right: 20px; /* 사진과 정보 간 간격 */
+    border-radius: 8px; /* 사진의 모서리 둥글게 */
+}
+
+.store-info {
+    flex: 1;
+}
+
+.store-info h4 {
+    margin: 0;
+    cursor: pointer;
+}
+
+.store-info p {
+    margin: 5px 0;
+}
+/* 리뷰 컨테이너 스타일 */
+.reviews-container {
+    margin-top: 10px;
+}
+
+.review-list {
+    margin-bottom: 10px;
+}
+
+/* 리뷰 스타일 */
+.review {
+    margin-bottom: 10px;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* 더보기 버튼 스타일 */
+.show-more-reviews {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.show-more-reviews:hover {
+    background-color: #0056b3;
+}
+
+/* 리뷰 폼 스타일 */
+.review-form {
+    display: flex; /* 플렉스 박스를 사용하여 요소를 가로로 배치 */
+    align-items: center; /* 세로 가운데 정렬 */
+    gap: 10px; /* 입력란과 버튼 사이의 간격 */
+    margin-top: 10px; /* 상단 여백 */
+}
+
+.review-input {
+    flex: 1; /* 입력란이 가능한 공간을 모두 차지하도록 설정 */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.show-more-reviews {
+    display: none; /* 기본적으로 숨김 */
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-review:hover {
+    background-color: #0056b3; /* 버튼 호버 시 배경색 변경 */
+}
+.submit-review {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007BFF; /* 버튼 배경색 */
+    color: white; /* 버튼 글자색 */
+    font-size: 14px;
+    cursor: pointer; /* 커서를 포인터로 변경하여 클릭 가능 표시 */
+}
+
+.submit-review:hover {
+    background-color: #218838;
+}
+.review-list {
+    max-height: 300px; /* 최대 높이 설정 (스크롤 가능하게 함) */
+    overflow-y: auto; /* 수직 스크롤 추가 */
+    border: 1px solid #ddd; /* 리뷰 리스트 테두리 */
+    border-radius: 4px; /* 테두리 둥글게 하기 */
+    padding: 10px; /* 내부 여백 */
+    background-color: #f9f9f9; /* 배경색 */
+}
+
+.review-item {
+    margin-bottom: 10px; /* 리뷰 간격 */
+    padding: 5px;
+    border-bottom: 1px solid #ddd; /* 각 리뷰 아래에 선 추가 */
+}
+
+.review-item:last-child {
+    border-bottom: none; /* 마지막 리뷰 아래의 선 제거 */
+}
+
+/* 상가 추가 모달 */
+.modal-content {
+    padding: 20px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #ddd;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    border-top: 1px solid #ddd;
+    padding: 10px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .tag-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .tag-item i {
+        margin-bottom: 5px;
+    }
+
+    .custom-col-md-3, .custom-col-md-9 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    #map {
+        height: 400px; /* 모바일에서는 높이를 줄임 */
+    }
+
+    #moveToCurrentLocation {
+        width: 35px;
+        height: 35px;
+        bottom: 5px;
+        right: 5px;
+    }
+}

@@ -17,8 +17,11 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,7 +46,7 @@ public class StoreController {
                                           @RequestParam("longitude") double longitude,
                                           @RequestParam("phoneNumber") String phoneNumber,
                                           @RequestParam("description") String description,
-                                          @RequestParam("reviews") String reviews,
+                                          @RequestParam(value = "reviews", required = false) String reviews,
                                           @RequestParam("photo") MultipartFile photo,
                                           @RequestParam("tags") String tags) throws IOException {
         // 파일 업로드 처리
@@ -71,9 +74,14 @@ public class StoreController {
                 throw new IllegalArgumentException("태그 형식이 잘못되었습니다.");
             }
         }
+        // 리뷰 문자열을 List로 변환
+        List<String> reviewList = new ArrayList<>();
+        if (reviews != null && !reviews.trim().isEmpty()) {
+            reviewList.add(reviews); // 단일 리뷰로 처리 (추후 여러 리뷰 추가 가능)
+        }
 
         // Store 객체 생성 및 저장
-        Store store = new Store(name, address, latitude, longitude, phoneNumber, description, reviews, photoUrl, tagSet);
+        Store store = new Store(name, address, latitude, longitude, phoneNumber, description, photoUrl, tagSet, reviewList);
         storeService.saveStore(store);
 
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/map")).build();
@@ -98,5 +106,28 @@ public class StoreController {
 
         List<String> tagList = tagSet.stream().collect(Collectors.toList());
         return ResponseEntity.ok(tagList);
+    }
+    @PostMapping("/{id}/reviews")
+    public ResponseEntity<Map<String, String>> addReview(@PathVariable Long id, @RequestBody String review) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            storeService.addReview(id, review);
+            response.put("message", "Review added successfully");
+            // 로그를 통해 응답 내용을 확인합니다.
+            System.out.println("Response: " + response);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            response.put("error", "Invalid store ID");
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("error", "An error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Store> getStore(@PathVariable Long id) {
+        Store store = storeService.getStoreById(id);
+        return store != null ? ResponseEntity.ok(store) : ResponseEntity.notFound().build();
     }
 }

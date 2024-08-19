@@ -95,7 +95,7 @@ public class UserController {
             session.setAttribute("loginid", loginResult.getLoginid());
             session.setAttribute("nickname", loginResult.getNickname());
             session.setAttribute("userSeq", loginResult.getSeq());
-
+            session.setAttribute("role", loginResult.getRole());
             if (rememberId) {
                 // 아이디 저장 쿠키 설정
                 Cookie cookie = new Cookie("rememberedId", loginResult.getLoginid());

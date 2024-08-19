@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Map Example</title>
+    <title>이불밖은위험해</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -20,13 +20,13 @@
     <link rel="stylesheet" href="/css/flaticon.css">
     <link rel="stylesheet" href="/css/icomoon.css">  
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/storelist.css">
     <link rel="stylesheet" href="/css/map.css">
 </head>
 <body>
     <!-- 공통 헤더 포함 -->
     <div th:replace="~{common/header :: fragment}"></div>
     
+    <!--  
     <div class="hero-wrap hero-wrap-2" style="background-image: url('images/test.png');" data-stellar-background-ratio="0.5">
         <div class="overlay"></div>
         <div class="container">
@@ -38,32 +38,35 @@
             </div>
         </div>
     </div>
-    
-    <div class="container">
-        <div class="row">
+    -->
+    <div class="custom-container">
+    	<div class="map-container">
+            
+            <div id="map"></div>
+            <button id="moveToCurrentLocation" ></button>
+        </div>
+        <div class="custom-row">
             <!-- 태그 선택 필터 -->
-            <div class="col-md-3">
-                <h3>태그 필터</h3>
-                <div id="tag-filters">
+            <div class="custom-col-md-3">
+            	<div style="margin-top: 20px;">
+                	<h3>태그 필터</h3>
+                </div>
+                <div id="tag-filters" >
                     <!-- 태그 체크박스가 여기에 동적으로 추가됩니다. -->
                 </div>
             </div>
+            <div class="divider"></div>
 
             <!-- 지도 및 상가 리스트 -->
-            <div class="col-md-9">
-                <div id="map" style="height: 500px;"></div>
-                <button id="moveToCurrentLocation" class="btn btn-secondary mt-2">현재 위치로 이동</button>
-                
-                <div id="store-list" style="margin-top: 20px;">
-                    <h3>상가 리스트</h3>
+            <div class="custom-col-md-9">              
+                <div id="store-list">
+                	<div id="store-list-header">
+                    	<h3>상가 리스트</h3>
+                    	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addStoreModal">상가 추가</button>
+                    </div>
                     <ul id="store-list-items" style="list-style-type: none; padding-left: 0;">
                         <!-- 상가 리스트가 여기에 동적으로 추가됩니다. -->
                     </ul>
-                </div>
-                
-                <!-- 상가 추가 버튼 -->
-                <div style="margin-top: 20px;">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addStoreModal">상가 추가</button>
                 </div>
             </div>
         </div>
@@ -105,10 +108,7 @@
                         <label for="storeDescription">상가 소개</label>
                         <textarea class="form-control" id="storeDescription" name="description" rows="3"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="storeReviews">리뷰</label>
-                        <textarea class="form-control" id="storeReviews" name="reviews" rows="3"></textarea>
-                    </div>
+
                     <div class="form-group">
                         <label for="storePhoto">상가 사진</label>
                         <input type="file" class="form-control-file" id="storePhoto" name="photo">
@@ -123,9 +123,11 @@
             </div>
         </div>
     </div>
-
+ 	<script src="/js/storelist.js"></script>
     <script src="/js/map.js"></script>
-    <script src="/js/storelist.js"></script>
+    
+   
+
     <!-- Bootstrap JS 및 Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
