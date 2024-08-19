@@ -25,5 +25,7 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     // 사용자가 채팅방을 나간 이후의 메시지만 가져오는 메서드
     List<ChatMessage> findByRoom_RoomIdAndTimestampAfter(String roomId, LocalDateTime timestamp);
 
+    // receiverId를 기준으로 메시지를 삭제하는 메서드
+    void deleteByReceiver_Seq(Long receiverId);
 
 }

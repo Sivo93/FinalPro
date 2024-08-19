@@ -1,242 +1,363 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-    <meta charset="UTF-8">
-    <title>회원가입 페이지</title>
-    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Work Sans', sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .logo-container {
-            margin-bottom: 20px;
-        }
-        .logo-container img {
-            max-width: 150px;
-            height: auto;
-        }
-        .signup-container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
-        .signup-container h1 {
-            margin-bottom: 30px;
-            color: #343a40;
-        }
-        .signup-container form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .signup-container .input-group {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-        }
-        .signup-container input[type="text"],
-        .signup-container input[type="password"],
-        .signup-container input[type="email"],
-        .signup-container select {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        .signup-container .input-group button {
-            margin-left: 10px;
-            padding: 10px 20px;
-            background-color: #6f42c1;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .signup-container .input-group button:hover {
-            background-color: #563d7c;
-        }
-        .signup-container input[type="submit"] {
-            background-color: #6f42c1;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 20px 0;
-            width: 100%;
-        }
-        .signup-container input[type="submit"]:hover {
-            background-color: #563d7c;
-        }
-        .signup-container a {
-            display: block;
-            margin-top: 20px;
-            color: #6f42c1;
-            text-decoration: none;
-        }
-        .signup-container a:hover {
-            text-decoration: underline;
-        }
-    </style>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" 
-        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	<meta charset="UTF-8">
+	<title>회원가입 페이지</title>
+	<link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700&display=swap" rel="stylesheet">
+	<style>
+		body {
+			font-family: 'Work Sans', sans-serif;
+			background-color: #f8f9fa;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			height: 100vh;
+			margin: 0;
+			padding: 20px;
+		}
+
+		.logo-container {
+			margin-bottom: 20px;
+		}
+
+		.logo-container img {
+			max-width: 150px;
+			height: auto;
+		}
+
+		.signup-container {
+			background-color: white;
+			padding: 40px;
+			border-radius: 10px;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+			max-width: 500px;
+			width: 100%;
+			text-align: center;
+		}
+
+		.signup-container h1 {
+			margin-bottom: 30px;
+			color: #343a40;
+		}
+
+		.signup-container form {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.signup-container .input-group {
+			width: 100%;
+			display: flex;
+			align-items: center;
+			margin: 10px 0;
+		}
+
+		.signup-container input[type="text"],
+		.signup-container input[type="password"],
+		.signup-container input[type="email"],
+		.signup-container select {
+			flex: 1;
+			padding: 10px;
+			border: 1px solid #ced4da;
+			border-radius: 4px;
+			font-size: 16px;
+		}
+
+		.signup-container .input-group button {
+			margin-left: 10px;
+			padding: 10px 20px;
+			background-color: #6f42c1;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.signup-container .input-group button:hover {
+			background-color: #563d7c;
+		}
+
+		.signup-container input[type="submit"] {
+			background-color: #6f42c1;
+			color: white;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 4px;
+			cursor: pointer;
+			margin: 20px 0;
+			width: 100%;
+		}
+
+		.signup-container input[type="submit"]:hover {
+			background-color: #563d7c;
+		}
+
+		.signup-container a {
+			display: block;
+			margin-top: 20px;
+			color: #6f42c1;
+			text-decoration: none;
+		}
+
+		.signup-container a:hover {
+			text-decoration: underline;
+		}
+	</style>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+		integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	<script src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
 </head>
+
 <body>
-    <div class="logo-container">
-        <a href="/">
-            <img src="/images/logo.png" alt="사이트 로고">
-        </a>
-    </div>
-    <div class="signup-container">
-        <h1>회원가입 페이지</h1>
-        <form id="signupForm" method="post">
-            <div class="input-group">
-                <input type="text" name="loginid" id="loginid" placeholder="아이디" required>
-                <button type="button" onclick="idCheck()">중복확인</button>
-            </div>
-            <div class="input-group">
-                <input type="password" name="pw" placeholder="비밀번호" required>
-            </div>
-            <div class="input-group">
-                <input type="text" name="name" placeholder="이름" required>
-            </div>
-            <div class="input-group">
-                <input type="text" name="nickname" id="nickname" placeholder="닉네임" required>
-                <button type="button" onclick="nicknameCheck()">중복확인</button>
-            </div>
-            <div class="input-group">
-                <input type="text" name="address" placeholder="주소" required>
-            </div>
-            <div class="input-group">
-                <input type="email" name="email" id="email" placeholder="이메일" required>
-                <button type="button" onclick="emailCheck()">중복확인</button>
-            </div>
-            <div class="input-group">
-                <input type="text" name="tel" placeholder="전화번호" required>
-            </div>
-            <div class="input-group">
-                <select name="role" required>
-                    <option value="user">user</option>
-                    <option value="admin">admin</option>
-                    <option value="company">company</option>
-                </select>
-            </div>
-            <input type="submit" id="submitBtn" value="회원가입">
-        </form>
-        <a href="/">홈으로</a>
-    </div>
+	<div class="logo-container">
+		<a href="/">
+			<img src="/images/logo.png" alt="사이트 로고">
+		</a>
+	</div>
+	<div class="signup-container">
+		<h1>회원가입 페이지</h1>
+		<form id="signupForm" method="post">
+			<div class="input-group">
+				<input type="text" name="loginid" id="loginid" placeholder="아이디" required>
+				<button type="button" onclick="idCheck()">중복확인</button>
+			</div>
+			<div class="input-group">
+				<input type="password" name="pw" placeholder="비밀번호" required>
+			</div>
+			<div class="input-group">
+				<input type="text" name="name" placeholder="이름" required>
+			</div>
+			<div class="input-group">
+				<input type="text" name="nickname" id="nickname" placeholder="닉네임" required>
+				<button type="button" onclick="nicknameCheck()">중복확인</button>
+			</div>
+			<div class="input-group">
+				<input type="text" name="address_roadname" id="address_roadname" placeholder="주소" required readonly>
+				<button type="button" onclick="execDaumPostcode()">주소 검색</button>
+			</div>
+			<div class="input-group">
+				<input type="text" name="detail_address" id="detail_address" placeholder="상세 주소" required>
+			</div>
+			<!-- Hidden address field -->
+			<input type="hidden" id="address" name="address">
 
-    <script>
-        let isIdValid = false;
-        let isEmailValid = false;
-        let isNicknameValid = false;
+			<div class="input-group">
+				<input type="text" name="email_id" id="email_id" placeholder="이메일 아이디" required>
+				<span>@</span>
+				<select id="email_domain_select" onchange="toggleEmailDomainInput()" required>
+					<option value="naver.com">naver.com</option>
+					<option value="gmail.com">gmail.com</option>
+					<option value="daum.net">daum.net</option>
+					<option value="direct_input">직접 입력</option>
+				</select>
+				<input type="text" name="email_domain" id="email_domain" style="display:none;" placeholder="도메인 직접 입력">
+				<button type="button" onclick="emailCheck()">중복확인</button>
+			</div>
+			<!-- Hidden email field -->
+			<input type="hidden" id="email" name="email">
+			<div class="input-group">
+				<input type="text" name="tel" placeholder="전화번호" required>
+			</div>
+			<div class="input-group">
+				<select name="role" required>
+					<option value="user">user</option>
+					<option value="admin">admin</option>
+					<option value="company">company</option>
+				</select>
+			</div>
+			<input type="submit" id="submitBtn" value="회원가입">
+		</form>
+		<a href="/">홈으로</a>
+	</div>
 
-        const updateSubmitButtonState = () => {
-            const submitBtn = document.getElementById("submitBtn");
-            submitBtn.disabled = !(isIdValid && isEmailValid && isNicknameValid);
-        };
+	<script>
+		let isIdValid = false;
+		let isEmailValid = false;
+		let isNicknameValid = false;
 
-        const idCheck = () => {
-            const id = document.getElementById("loginid").value;
-            if (!id) {
-                alert("아이디를 입력해주세요.");
-                return;
-            }
-            $.post("/user/id-check", { loginid: id }, function(res) {
-                if (res === "ok") {
-                    alert("사용가능한 아이디");
-                    isIdValid = true;
-                } else {
-                    alert("이미 사용중인 아이디");
-                    isIdValid = false;
-                }
-                updateSubmitButtonState();
-            }).fail(function(err) {
-                console.error("에러발생", err);
-            });
-        };
+		const updateSubmitButtonState = () => {
+			//		const submitBtn = document.getElementById("submitBtn");
+			//	submitBtn.disabled = !(isIdValid && isEmailValid && isNicknameValid);
+		};
 
-        const emailCheck = () => {
-            const email = document.getElementById("email").value;
-            if (!email) {
-                alert("이메일을 입력해주세요.");
-                return;
-            }
-            $.post("/user/email-check", { email: email }, function(res) {
-                if (res === "ok") {
-                    alert("사용가능한 이메일");
-                    isEmailValid = true;
-                } else {
-                    alert("이미 사용중인 이메일");
-                    isEmailValid = false;
-                }
-                updateSubmitButtonState();
-            }).fail(function(err) {
-                console.error("에러발생", err);
-            });
-        };
+		const idCheck = () => {
+			const id = document.getElementById("loginid").value;
+			if (!id) {
+				alert("아이디를 입력해주세요.");
+				return;
+			}
+			$.post("/user/id-check", {loginid: id}, function (res) {
+				if (res === "ok") {
+					alert("사용가능한 아이디");
+					isIdValid = true;
+				} else {
+					alert("이미 사용중인 아이디");
+					isIdValid = false;
+				}
+				updateSubmitButtonState();
+			}).fail(function (err) {
+				console.error("에러발생", err);
+			});
+		};
 
-        const nicknameCheck = () => {
-            const nickname = document.getElementById("nickname").value;
-            if (!nickname) {
-                alert("닉네임을 입력해주세요.");
-                return;
-            }
-            $.post("/user/nickname-check", { nickname: nickname }, function(res) {
-                if (res === "ok") {
-                    alert("사용가능한 닉네임");
-                    isNicknameValid = true;
-                } else {
-                    alert("이미 사용중인 닉네임");
-                    isNicknameValid = false;
-                }
-                updateSubmitButtonState();
-            }).fail(function(err) {
-                console.error("에러발생", err);
-            });
-        };
+		const toggleEmailDomainInput = () => {
+			const domainSelect = document.getElementById("email_domain_select");
+			const domainInput = document.getElementById("email_domain");
 
-        const checkForm = () => {
-            if (!isIdValid || !isEmailValid || !isNicknameValid) {
-                alert("아이디, 이메일, 닉네임 중복 확인을 완료해주세요.");
-                return false;
-            }
-            return true;
-        };
+			if (domainSelect.value === "direct_input") {
+				domainInput.style.display = "inline-block";
+				domainInput.required = true;
+			} else {
+				domainInput.style.display = "none";
+				domainInput.required = false;
+			}
+		};
 
-        $(document).ready(function() {
-            $('#signupForm').submit(function(event) {
-                event.preventDefault(); // 기본 폼 제출 방지
-                if (checkForm()) {
-                    $.ajax({
-                        type: "POST",
-                        url: "/user/save",
-                        data: $(this).serialize(),
-                        success: function(response) {
-                            alert("회원가입이 완료되었습니다.");
-                            window.location.href = "/";
-                        },
-                        error: function(error) {
-                            alert("회원가입 중 문제가 발생했습니다.");
-                        }
-                    });
-                }
-            });
-        });
-    </script>
+		const emailCheck = () => {
+			const emailId = document.getElementById("email_id").value;
+			const domainSelect = document.getElementById("email_domain_select").value;
+			const domainInput = document.getElementById("email_domain").value;
+
+			let email = emailId + '@';
+
+			if (domainSelect === "direct_input") {
+				if (!domainInput) {
+					alert("도메인을 입력해주세요.");
+					return;
+				}
+				email += domainInput;
+			} else {
+				email += domainSelect;
+			}
+
+			if (!emailId || !email) {
+				alert("이메일을 입력해주세요.");
+				return;
+			}
+
+			$.post("/user/email-check", {email: email}, function (res) {
+				if (res === "ok") {
+					alert("사용가능한 이메일");
+					isEmailValid = true;
+					// email_id와 email_domain 값을 가져와 합침
+					var emailId = document.getElementById("email_id").value;
+					var emailDomain = document.getElementById("email_domain").value;
+
+					// 합친 값을 hidden 필드인 email에 설정
+					var email = emailId + "@" + emailDomain;
+					document.getElementById("email").value = email;
+				} else {
+					alert("이미 사용중인 이메일");
+					isEmailValid = false;
+				}
+				updateSubmitButtonState();
+			}).fail(function (err) {
+				console.error("에러발생", err);
+			});
+		};
+
+
+		const nicknameCheck = () => {
+			const nickname = document.getElementById("nickname").value;
+			if (!nickname) {
+				alert("닉네임을 입력해주세요.");
+				return;
+			}
+			$.post("/user/nickname-check", {nickname: nickname}, function (res) {
+				if (res === "ok") {
+					alert("사용가능한 닉네임");
+					isNicknameValid = true;
+				} else {
+					alert("이미 사용중인 닉네임");
+					isNicknameValid = false;
+				}
+				updateSubmitButtonState();
+			}).fail(function (err) {
+				console.error("에러발생", err);
+			});
+		};
+
+		const checkForm = () => {
+			if (!isIdValid) {
+				alert("아이디 중복 확인을 해주세요.");
+				return false;
+			}
+			if (!isEmailValid) {
+				alert("이메일 중복 확인을 해주세요.");
+				return false;
+			}
+			if (!isNicknameValid) {
+				alert("닉네임 중복 확인을 해주세요.");
+				return false;
+			}
+			return true;
+		};
+
+
+		$(document).ready(function () {
+			$('#signupForm').submit(function (event) {
+				event.preventDefault(); // 기본 폼 제출 방지
+
+				// 폼 제출 전에 중복 확인이 완료되었는지 다시 확인
+				if (checkForm()) {
+					// 이메일 값 다시 설정
+					const emailId = document.getElementById("email_id").value;
+					const domainSelect = document.getElementById("email_domain_select").value;
+					const domainInput = document.getElementById("email_domain").value;
+
+					let email = emailId + '@';
+
+					if (domainSelect === "direct_input") {
+						email += domainInput;
+					} else {
+						email += domainSelect;
+					}
+
+					// hidden 필드에 이메일 값 설정
+					document.getElementById("email").value = email;
+
+					// 상세 주소와 도로명 주소를 결합하여 hidden 필드에 설정
+					const roadAddress = document.getElementById('address_roadname').value;
+					const detailAddress = document.getElementById('detail_address').value;
+					const fullAddress = roadAddress + " / " +  detailAddress;
+
+					document.getElementById('address').value = fullAddress;
+					// 서버로 폼 제출
+					$.ajax({
+						type: "POST",
+						url: "/user/save",
+						data: $(this).serialize(),
+						success: function (response) {
+							alert("회원가입이 완료되었습니다.");
+							window.location.href = "/";
+						},
+						error: function (error) {
+							alert("회원가입 중 문제가 발생했습니다.");
+						}
+					});
+				} else {
+					alert("아이디, 이메일, 닉네임 중복 확인을 완료해주세요.");
+				}
+			});
+		});
+
+
+		// 카카오 주소 검색 API 연동
+		function execDaumPostcode() {
+			new daum.Postcode({
+				oncomplete: function (data) {
+					// 도로명 주소를 address_readname 필드에 설정합니다.
+					document.getElementById('address_roadname').value = data.roadAddress;
+
+					// 주소 검색 후 상세 주소 필드에 포커스를 맞춥니다.
+					document.getElementById('detail_address').focus();
+				}
+			}).open();
+		}
+	</script>
 </body>
+
 </html>

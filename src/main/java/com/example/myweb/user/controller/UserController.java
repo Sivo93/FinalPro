@@ -128,9 +128,10 @@ public class UserController {
 	}
 
 	@GetMapping("/user/delete/{seq}")
-	public String deleteBySeq(@PathVariable Long seq) {
+	public String deleteBySeq(@PathVariable Long seq, HttpSession session) {
 		userService.deleteBySeq(seq);
-		return "redirect:/user/userList";
+		session.invalidate();
+		return "redirect:/";
 	}
 
 	@GetMapping("/user/logout")

@@ -1,9 +1,17 @@
 package com.example.myweb.user.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
+import com.example.myweb.board.entity.BiticBoardCommentEntity;
+import com.example.myweb.board.entity.BiticBoardEntity;
 import com.example.myweb.board.entity.BiticBoardLikeEntity;
+import com.example.myweb.board.entity.FreeBoardCommentEntity;
+import com.example.myweb.board.entity.FreeBoardEntity;
 import com.example.myweb.board.entity.FreeBoardLikeEntity;
+import com.example.myweb.board.entity.NoticeBoardCommentEntity;
+import com.example.myweb.board.entity.NoticeBoardEntity;
 import com.example.myweb.board.entity.NoticeBoardLikeEntity;
 import com.example.myweb.user.dto.UserDTO;
 
@@ -51,6 +59,7 @@ public class UserEntity {
 	@Column(nullable = true)
 	private String role;
 	
+	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<FreeBoardLikeEntity> freelikes;
 	
@@ -59,6 +68,25 @@ public class UserEntity {
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<BiticBoardLikeEntity> biticlikes;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<FreeBoardEntity> freeBoards;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<NoticeBoardEntity> noticeBoards;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<BiticBoardEntity> biticBoards;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<FreeBoardCommentEntity> freeComments;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<NoticeBoardCommentEntity> noticeComments;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<BiticBoardCommentEntity> biticComments;
+
 
     public static UserEntity toUserEntity(UserDTO userDTO) {
         UserEntity userEntity = new UserEntity();

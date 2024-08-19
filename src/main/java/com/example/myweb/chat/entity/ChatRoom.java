@@ -21,11 +21,11 @@ public class ChatRoom {
 
     private String roomId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "sender_id", referencedColumnName = "seq")
     private UserEntity sender;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "receiver_id", referencedColumnName = "seq")
     private UserEntity receiver;
 

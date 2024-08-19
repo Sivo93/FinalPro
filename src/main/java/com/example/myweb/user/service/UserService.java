@@ -142,6 +142,7 @@ public class UserService {
 	}
 
 	public void deleteBySeq(Long seq) {
+		 // 먼저 관련된 채팅 메시지를 삭제합니다.
 		userRepository.deleteById(seq);
 	}
 
