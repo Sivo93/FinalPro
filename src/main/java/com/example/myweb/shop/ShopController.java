@@ -9,10 +9,13 @@ import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,50 +24,34 @@ import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/shop")
-public class ShopController {
+public class ShopController implements WebMvcConfigurer { // WebMvcConfigurer를 구현하여 정적 리소스 경로를 설정합니다.
 
     @Autowired
     private ShopService shopService;
 
     @Autowired
     private UserService userService;
-/*
-    // 모든 상품 목록을 가져옵니다. 검색어가 있을 경우 검색 결과를 반환합니다.
-    @GetMapping("/shoplist")
-    public String getAllShops(@RequestParam(required = false) String keyword, Model model, HttpSession session) {
-        List<ShopEntity> shops;
-        if (keyword != null) {
-            shops = shopService.searchShops(keyword);
-        } else {
-            shops = shopService.getAllShops();
-        }
-        model.addAttribute("shops", shops);
 
-        String loginid = (String) session.getAttribute("loginid");
-        if (loginid != null) {
-            UserDTO userDTO = userService.findByLoginid(loginid);
-            model.addAttribute("user", userDTO);
-        }
-
-        return "shop/shoplist";
+    // 로그인 아이디를 쉽게 가져오기 위한 메서드로 중복된 코드를 제거합니다.
+    private String getLoginId(HttpSession session) {
+        return (String) session.getAttribute("loginid");
     }
-*/
+
     // 특정 상품의 상세 정보
     @GetMapping("/{nom}")
     public String getShopDetail(@PathVariable Long nom, Model model, HttpSession session) {
         ShopEntity shop = shopService.getShopById(nom)
-                .orElseThrow(() -> new RuntimeException("Shop not found"));
+                .orElseThrow(() -> new ShopNotFoundException("Shop not found")); // 커스텀 예외를 사용하여 예외 처리
 
         List<ShopEntity> otherShops = shopService.getOtherShopsBySeller(shop.getSellernickname(), nom);
-        System.out.println("otherShops: " + otherShops.size() + " items found.");
-
         model.addAttribute("shop", shop);
         model.addAttribute("otherShops", otherShops);
 
-        String loginid = (String) session.getAttribute("loginid");
+        String loginid = getLoginId(session); // 중복된 코드 제거 후 재사용
         if (loginid != null) {
             UserDTO userDTO = userService.findByLoginid(loginid);
             model.addAttribute("user", userDTO);
@@ -73,11 +60,10 @@ public class ShopController {
         return "shop/shopdetail";
     }
 
-
     // 상품 등록 페이지
     @GetMapping("/addshop")
     public String showAddShopForm(Model model, HttpSession session) {
-        String loginid = (String) session.getAttribute("loginid");
+        String loginid = getLoginId(session);
         if (loginid != null) {
             UserDTO userDTO = userService.findByLoginid(loginid);
             model.addAttribute("nickname", userDTO.getNickname());
@@ -91,7 +77,7 @@ public class ShopController {
     @PostMapping("/addshop")
     public String addShop(@ModelAttribute("shop") ShopEntity shop, @RequestParam("images") MultipartFile[] images, HttpSession session) throws IOException {
         List<String> imageUrls = new ArrayList<>();
-        
+
         for (MultipartFile image : images) {
             if (!image.isEmpty()) {
                 String imageUrl = saveImage(image);
@@ -99,11 +85,7 @@ public class ShopController {
             }
         }
 
-        if (imageUrls.isEmpty()) {
-            shop.setImageUrls(null);  // 이미지가 없을 경우 null로 설정
-        } else {
-            shop.setImageUrls(imageUrls);
-        }
+        shop.setImageUrls(imageUrls.isEmpty() ? null : imageUrls); // 중복된 코드 제거 후 재사용
 
         String nickname = (String) session.getAttribute("nickname");
         if (nickname != null) {
@@ -116,71 +98,107 @@ public class ShopController {
 
     // 이미지 저장 로직
     private String saveImage(MultipartFile image) throws IOException {
-    	// 폴더 오류나면 해당 폴더 우클릭 후 읽기 전용 체크를 푸세요
-        // 프로젝트 루트 디렉토리 경로를 얻습니다.
-        String projectDir = System.getProperty("user.dir");
-        String uploadDir = projectDir + "/uploads/images";
+        String uploadDir = System.getProperty("user.dir") + "/uploads/images";
         String originalFilename = image.getOriginalFilename();
         String uniqueFilename = System.currentTimeMillis() + "_" + originalFilename;
         String filePath = Paths.get(uploadDir, uniqueFilename).toString();
 
-        
-        // 파일 이름에 시간을 추가하여 고유한 파일 이름을 만듭니다.
-        // 저장 디렉토리가 없으면 생성
         File dir = new File(uploadDir);
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
-        // 파일 저장
         Files.write(Paths.get(filePath), image.getBytes());
 
-        // 반환 URL 경로
         return "/uploads/images/" + uniqueFilename;
     }
+
+    // 정적 리소스 경로를 설정합니다.
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String uploadDir = System.getProperty("user.dir") + "/uploads/images/";
+        registry.addResourceHandler("/uploads/images/**")
+                .addResourceLocations("file:" + uploadDir);
+    }
+
     // 상품 삭제
     @PostMapping("/delete/{nom}")
     public String deleteShop(@PathVariable Long nom) {
         shopService.deleteShopById(nom);
         return "redirect:/shop/shoplist";
     }
-    
-    
-    
-    // 페이징된 모든 상품 목록을 가져옵니다. 검색어가 있을 경우 검색 결과에 따른 목록 출력, 검색어가 없을 경우 안내
+
+    // 페이징된 모든 상품 목록을 가져옵니다. 검색어가 있을 경우 검색 결과에 따른 목록 출력
     @GetMapping("/shoplist")
-    public String getAllShops(@RequestParam(required = false) String keyword, 
-    						  @RequestParam(required = false, defaultValue = "product") String searchType, 
-                              @RequestParam(defaultValue = "1") int page, 
-                              @RequestParam(defaultValue = "10") int size, 
+    public String getAllShops(@RequestParam(required = false) String keyword,
+                              @RequestParam(required = false, defaultValue = "product") String searchType,
+                              @RequestParam(defaultValue = "1") int page,
+                              @RequestParam(defaultValue = "10") int size,
                               Model model, HttpSession session) {
-    	
+
         Page<ShopEntity> shopPage;
 
         if (keyword != null && !keyword.isEmpty()) {
-        	if("seller".equals(searchType)) {
-        		shopPage = shopService.searchBySeller(keyword, page - 1, size);
-        	}else {
-        		shopPage = shopService.searchByProductName(keyword, page - 1, size);
-        	}
-            model.addAttribute("keyword", keyword);  // 검색어를 다시 뷰로 전달
-            model.addAttribute("searchType", searchType);	//검색유형을 뷰로 전달
-            model.addAttribute("noResults", shopPage.isEmpty());  // 검색 결과가 없음을 나타내는 플래그
+            if ("seller".equals(searchType)) {
+                shopPage = shopService.searchBySeller(keyword, page - 1, size);
+            } else {
+                shopPage = shopService.searchByProductName(keyword, page - 1, size);
+            }
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("searchType", searchType);
+            model.addAttribute("noResults", shopPage.isEmpty());
         } else {
             shopPage = shopService.getAllShops(page - 1, size);
-            model.addAttribute("noResults", false);  // 전체 목록일 때는 결과가 항상 있음
+            model.addAttribute("noResults", false);
         }
 
         model.addAttribute("shops", shopPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", shopPage.getTotalPages());
 
-        String loginid = (String) session.getAttribute("loginid");
+        String loginid = getLoginId(session);
         if (loginid != null) {
             UserDTO userDTO = userService.findByLoginid(loginid);
             model.addAttribute("user", userDTO);
         }
 
         return "shop/shoplist";
+    }
+
+    // 상품 정보 수정 페이지
+    @GetMapping("/edit/{nom}")
+    public String editShop(@PathVariable("nom") Long nom, Model model) {
+        Optional<ShopEntity> optionalShop = shopService.getShopById(nom);
+        if (optionalShop.isPresent()) {
+            model.addAttribute("shop", optionalShop.get());
+            return "shop/editshop";
+        } else {
+            throw new ShopNotFoundException("Shop not found"); // 커스텀 예외를 던짐
+        }
+    }
+
+    // 상품 업데이트 처리
+    @PostMapping("/update/{nom}")
+    public String updateShop(@PathVariable("nom") Long nom, ShopEntity updatedShop) {
+        Optional<ShopEntity> optionalShop = shopService.getShopById(nom);
+        if (optionalShop.isPresent()) {
+            ShopEntity shop = optionalShop.get();
+            shop.setProductname(updatedShop.getProductname());
+            shop.setDescription(updatedShop.getDescription());
+            shop.setPrice(updatedShop.getPrice());
+            shop.setSellernickname(updatedShop.getSellernickname());
+            shopService.saveShop(shop);
+            return "redirect:/shop/" + nom; // 리다이렉션 경로 수정
+        } else {
+            throw new ShopNotFoundException("Shop not found"); // 커스텀 예외를 던짐
+        }
+    }
+
+    // 커스텀 예외 정의
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public static class ShopNotFoundException extends RuntimeException {
+        public ShopNotFoundException(String message) {
+            super(message);
+        }
     }
 }

@@ -186,7 +186,7 @@
                 <div class="product-image-container">
                     <!-- 이미지 슬라이드 -->
                     <div th:each="imageUrl, iterStat : ${shop.imageUrls}" class="slide" style="display:none;">
-                        <img class="product-image" th:src="@{${imageUrl}}" alt="Product Image">
+                    	<img class="product-image" th:src="@{${imageUrl}}" alt="Product Image" onclick="openModal(this.src)">
                     </div>
                     
                     <!-- 좌우 버튼 -->
@@ -202,13 +202,20 @@
                     <!-- 대화하기 버튼 -->
 				    <div th:if="${user != null and user.nickname != shop.sellernickname}">
 				        <button type="button" onclick="openChatWindow2()">대화하기</button>
+					<form id="deleteForm" th:action="@{/shop/delete/{nom}(nom=${shop.nom})}" method="post">
+                        <button type="button" onclick="showDeleteModal()">판매 그만두기</button>
+                    </form>
+                       
 				    </div>
-
-                    <!-- 삭제 버튼 (사용자와 판매자가 같은 경우 활성화) -->
-                    <div th:if="${user != null and user.nickname == shop.sellernickname}">
+				     
+                    <!-- 삭제와 수정 버튼 (사용자와 판매자가 같은 경우 활성화) -->
+                    <div th:if="${user != null and (user.nickname == shop.sellernickname or user.isAdmin())}">
                         <form id="deleteForm" th:action="@{/shop/delete/{nom}(nom=${shop.nom})}" method="post">
                             <button type="button" onclick="showDeleteModal()">판매 그만두기</button>
                         </form>
+                        <a th:href="@{/shop/edit/{nom}(nom=${shop.nom})}">
+							<button type="button">내용 수정하기</button>
+                        </a>
                     </div>
                 </div>
             </div>
