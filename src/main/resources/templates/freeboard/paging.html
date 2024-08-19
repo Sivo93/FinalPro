@@ -1,490 +1,467 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<title>자유게시판</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>자유게시판</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+        <!-- SockJS와 Stomp.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/open-iconic-bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/animate.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
+    <link rel="stylesheet" th:href="@{/css/magnific-popup.css}">
+    <link rel="stylesheet" th:href="@{/css/aos.css}">
+    <link rel="stylesheet" th:href="@{/css/ionicons.min.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap-datepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/jquery.timepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/flaticon.css}">
+    <link rel="stylesheet" th:href="@{/css/icomoon.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+		
+		       /* 테이블 스타일링 */
+        table.board {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
 
-	<!-- SockJS와 Stomp.js -->
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-	<link rel="stylesheet" th:href="@{/css/header.css}">
-	<link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
-	<link rel="stylesheet" th:href="@{/css/open-iconic-bootstrap.min.css}">
-	<link rel="stylesheet" th:href="@{/css/animate.css}">
-	<link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
-	<link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
-	<link rel="stylesheet" th:href="@{/css/magnific-popup.css}">
-	<link rel="stylesheet" th:href="@{/css/aos.css}">
-	<link rel="stylesheet" th:href="@{/css/ionicons.min.css}">
-	<link rel="stylesheet" th:href="@{/css/bootstrap-datepicker.css}">
-	<link rel="stylesheet" th:href="@{/css/jquery.timepicker.css}">
-	<link rel="stylesheet" th:href="@{/css/flaticon.css}">
-	<link rel="stylesheet" th:href="@{/css/icomoon.css}">
-	<link rel="stylesheet" th:href="@{/css/style.css}">
-	<style>
-		/* 테이블 스타일링 */
-		table.board {
-			width: 100%;
-			border-collapse: collapse;
-			margin-bottom: 20px;
-			background-color: #fff;
-			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-			border-radius: 8px;
-			overflow: hidden;
-		}
+        table.board th,
+        table.board td {
+            padding: 15px;
+            text-align: center;
+        }
 
-		table.board th,
-		table.board td {
-			padding: 15px;
-			text-align: center;
-		}
+        table.board thead th {
+            background-color: rgb(106, 0, 213);
+            color: #fff;
+            font-weight: 600;
+        }
 
-		table.board thead th {
-			background-color: rgb(106, 0, 213);
-			color: #fff;
-			font-weight: 600;
-		}
+        table.board tbody tr {
+            border-bottom: 1px solid #e8e8e8;
+            transition: background-color 0.3s ease;
+        }
 
-		table.board tbody tr {
-			border-bottom: 1px solid #e8e8e8;
-			transition: background-color 0.3s ease;
-		}
+        table.board tbody tr:hover {
+            background-color: #f5f5f5;
+        }
 
-		table.board tbody tr:hover {
-			background-color: #f5f5f5;
-		}
+        table.board tbody tr:last-child {
+            border-bottom: none;
+        }
 
-		table.board tbody tr:last-child {
-			border-bottom: none;
-		}
-
-		/* 페이지 이동 버튼을 포함하는 div 스타일링 */
+        /* 페이지 이동 버튼을 포함하는 div 스타일링 */
 		.pagination {
-			display: flex;
-			justify-content: center;
-			/* 수평 중앙 정렬 */
-			align-items: center;
-			/* 수직 중앙 정렬 */
-			margin-top: 10px;
-			margin-bottom: 20px;
-			gap: 10px;
-			/* 버튼 사이 간격 */
+		    display: flex;
+		    justify-content: center; /* 수평 중앙 정렬 */
+		    align-items: center; /* 수직 중앙 정렬 */
+		    margin-top: 10px;
+		    margin-bottom: 20px;
+		    gap: 10px; /* 버튼 사이 간격 */
 		}
 
 
 
-		.pagination a {
-			font-size: 14px;
-			display: inline-block;
-			color: #6c63ff;
-			padding: 8px 12px;
-			/* 패딩으로 버튼의 내부 여백을 조절 */
-			text-decoration: none;
-			margin: 0 5px;
-			/* 버튼 사이의 간격 */
-			border: 1px solid #ddd;
-			border-radius: 4px;
-			/* 버튼의 둥근 모서리 조절 */
-			font-size: 14px;
-			/* 버튼 글자의 크기 */
-			width: 40px;
-			/* 버튼의 너비를 고정 */
-			height: 40px;
-			/* 버튼의 높이를 고정 */
-			display: flex;
-			justify-content: center;
-			/* 텍스트를 수평 중앙에 위치 */
-			align-items: center;
-			/* 텍스트를 수직 중앙에 위치 */
-		}
+.pagination a {
+	font-size: 14px;
+    display: inline-block;
+    color: #6c63ff;
+    padding: 8px 12px; /* 패딩으로 버튼의 내부 여백을 조절 */
+    text-decoration: none;
+    margin: 0 5px; /* 버튼 사이의 간격 */
+    border: 1px solid #ddd;
+    border-radius: 4px; /* 버튼의 둥근 모서리 조절 */
+    font-size: 14px; /* 버튼 글자의 크기 */
+    width: 40px; /* 버튼의 너비를 고정 */
+    height: 40px; /* 버튼의 높이를 고정 */
+    display: flex;
+    justify-content: center; /* 텍스트를 수평 중앙에 위치 */
+    align-items: center; /* 텍스트를 수직 중앙에 위치 */
+}
 
 
-		/* 반응형 디자인 */
-		@media (max-width: 768px) {
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            table.board th,
+            table.board td {
+                padding: 10px;
+                font-size: 14px;
+            }
 
-			table.board th,
-			table.board td {
-				padding: 10px;
-				font-size: 14px;
-			}
+            .hero-wrap {
+                background-size: cover;
+                background-position: center;
+            }
 
-			.hero-wrap {
-				background-size: cover;
-				background-position: center;
-			}
+            .board-main {
+                padding: 0 15px;
+            }
 
-			.board-main {
-				padding: 0 15px;
-			}
+            .pagination {
+                flex-direction: column;
+            }
 
-			.pagination {
-				flex-direction: column;
-			}
+            .pagination a {
+                margin-bottom: 10px;
+            }
+        }
 
-			.pagination a {
-				margin-bottom: 10px;
-			}
-		}
+        /* 링크 스타일 */
+        a {
+            color: #6c63ff;
+            text-decoration: none;
+        }
 
-		/* 링크 스타일 */
-		a {
-			color: #6c63ff;
-			text-decoration: none;
-		}
+        a:hover {
+            text-decoration: underline;
+        }
 
-		a:hover {
-			text-decoration: underline;
-		}
+        /* 버튼 스타일 */
+        .btn {
+			border : 1px solid  rgb(64, 0, 128);
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
 
-		/* 버튼 스타일 */
-		.btn {
-			border: 1px solid rgb(64, 0, 128);
-			background-color: rgb(255, 255, 255);
-			color: rgb(0, 0, 0);
-			padding: 10px 20px;
-			border-radius: 5px;
-			text-decoration: none;
-			display: inline-block;
-			margin-top: 20px;
-		}
-
-		.btn:hover {
-			background-color: #5753d3;
-		}
+        .btn:hover {
+            background-color: #5753d3;
+        }
 
 
 
 		.toggle-menu {
-			display: none;
-			position: absolute;
-			background: #fff;
-			border: 1px solid #ccc;
-			z-index: 1000;
-			border-radius: 8px;
-			/* 모서리를 둥글게 설정 */
+		    display: none;
+		    position: absolute;
+		    background: #fff;
+		    border: 1px solid #ccc;
+		    z-index: 1000;
+		    border-radius: 8px; /* 모서리를 둥글게 설정 */
 		}
-
 		.toggle-menu ul {
-			list-style: none;
-			padding: 0;
-			margin: 0;
-			border-radius: 8px;
-			/* 모서리를 둥글게 설정 */
+		    list-style: none;
+		    padding: 0;
+		    margin: 0;
+		    border-radius: 8px; /* 모서리를 둥글게 설정 */
 		}
-
 		.toggle-menu ul li {
-			padding: 10px;
-			cursor: pointer;
-			border-radius: 8px;
-			/* 리스트 아이템도 둥글게 설정 */
+		    padding: 10px;
+		    cursor: pointer;
+		    border-radius: 8px; /* 리스트 아이템도 둥글게 설정 */
 		}
-
 		.toggle-menu ul li:hover {
-			background: #f1f1f1;
-			border-radius: 8px;
-			/* 호버 시에도 모서리가 둥글게 유지되도록 설정 */
+		    background: #f1f1f1;
+		    border-radius: 8px; /* 호버 시에도 모서리가 둥글게 유지되도록 설정 */
 		}
-
-
-		select[name="tag"] {
-			padding: 10px;
-			margin-bottom: 15px;
-			border: 1px solid #ddd;
-			border-radius: 30px;
-			font-size: 16px;
-			background-color: #fff;
-			appearance: none;
-			-webkit-appearance: none;
-			-moz-appearance: none;
-			background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/>');
-			background-repeat: no-repeat;
-			background-position: right 10px center;
-			background-size: 10px;
-			text-align: center;
-			width: auto;
-			/* 내용에 따라 너비가 자동으로 조절되도록 설정 */
-			min-width: 80px;
-			/* 최소 너비를 설정하여 너무 좁아지지 않도록 방지 */
-			max-width: 150px;
-			/* 최대 너비를 설정하여 너무 넓어지지 않도록 방지 */
-		}
-
+        
+		
+select[name="tag"] {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    font-size: 16px;
+    background-color: #fff;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px;
+    text-align: center;
+    width: auto; /* 내용에 따라 너비가 자동으로 조절되도록 설정 */
+    min-width: 80px; /* 최소 너비를 설정하여 너무 좁아지지 않도록 방지 */
+    max-width: 150px; /* 최대 너비를 설정하여 너무 넓어지지 않도록 방지 */
+}
 		/* */
-		.filter-and-search {
-			display: flex;
-			justify-content: space-between;
-			/* 태그와 검색 입력란을 양쪽 끝에 배치 */
-			align-items: center;
-			/* 세로 중앙 정렬 */
-			margin-bottom: 15px;
-			/* 아래쪽 여백 */
-		}
+.filter-and-search {
+    display: flex;
+    justify-content: space-between; /* 태그와 검색 입력란을 양쪽 끝에 배치 */
+    align-items: center; /* 세로 중앙 정렬 */
+    margin-bottom: 15px; /* 아래쪽 여백 */
+}
+.tag-filter-form {
+    flex: 1; /* 왼쪽에 위치한 태그 선택 박스가 일정한 공간을 차지하게 함 */
+}
+.tag-filter-form select {
+    padding: 10px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 30px !important; /* 둥근 모서리 */
+    font-size: 16px !important;
+    background-color: #fff !important;
+    appearance: none !important; /* 기본 드롭다운 화살표 제거 */
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    background-size: 10px !important;
+    text-align: center !important;
+}
 
-		.tag-filter-form {
-			flex: 1;
-			/* 왼쪽에 위치한 태그 선택 박스가 일정한 공간을 차지하게 함 */
-		}
+.board-main {
+    margin-top: 30px; /* 헤더와의 간격을 추가 */
+    padding-top: 30px; /* 원하는 경우 내부 여백 추가 */
+}
+.search-form {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end; /* 검색 입력란과 아이콘을 오른쪽으로 정렬 */
+    position: relative;
+    background-color: white;
+}
 
-		.tag-filter-form select {
-			padding: 10px !important;
-			border: 1px solid #ddd !important;
-			border-radius: 30px !important;
-			/* 둥근 모서리 */
-			font-size: 16px !important;
-			background-color: #fff !important;
-			appearance: none !important;
-			/* 기본 드롭다운 화살표 제거 */
-			-webkit-appearance: none !important;
-			-moz-appearance: none !important;
-			background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/>') !important;
-			background-repeat: no-repeat !important;
-			background-position: right 10px center !important;
-			background-size: 10px !important;
-			text-align: center !important;
-		}
+.search-container {
+    position: relative;
+    display: inline-block;
+}
 
-		.board-main {
-			margin-top: 30px;
-			/* 헤더와의 간격을 추가 */
-			padding-top: 30px;
-			/* 원하는 경우 내부 여백 추가 */
-		}
+.search-form input {
+    width: 250px;
+    padding: 10px 40px 10px 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
 
-		.search-form {
-			flex: 1;
-			display: flex;
-			justify-content: flex-end;
-			/* 검색 입력란과 아이콘을 오른쪽으로 정렬 */
-			position: relative;
-			background-color: white;
-		}
+.search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
 
-		.search-container {
-			position: relative;
-			display: inline-block;
-		}
+.search-icon .icon-search {
+    font-size: 18px;
+    color: #666;
+}
+.current-page {
+    font-size: 22px; /* 글자크기 */
+    font-weight: bold; /* 굵게 */
+    color: rgb(64, 0, 64); /* 글자 색상 */
+}
 
-		.search-form input {
-			width: 250px;
-			padding: 10px 40px 10px 10px;
-			border-radius: 5px;
-			border: 1px solid #ddd;
-			font-size: 16px;
-		}
+.categories li a.active {
+	display: inline-block; /* 글자 크기에 맞게 배경색*/
+	color :  rgb(64, 0, 64); /*글자색*/
+	background-color: rgb(239, 223, 255); /*배경색*/
+	border-radius: 30px
+}
 
-		.search-icon {
-			position: absolute;
-			right: 10px;
-			top: 50%;
-			transform: translateY(-50%);
-			background: none;
-			border: none;
-			cursor: pointer;
-			padding: 0;
-		}
 
-		.search-icon .icon-search {
-			font-size: 18px;
-			color: #666;
-		}
-
-		.current-page {
-			font-size: 22px;
-			/* 글자크기 */
-			font-weight: bold;
-			/* 굵게 */
-			color: rgb(64, 0, 64);
-			/* 글자 색상 */
-		}
-
-		.categories li a.active {
-			display: inline-block;
-			/* 글자 크기에 맞게 배경색*/
-			color: rgb(64, 0, 64);
-			/*글자색*/
-			background-color: rgb(239, 223, 255);
-			/*배경색*/
-			border-radius: 30px
-		}
-	</style>
+		    </style>
 </head>
-
 <body>
-	<div th:replace="~{common/header :: fragment}"></div>
-	<section class="ftco-section">
-		<div class="board-main">
-			<div class="row">
-				<div class="col-md-9 ftco-animate">
-					<div class="filter-and-search">
-						<form id="tagFilterForm" action="/freeboard/paging" method="get" class="tag-filter-form">
-							<select name="tag" onchange="document.getElementById('tagFilterForm').submit()">
-								<option value="" th:selected="${currentTag == null}">전체</option>
-								<option value="운동" th:selected="${currentTag == '운동'}">운동</option>
-								<option value="여가" th:selected="${currentTag == '여가'}">여가</option>
-								<option value="여행" th:selected="${currentTag == '여행'}">여행</option>
-								<option value="동물" th:selected="${currentTag == '동물'}">동물</option>
-								<option value="질문" th:selected="${currentTag == '질문'}">질문</option>
-								<option value="꿀팁" th:selected="${currentTag == '꿀팁'}">꿀팁</option>
-							</select>
-						</form>
+    <div th:replace="~{common/header :: fragment}"></div>
+    <section class="ftco-section">
+<div class="board-main">
+    <div class="row">
+        <div class="col-md-9 ftco-animate">
+            <div class="filter-and-search">
+                <form id="tagFilterForm" action="/freeboard/paging" method="get" class="tag-filter-form">
+                    <select name="tag" onchange="document.getElementById('tagFilterForm').submit()">
+                        <option value="" ${currentTag==null ? 'selected' : '' }>전체</option>
+                        <option value="운동" ${currentTag=='운동' ? 'selected' : '' }>운동</option>
+                        <option value="여가" ${currentTag=='여가' ? 'selected' : '' }>여가</option>
+                        <option value="여행" ${currentTag=='여행' ? 'selected' : '' }>여행</option>
+                        <option value="동물" ${currentTag=='동물' ? 'selected' : '' }>동물</option>
+                        <option value="질문" ${currentTag=='질문' ? 'selected' : '' }>질문</option>
+                        <option value="꿀팁" ${currentTag=='꿀팁' ? 'selected' : '' }>꿀팁</option>
+                        <option value="잡담" ${currentTag=='잡담' ? 'selected' : '' }>잡담</option>
+                    </select>
+                </form>
+<form action="#" class="search-form" id="searchForm">
+    <div class="search-container">
+        <input type="text" class="form-control" placeholder="제목으로 검색" name="search" th:value="${searchKeyword}">
+        <button type="submit" class="search-icon">
+            <span class="icon-search"></span>
+        </button>
+    </div>
+</form>
+            </div>
+            <h2 class="mb-3">
+                <table class="board">
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>태그</th>
+                            <th>제목</th>
+                            <th>작성자</th>
+                            <th>작성일</th>
+                            <th>조회수</th>
+                            <th>추천</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="freeboard: ${freeBoardList}">
+                            <td th:text="${freeboard.seq}"></td>
+                            <td th:text="${freeboard.tag}"></td>
+                            <td><a th:href="@{|/freeboard/${freeboard.seq}|(page=${freeBoardList.number + 1})}" th:text="${freeboard.title}"></a></td>
+                            <td>
+                                <span class="user-name" th:data-nickname="${freeboard.nickname}" th:text="${freeboard.nickname}" style="cursor: pointer;"></span>
+                                <div class="toggle-menu">
+                                    <ul>
+                                        <li class="start-chat" th:data-nickname="${freeboard.nickname}">1대1 채팅</li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td th:text="*{#temporals.format(freeboard.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td th:text="${freeboard.views}"></td>
+                            <td th:text="${freeboard.likeCount}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </h2>
+<div class="pagination">
+    <!-- << 링크: 첫 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.first}">
+        <a th:href="@{/freeboard/paging(page=1, search=${searchKeyword})}"><<</a>
+    </span>
 
-						<form action="#" class="search-form" id="searchForm">
-							<div class="search-container">
-								<input type="text" class="form-control" placeholder="제목으로 검색" name="search"
-									th:value="${searchKeyword}">
-								<button type="submit" class="search-icon">
-									<span class="icon-search"></span>
-								</button>
-							</div>
-						</form>
-					</div>
-					<h2 class="mb-3">
-						<table class="board">
-							<thead>
-								<tr>
-									<th>번호</th>
-									<th>태그</th>
-									<th>제목</th>
-									<th>작성자</th>
-									<th>작성일</th>
-									<th>조회수</th>
-									<th>추천</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr th:each="freeboard: ${freeBoardList}">
-									<td th:text="${freeboard.seq}"></td>
-									<td th:text="${freeboard.tag}"></td>
-									<td><a th:href="@{|/freeboard/${freeboard.seq}|(page=${freeBoardList.number + 1})}"
-											th:text="${freeboard.title}"></a></td>
-									<td>
-										<span class="user-name" th:data-nickname="${freeboard.nickname}"
-											th:text="${freeboard.nickname}" style="cursor: pointer;"></span>
-										<div class="toggle-menu">
-											<ul>
-												<li class="start-chat" th:data-nickname="${freeboard.nickname}">1대1 채팅
-												</li>
-											</ul>
-										</div>
-									</td>
-									<td th:text="*{#temporals.format(freeboard.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
-									<td th:text="${freeboard.views}"></td>
-									<td th:text="${freeboard.likeCount}"></td>
-								</tr>
-							</tbody>
-						</table>
-					</h2>
-					<div class="pagination">
-						<a th:href="@{/freeboard/paging(page=1, tag=${currentTag}, search=${searchKeyword})}">
-							<< <a
-								th:href="${freeBoardList.first} ? '#' : @{/freeboard/paging(page=${freeBoardList.number}, tag=${currentTag}, search=${searchKeyword})}">
-								< <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
-									<span th:if="${page == freeBoardList.number + 1}" th:text="${page}"
-										class="current-page"></span>
+    <!-- < 링크: 첫 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.first}">
+        <a th:href="@{/freeboard/paging(page=${freeBoardList.number}, search=${searchKeyword})}"><</a>
+    </span>
 
-									<span th:unless="${page == freeBoardList.number + 1}">
-										<a th:href="@{/freeboard/paging(page=${page}, tag=${currentTag}, search=${searchKeyword})}"
-											th:text="${page}"></a>
-									</span>
-									</span>
-									<a
-										th:href="${freeBoardList.last} ? '#' : @{/freeboard/paging(page=${freeBoardList.number + 2}, tag=${currentTag}, search=${searchKeyword})}">></a>
-									<a
-										th:href="@{/freeboard/paging(page=${freeBoardList.totalPages}, tag=${currentTag}, search=${searchKeyword})}">>></a>
-					</div>
-					<a href="/freeboard/save" class="btn">글작성</a>
-				</div>
-				<div class="col-md-3 sidebar ftco-animate">
+    <!-- 페이지 번호 -->
+    <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+        <span th:if="${page == freeBoardList.number + 1}" th:text="${page}" class="current-page"></span>
+        <span th:unless="${page == freeBoardList.number + 1}">
+            <a th:href="@{/freeboard/paging(page=${page}, search=${searchKeyword})}" th:text="${page}"></a>
+        </span>
+    </span>
+
+    <!-- > 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.last}">
+        <a th:href="@{/freeboard/paging(page=${freeBoardList.number + 2}, search=${searchKeyword})}">></a>
+    </span>
+
+    <!-- >> 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+    <span th:if="${!freeBoardList.last}">
+        <a th:href="@{/freeboard/paging(page=${freeBoardList.totalPages}, search=${searchKeyword})}">>></a>
+    </span>
+</div>
+            <a href="/freeboard/save" class="btn">글작성</a>
+        </div>
+                <div class="col-md-3 sidebar ftco-animate">
+                    <div class="sidebar-box ftco-animate">
+                        <div class="categories">
+                            <h3>속닥속닥</h3>
+                            <li><a href="/freeboard/paging" class = "active">자유게시판 <span></span></a></li>
+                            <li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
+                            <li><a href="/noticeboard/paging">공지사항 <span></span></a></li>
+                        </div>
+                    </div>
 					<div class="sidebar-box ftco-animate">
-						<div class="categories">
-							<h3>속닥속닥</h3>
-							<li><a href="/freeboard/paging" class="active">자유게시판 <span></span></a></li>
-							<li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
-							<li><a href="/noticeboard/paging">공지사항 <span></span></a></li>
-						</div>
+					    <h3>인기글</h3>
+					    <div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
+					        <div class="text">
+					            <h3 class="heading">
+					                <a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}" class="truncate-title"></a>
+					            </h3>
+					            <div class="meta">
+					                <div>
+					                    <a href="#">
+					                        <span class="icon-calendar"></span>
+					                        <span th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
+					                    </a>
+					                </div>
+					                <div>
+					                    <a href="#">
+					                        <span class="icon-person"></span>
+					                        <span th:text="${popularPost.nickname}"></span>
+					                        (<span th:text="${popularPost.likeCount}"></span> 추천)
+					                    </a>
+					                </div>
+					            </div>
+					        </div>
+					    </div>
 					</div>
-					<div class="sidebar-box ftco-animate">
-						<h3>인기글</h3>
-						<div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}"
-							class="block-21 mb-4 d-flex">
-							<div class="text">
-								<h3 class="heading">
-									<a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}"
-										th:text="${popularPost.title}" class="truncate-title"></a>
-								</h3>
-								<div class="meta">
-									<div>
-										<a href="#">
-											<span class="icon-calendar"></span>
-											<span
-												th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
-										</a>
-									</div>
-									<div>
-										<a href="#">
-											<span class="icon-person"></span>
-											<span th:text="${popularPost.nickname}"></span>
-											(<span th:text="${popularPost.likeCount}"></span> 추천)
-										</a>
-									</div>
-								</div>
-							</div>
-						</div>
 					</div>
-				</div>
-			</div>
-		</div>
-		</div>
-	</section>
-	<div th:replace="~{common/footer :: footer}"></div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <div th:replace="~{common/footer :: footer}"></div>
 </body>
 <script>
-	const saveReq = () => {
-		location.href = "/freeboard/save";
-	}
+    const saveReq = () => {
+        location.href = "/freeboard/save";
+    }
 
-	function openChatWithUser(receiver) {
-		const sender = document.getElementById('nickname').innerText;
-		const chatWindow = window.open(`/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`, 'ChatWindow', 'width=800,height=600');
-		chatWindow.focus();
-	}
+function openChatWithUser(receiver) {
+    const sender = document.getElementById('nickname').innerText;
+    
+    // 새 창의 너비와 높이 설정
+    const width = 900;
+    const height = 600;
+    
+    // 화면의 중앙에 창을 열기 위해 위치 계산
+    const left = (window.screen.width / 2) - (width / 2);
+    const top = (window.screen.height / 2) - (height / 2);
+    
+    // 창을 중앙에 열기 위해 위치 지정
+    const chatWindow = window.open(
+        `/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`,
+        'ChatWindow',
+        `width=${width},height=${height},left=${left},top=${top}`
+    );
+    chatWindow.focus();
+}
 
-	$(document).ready(function () {
-		// 사용자 이름 클릭 시 이벤트 처리
-		$('.user-name').click(function () {
-			const currentUser = $('#nickname').text().trim(); // 현재 사용자 닉네임
-			const nickname = $(this).data('nickname');
-			if (currentUser !== nickname) {
-				const toggleMenu = $(this).siblings('.toggle-menu');
-				$('.toggle-menu').not(toggleMenu).hide(); // 다른 모든 토글 메뉴를 숨김
-				toggleMenu.toggle(); // 현재 토글 메뉴를 토글
-			}
-		});
+    $(document).ready(function() {
+        // 사용자 이름 클릭 시 이벤트 처리
+        $('.user-name').click(function() {
+            const currentUser = $('#nickname').text().trim(); // 현재 사용자 닉네임
+            const nickname = $(this).data('nickname');
+            if (currentUser !== nickname) {
+                const toggleMenu = $(this).siblings('.toggle-menu');
+                $('.toggle-menu').not(toggleMenu).hide(); // 다른 모든 토글 메뉴를 숨김
+                toggleMenu.toggle(); // 현재 토글 메뉴를 토글
+            }
+        });
 
-		// "1대1 채팅" 클릭 시 이벤트 처리
-		$(document).on('click', '.start-chat', function () {
-			const receiver = $(this).data('nickname');
-			openChatWithUser(receiver);
-		});
-	});
-
-	$(document).ready(function () {
-		// 태그 선택 시 게시글 필터링
-		$('#tagFilterForm select[name="tag"]').change(function () {
-			const selectedTag = $(this).val();
-			const messageDiv = $('#searchTagMessage');
-
-			if (selectedTag) {
-				messageDiv.text(`'${selectedTag}' 태그에 대한 검색 결과입니다.`).show();
-			} else {
-				messageDiv.hide();
-			}
-
-			loadBoardData(selectedTag);
-		});
+        // "1대1 채팅" 클릭 시 이벤트 처리
+        $(document).on('click', '.start-chat', function() {
+            const receiver = $(this).data('nickname');
+            openChatWithUser(receiver);
+        });
+    });
+    
+$(document).ready(function() {
+    // 태그 선택 시 게시글 필터링
+    $('#tagFilterForm select[name="tag"]').change(function() {
+        const selectedTag = $(this).val();
+        const messageDiv = $('#searchTagMessage');
+        
+        if (selectedTag) {
+            messageDiv.text(`'${selectedTag}' 태그에 대한 검색 결과입니다.`).show();
+        } else {
+            messageDiv.hide();
+        }
+        
+        loadBoardData(selectedTag);
+    });
 
 		// 페이지 로드 시 전체 게시글 로드
 		loadBoardData();
@@ -505,22 +482,22 @@
 			});
 		}
 
-		function renderBoardList(boardData) {
-			//console.log(boardData); // 응답 데이터를 콘솔에 출력하여 확인
-			const boardList = $('#boardList');
-			boardList.empty(); // 기존 게시글 목록을 지웁니다.
+function renderBoardList(boardData) {
+    //console.log(boardData); // 응답 데이터를 콘솔에 출력하여 확인
+    const boardList = $('#boardList');
+    boardList.empty(); // 기존 게시글 목록을 지웁니다.
 
-			if (!Array.isArray(boardData)) {
-				boardData = [boardData];
-			}
+    if (!Array.isArray(boardData)) {
+        boardData = [boardData];
+    }
 
-			if (boardData.length === 0) {
-				boardList.append('<tr><td colspan="7">게시글이 없습니다.</td></tr>');
-				return;
-			}
+    if (boardData.length === 0) {
+        boardList.append('<tr><td colspan="7">게시글이 없습니다.</td></tr>');
+        return;
+    }
 
-			boardData.forEach(freeboard => {
-				const boardRow = `
+    boardData.forEach(freeboard => {
+        const boardRow = `
             <tr>
                 <td>${freeboard.seq}</td>
                 <td>${freeboard.tag}</td>
@@ -531,50 +508,49 @@
                 <td>${freeboard.likeCount}</td>
             </tr>
         `;
-				boardList.append(boardRow);
-			});
-		}
+        boardList.append(boardRow);
+    });
+}
 	});
+	
+	    $(document).ready(function () {
+        // 인기글에서 제목이 10글자 이상이면 잘라내고 "..."을 추가
+        $('.truncate-title').each(function () {
+            var text = $(this).text();
+            if (text.length > 10) {
+                var truncated = text.substring(0, 10) + '...';
+                $(this).text(truncated);
+            }
+        });
+    });
+    
+    $(document).ready(function () {
+    // 전체글에서 제목이 12글자 이상이면 잘라내고 "..."을 추가
+    $('table.board tbody tr td a').each(function () {
+        var text = $(this).text();
+        if (text.length > 12) {
+            var truncated = text.substring(0, 12) + '...';
+            $(this).text(truncated);
+        }
+    });
+});
 
-	$(document).ready(function () {
-		// 인기글에서 제목이 10글자 이상이면 잘라내고 "..."을 추가
-		$('.truncate-title').each(function () {
-			var text = $(this).text();
-			if (text.length > 10) {
-				var truncated = text.substring(0, 10) + '...';
-				$(this).text(truncated);
-			}
-		});
-	});
+$('#searchForm').on('submit', function(e) {
+    e.preventDefault(); // 기본 제출 동작 막기
+    const searchKeyword = $('input[name="search"]').val();
+    const tag = $('#tagFilterForm select[name="tag"]').val();
+    const messageDiv = $('#searchTagMessage');
 
-	$(document).ready(function () {
-		// 전체글에서 제목이 10글자 이상이면 잘라내고 "..."을 추가
-		$('table.board tbody tr td a').each(function () {
-			var text = $(this).text();
-			if (text.length > 10) {
-				var truncated = text.substring(0, 8) + '...';
-				$(this).text(truncated);
-			}
-		});
-	});
+    if (searchKeyword) {
+        messageDiv.text(`'${searchKeyword}'에 대한 검색 결과입니다.`).show();
+    } else {
+        messageDiv.hide();
+    }
 
-	$('#searchForm').on('submit', function (e) {
-		e.preventDefault(); // 기본 제출 동작 막기
-		const searchKeyword = $('input[name="search"]').val();
-		const tag = $('#tagFilterForm select[name="tag"]').val();
-		const messageDiv = $('#searchTagMessage');
-
-		if (searchKeyword) {
-			messageDiv.text(`'${searchKeyword}'에 대한 검색 결과입니다.`).show();
-		} else {
-			messageDiv.hide();
-		}
-
-		// 태그와 검색어를 URL에 포함하여 페이지를 이동합니다.
-		window.location.href = `/freeboard/paging?search=${encodeURIComponent(searchKeyword)}&tag=${encodeURIComponent(tag)}&page=1`;
-	});
+    // 태그와 검색어를 URL에 포함하여 페이지를 이동합니다.
+    window.location.href = `/freeboard/paging?search=${encodeURIComponent(searchKeyword)}&tag=${encodeURIComponent(tag)}&page=1`;
+});
 
 
 </script>
-
 </html>

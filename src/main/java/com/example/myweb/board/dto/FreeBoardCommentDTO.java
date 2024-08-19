@@ -21,7 +21,18 @@ public class FreeBoardCommentDTO {
 	private String commentContents;
 	private Long freeBoardSeq;
 	private LocalDateTime commentCreatedTime;
-
+	
+//	public static FreeBoardCommentDTO toFreeBoardCommentDTO(FreeBoardCommentEntity freeBoardCommentEntity) {
+//		FreeBoardCommentDTO freeBoardCommentDTO = new FreeBoardCommentDTO();
+//		freeBoardCommentDTO.setSeq(freeBoardCommentEntity.getSeq());
+//		freeBoardCommentDTO.setNickname(freeBoardCommentEntity.getUser().getNickname());
+//		freeBoardCommentDTO.setLoginid(freeBoardCommentEntity.getUser().getLoginid());
+//		freeBoardCommentDTO.setCommentContents(freeBoardCommentEntity.getCommentContentes());
+//		freeBoardCommentDTO.setCommentCreatedTime(freeBoardCommentEntity.getCreatedTime());
+//		freeBoardCommentDTO.setFreeBoardSeq(freeBoardCommentEntity.getFreeBoardEntity().getSeq());
+//	
+//		return freeBoardCommentDTO;
+//	}
 	// 포맷팅된 시간 반환 메서드 추가
     public String getFormattedCommentCreatedTime() {
         if (commentCreatedTime != null) {

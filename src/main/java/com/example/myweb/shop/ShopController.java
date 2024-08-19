@@ -8,6 +8,7 @@ import com.example.myweb.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class ShopController {
 
     @Autowired
     private UserService userService;
-
+/*
     // 모든 상품 목록을 가져옵니다. 검색어가 있을 경우 검색 결과를 반환합니다.
     @GetMapping("/shoplist")
     public String getAllShops(@RequestParam(required = false) String keyword, Model model, HttpSession session) {
@@ -50,13 +51,18 @@ public class ShopController {
 
         return "shop/shoplist";
     }
-
+*/
     // 특정 상품의 상세 정보
     @GetMapping("/{nom}")
     public String getShopDetail(@PathVariable Long nom, Model model, HttpSession session) {
         ShopEntity shop = shopService.getShopById(nom)
                 .orElseThrow(() -> new RuntimeException("Shop not found"));
+
+        List<ShopEntity> otherShops = shopService.getOtherShopsBySeller(shop.getSellernickname(), nom);
+        System.out.println("otherShops: " + otherShops.size() + " items found.");
+
         model.addAttribute("shop", shop);
+        model.addAttribute("otherShops", otherShops);
 
         String loginid = (String) session.getAttribute("loginid");
         if (loginid != null) {
@@ -66,6 +72,7 @@ public class ShopController {
 
         return "shop/shopdetail";
     }
+
 
     // 상품 등록 페이지
     @GetMapping("/addshop")
@@ -83,13 +90,20 @@ public class ShopController {
     // 새로운 상품을 등록
     @PostMapping("/addshop")
     public String addShop(@ModelAttribute("shop") ShopEntity shop, @RequestParam("images") MultipartFile[] images, HttpSession session) throws IOException {
-        // 이미지를 저장하고 이미지 URL을 ShopEntity에 추가
         List<String> imageUrls = new ArrayList<>();
+        
         for (MultipartFile image : images) {
-            String imageUrl = saveImage(image);
-            imageUrls.add(imageUrl);
+            if (!image.isEmpty()) {
+                String imageUrl = saveImage(image);
+                imageUrls.add(imageUrl);
+            }
         }
-        shop.setImageUrls(imageUrls);
+
+        if (imageUrls.isEmpty()) {
+            shop.setImageUrls(null);  // 이미지가 없을 경우 null로 설정
+        } else {
+            shop.setImageUrls(imageUrls);
+        }
 
         String nickname = (String) session.getAttribute("nickname");
         if (nickname != null) {
@@ -129,5 +143,44 @@ public class ShopController {
     public String deleteShop(@PathVariable Long nom) {
         shopService.deleteShopById(nom);
         return "redirect:/shop/shoplist";
+    }
+    
+    
+    
+    // 페이징된 모든 상품 목록을 가져옵니다. 검색어가 있을 경우 검색 결과에 따른 목록 출력, 검색어가 없을 경우 안내
+    @GetMapping("/shoplist")
+    public String getAllShops(@RequestParam(required = false) String keyword, 
+    						  @RequestParam(required = false, defaultValue = "product") String searchType, 
+                              @RequestParam(defaultValue = "1") int page, 
+                              @RequestParam(defaultValue = "10") int size, 
+                              Model model, HttpSession session) {
+    	
+        Page<ShopEntity> shopPage;
+
+        if (keyword != null && !keyword.isEmpty()) {
+        	if("seller".equals(searchType)) {
+        		shopPage = shopService.searchBySeller(keyword, page - 1, size);
+        	}else {
+        		shopPage = shopService.searchByProductName(keyword, page - 1, size);
+        	}
+            model.addAttribute("keyword", keyword);  // 검색어를 다시 뷰로 전달
+            model.addAttribute("searchType", searchType);	//검색유형을 뷰로 전달
+            model.addAttribute("noResults", shopPage.isEmpty());  // 검색 결과가 없음을 나타내는 플래그
+        } else {
+            shopPage = shopService.getAllShops(page - 1, size);
+            model.addAttribute("noResults", false);  // 전체 목록일 때는 결과가 항상 있음
+        }
+
+        model.addAttribute("shops", shopPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", shopPage.getTotalPages());
+
+        String loginid = (String) session.getAttribute("loginid");
+        if (loginid != null) {
+            UserDTO userDTO = userService.findByLoginid(loginid);
+            model.addAttribute("user", userDTO);
+        }
+
+        return "shop/shoplist";
     }
 }

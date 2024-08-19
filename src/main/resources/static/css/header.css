@@ -1,30 +1,30 @@
 /* src/main/resources/static/css/header.css */
 
 .nav-item .nav-link {
-  display: flex;
-  align-items: center;
+  display: flex !important;
+  align-items: center !important;
   height: 100%;
 }
 
 #bell-item a {
-  display: flex;
+  display: flex!important ;
   align-items: center;
-  justify-content: center;
-  height: 100%;
+  justify-content: center!important ;
+  height: 100%!important ;
 }
 
 .icon-bell {
-  font-size: 1.5rem; /* 아이콘 크기 조절 */
+  font-size: 1.5rem!important ; /* 아이콘 크기 조절 */
 }
 #chat-icon-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    cursor: grab;
+    position: fixed!important ;
+    bottom: 20px!important ;
+    right: 20px!important ;
+    cursor: grab!important ;
     z-index: 1000; /* 아이콘이 다른 요소들 위에 위치하도록 설정 */
 }
 
 #chat-icon.dragging {
-  opacity: 0.5; /* 드래그 중일 때 반투명하게 */
-  cursor: grabbing;
+  opacity: 0.5!important ; /* 드래그 중일 때 반투명하게 */
+  cursor: grabbing!important ;
 }

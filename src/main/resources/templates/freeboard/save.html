@@ -176,7 +176,7 @@ hr.separator {
                     <span class="board-tag">자유게시판</span>
                     	<!-- 구분선 -->
     <hr class="separator">
-<form action="/freeboard/save" method="post" enctype="multipart/form-data">
+<form action="/freeboard/save" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
     <input type="hidden" name="loginid" th:value="${session.loginid}">
     
     <label for="nickname">작성자:</label>
@@ -216,36 +216,12 @@ hr.separator {
                     <div class="sidebar-box ftco-animate">
                         <div class="categories">
                             <h3>속닥속닥</h3>
-                            <li><a href="sokdakfree.html" class ="active">자유게시판 <span></span></a></li>
-                            <li><a href="sokdakbitic.html">자랑게시판 <span></span></a></li>
-                            <li><a href="sokdaknotice.html">공지사항 <span></span></a></li>
+                            <li><a href="/freeboard/paging" class ="active">자유게시판 <span></span></a></li>
+                            <li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
+                            <li><a href="/noticeboard/paging">공지사항 <span></span></a></li>
                         </div>
                     </div>
                     <div class="sidebar-box ftco-animate">
-					    <h3>인기글</h3>
-					    
-						<div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
-						    <div class="text">
-						        <h3 class="heading">
-						            <a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}"></a>
-						        </h3>
-						        <div class="meta">
-						            <div>
-						                <a href="#">
-						                    <span class="icon-calendar"></span>
-						                    <span th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
-						                </a>
-						            </div>
-						            <div>
-						                <a href="#">
-						                    <span class="icon-person"></span>
-						                    <span th:text="${popularPost.nickname}"></span>
-						                    (<span th:text="${popularPost.likeCount}"></span> 추천)
-						                </a>
-						            </div>
-						        </div>
-						    </div>
-						</div>
                     </div>
                 </div>
             </div>
@@ -267,6 +243,25 @@ hr.separator {
                 console.error(error);
             });
     </script>
+    <script>
+    function validateForm() {
+        const title = document.getElementById('title').value.trim();
+        const contents = document.querySelector('.ck-editor__editable').innerText.trim();
+
+        if (title === "") {
+            alert("제목을 입력해주세요.");
+            return false;
+        }
+
+        if (contents === "") {
+            alert("내용을 입력해주세요.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+
 </body>
 
 </html>

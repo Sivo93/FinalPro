@@ -102,17 +102,18 @@ public class BiticBoardController {
 	    // 세션에서 로그인 사용자 ID를 가져옵니다.
 	    String loginid = (String) session.getAttribute("loginid");
 	    String nickname = (String) session.getAttribute("nickname");
-	    
+	    String role = (String) session.getAttribute("role"); // 역할 정보 가져오기
 	    // 로그인 사용자가 작성자인지 여부를 확인합니다.
 	    boolean isAuthor = loginid != null && loginid.equals(biticBoardDTO.getLoginid());
-	    
+	    // 사용자가 관리자(admin)인지 확인
+	    boolean isAdmin = role != null && role.equals("admin");
 	    // 모델에 필요한 데이터 추가
 	    model.addAttribute("biticBoardCommentList", biticBoardCommentDTOList);
 	    model.addAttribute("biticBoard", biticBoardDTO);
 	    model.addAttribute("page", page); // 현재 페이지 정보를 추가
 	    model.addAttribute("isAuthor", isAuthor); // 작성자 여부를 모델에 추가
 	    model.addAttribute("nickname", nickname); // 로그인 사용자 ID 추가
-	    
+	    model.addAttribute("isAdmin", isAdmin);  // 관리자 여부 추가
 	    // 인기글 가져오기 - 상위 3개만 가져오기
 	    List<BiticBoardDTO> popularPosts = biticBoardService.getTop3PopularPosts();
 	    model.addAttribute("popularPosts", popularPosts);

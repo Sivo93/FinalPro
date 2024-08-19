@@ -4,7 +4,8 @@
     <title>이불밖은위험해</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    
+    	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <!-- SockJS와 Stomp.js -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
@@ -23,6 +24,34 @@
     <link rel="stylesheet" href="/css/flaticon.css">
     <link rel="stylesheet" href="/css/icomoon.css">
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+		.services {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 30px; /* 원하는 여백 추가 */
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    height: 100%;
+}
+
+.icon {
+    margin-bottom: 20px;
+}
+
+.media-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+}
+
+	</style>
 </head>
 <body>
     <!-- 공통 헤더 포함 -->
@@ -45,173 +74,129 @@
         </div>
     </div>
 
-    <section class="ftco-section services-section bg-light">
-        <div class="container">
-            <div class="row justify-content-center mb-5 pb-3">
-                <div class="col-md-7 text-center heading-section ftco-animate">
-                    <h2 class="mb-4">장점</h2>
-                    <p>이불밖은위험해만의 특별한 장점!</p>
+<section class="ftco-section services-section bg-light">
+    <div class="container">
+        <div class="row justify-content-center mb-5 pb-3">
+            <div class="col-md-7 text-center heading-section ftco-animate">
+                <h2 class="mb-4">속닥속닥</h2>
+                <p>자유게시판, 공지사항, 자랑게시판으로 나뉘어져 있으며, 다양한 주제로 소통할 수 있는 커뮤니티 공간입니다.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 d-flex align-self-stretch ftco-animate">
+                <div class="media block-6 services text-center">
+                    <div class="icon d-flex justify-content-center align-items-center mb-4">
+                        <img src="img/conversation.png" alt="대화 아이콘" class="img-fluid" style="width: 50px; height: 50px;"> <!-- 연필 이미지 아이콘 -->
+                    </div>
+                    <div class="media-body text-center d-flex flex-column justify-content-center align-items-center">
+                        <h3 class="heading">자유게시판</h3>
+                        <p>다양한 주제로 자유롭게 소통할 수 있는 공간입니다.</p>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6 d-flex align-self-stretch ftco-animate">
-                    <div class="media block-6 services d-flex align-items-center">
-                        <div class="icon d-flex align-items-center justify-content-center order-md-last">
-                            <span class="flaticon-cloud"></span>
-                        </div>
-                        <div class="media-body pl-4 pl-md-0 pr-md-4 text-md-right">
-                            <h3 class="heading">위치기반서비스</h3>
-                            <p class="mb-0">내 주변의 괜찮은 가게나 장소를 추천해줘요</p>
-                        </div>
+            <div class="col-md-4 d-flex align-self-stretch ftco-animate">
+                <div class="media block-6 services text-center">
+                    <div class="icon d-flex justify-content-center align-items-center mb-4">
+                        <img src="img/megaphone.png" alt="확성기 아이콘" class="img-fluid" style="width: 50px; height: 50px;"> <!-- 확성기 아이콘 -->
+                    </div>
+                    <div class="media-body text-center d-flex flex-column justify-content-center align-items-center">
+                        <h3 class="heading">공지사항</h3>
+                        <p>커뮤니티의 중요한 소식이나 업데이트를 확인할 수 있습니다.</p>
                     </div>
                 </div>
-                <div class="col-md-6 d-flex align-self-stretch ftco-animate">
-                    <div class="media block-6 services d-flex align-items-center">
-                        <div class="icon d-flex align-items-center justify-content-center">
-                            <span class="flaticon-server"></span>
-                        </div>
-                        <div class="media-body pl-4">
-                            <h3 class="heading">구매시 할인 혜택</h3>
-                            <p class="mb-0">비싸서 사지 못했던 상품을 이불밖은 위험해에서는 저렴하게 구매할 수 있어요</p>
-                        </div>
+            </div>
+            <div class="col-md-4 d-flex align-self-stretch ftco-animate">
+                <div class="media block-6 services text-center">
+                    <div class="icon d-flex justify-content-center align-items-center mb-4">
+                        <img src="img/trophy.png" alt="트로피 아이콘" class="img-fluid" style="width: 50px; height: 50px;"> <!-- 자랑하는 사람 아이콘 -->
                     </div>
-                </div>
-                <div class="col-md-6 d-flex align-self-stretch ftco-animate">
-                    <div class="media block-6 services d-flex align-items-center">
-                        <div class="icon d-flex align-items-center justify-content-center order-md-last">
-                            <span class="flaticon-customer-service"></span>
-                        </div>
-                        <div class="media-body pl-4 pl-md-0 pr-md-4 text-md-right">
-                            <h3 class="heading">청렴한 리뷰시스템</h3>
-                            <p>좋은 장소라는 리뷰에 간 장소, 실망한적 있었나요? 이불밖은위험해에서는 확실한 정보만 전해드립니다.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 d-flex align-self-stretch ftco-animate">
-                    <div class="media block-6 services d-flex align-items-center">
-                        <div class="icon d-flex align-items-center justify-content-center">
-                            <span class="flaticon-life-insurance"></span>
-                        </div>
-                        <div class="media-body pl-4">
-                            <h3 class="heading">안전한 중고 거래</h3>
-                            <p>뭐라 쓸지 모르겠는데 일단 안전한 중고거래다</p>
-                        </div>
+                    <div class="media-body text-center d-flex flex-column justify-content-center align-items-center">
+                        <h3 class="heading">자랑게시판</h3>
+                        <p>자신이 자랑하고 싶은 것들을 공유하고 칭찬받을 수 있는 공간입니다.</p>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="ftco-section ftco-counter img" id="section-counter">
-        <div class="container">
-            <div class="row justify-content-center mb-5">
-                <div class="col-md-7 text-center heading-section heading-section-white ftco-animate">
-                    <span class="subheading">100만명이 사용하는 이불밖은위험해</span>
+
+
+
+<section class="ftco-section services-section bg-light">
+    <div class="container">
+        <div class="row justify-content-center mb-5 pb-3">
+            <div class="col-md-7 text-center heading-section ftco-animate">
+                <h2 class="mb-4">쇼핑</h2>
+                <p>유저간의 물건을 교환하거나 구매할 수 있는 안전하고 편리한 거래 공간입니다.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 d-flex align-self-stretch ftco-animate">
+                <div class="media block-6 services text-center">
+                    <div class="icon d-flex justify-content-center align-items-center mb-4">
+                        <img src="img/shopping-bag.png" alt="쇼핑백 아이콘" class="img-fluid" style="width: 50px; height: 50px;"></i> <!-- 교환 아이콘 -->
+                    </div>
+                    <div class="media-body">
+                        <h3 class="heading">물건 교환</h3>
+                        <p>필요한 물건을 다른 유저와 교환할 수 있습니다.</p>
+                    </div>
                 </div>
             </div>
-            <div class="row justify-content-center">
-                <div class="col-md-10">
-                    <div class="row">
-                        <div class="col-md-3 d-flex justify-content-center counter-wrap ftco-animate">
-                            <div class="block-18 text-center">
-                                <div class="text">
-                                    <strong class="number" data-number="12000">0</strong>
-                                    <span>안전한 중고거래</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 d-flex justify-content-center counter-wrap ftco-animate">
-                            <div class="block-18 text-center">
-                                <div class="text">
-                                    <strong class="number" data-number="300000">0</strong>
-                                    <span>일일 방문자수</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 d-flex justify-content-center counter-wrap ftco-animate">
-                            <div class="block-18 text-center">
-                                <div class="text">
-                                    <strong class="number" data-number="1000000">0</strong>
-                                    <span>가입한 이용자 수</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 d-flex justify-content-center counter-wrap ftco-animate">
-                            <div class="block-18 text-center">
-                                <div class="text">
-                                    <strong class="number" data-number="876521">0</strong>
-                                    <span>이용자들의 생생한 리뷰</span>
-                                </div>
-                            </div>
-                        </div>
+            <div class="col-md-6 d-flex align-self-stretch ftco-animate">
+                <div class="media block-6 services text-center">
+                    <div class="icon d-flex justify-content-center align-items-center mb-4">
+                        <img src="img/cart.png" alt="카트 아이콘" class="img-fluid" style="width: 50px; height: 50px;"> <!-- 쇼핑 카트 아이콘 -->
+                    </div>
+                    <div class="media-body">
+                        <h3 class="heading">물건 구매</h3>
+                        <p>원하는 물건을 안전하게 구매할 수 있는 시스템을 제공합니다.</p>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="ftco-section ftco-no-pt ftc-no-pb">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 py-5">
-                    <img src="images/undraw_podcast_q6p7.svg" class="img-fluid" alt="">
-                    <div class="heading-section ftco-animate mt-5">
-                        <h2 class="mb-4">머리깨질거같애</h2>
-                        <p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic. A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country.</p>
+
+
+<section class="ftco-section services-section bg-light">
+    <div class="container">
+        <div class="row justify-content-center mb-5 pb-3">
+            <div class="col-md-7 text-center heading-section ftco-animate">
+                <h2 class="mb-4">이불밖으로</h2>
+                <p>태그별 지도를 검색하고, 검색한 가게의 정보를 확인하며, 리뷰를 남길 수 있는 페이지입니다.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 d-flex align-self-stretch ftco-animate">
+                <div class="media block-6 services text-center">
+                    <div class="icon d-flex justify-content-center align-items-center mb-4">
+                        <img src="img/mapsearch.png" alt="연필 아이콘" class="img-fluid" style="width: 50px; height: 50px;"> <!-- 지도 아이콘 -->
+                    </div>
+                    <div class="media-body">
+                        <h3 class="heading">지도 검색</h3>
+                        <p>태그별로 관심있는 장소를 검색하고, 그 정보를 쉽게 확인할 수 있습니다.</p>
                     </div>
                 </div>
-                <div class="col-lg-6 py-5">
-                    <div class="row">
-                        <div class="col-md-6 ftco-animate">
-                            <div class="media block-6 services border text-center">
-                                <div class="icon d-flex align-items-center justify-content-center">
-                                    <span class="flaticon-cloud-computing"></span>
-                                </div>
-                                <div class="mt-3 media-body media-body-2">
-                                    <h3 class="heading">Cloud VPS</h3>
-                                    <p>Even the all-powerful Pointing has no control about the blind texts</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 ftco-animate">
-                            <div class="media block-6 services border text-center">
-                                <div class="icon d-flex align-items-center justify-content-center">
-                                    <span class="flaticon-cloud"></span>
-                                </div>
-                                <div class="mt-3 media-body media-body-2">
-                                    <h3 class="heading">Share</h3>
-                                    <p>Even the all-powerful Pointing has no control about the blind texts</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 ftco-animate">
-                            <div class="media block-6 services border text-center">
-                                <div class="icon d-flex align-items-center justify-content-center">
-                                    <span class="flaticon-server"></span>
-                                </div>
-                                <div class="mt-3 media-body media-body-2">
-                                    <h3 class="heading">VPS</h3>
-                                    <p>Even the all-powerful Pointing has no control about the blind texts</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 ftco-animate">
-                            <div class="media block-6 services border text-center">
-                                <div class="icon d-flex align-items-center justify-content-center">
-                                    <span class="flaticon-database"></span>
-                                </div>
-                                <div class="mt-3 media-body media-body-2">
-                                    <h3 class="heading">Dedicated</h3>
-                                    <p>Even the all-powerful Pointing has no control about the blind texts</p>
-                                </div>
-                            </div>
-                        </div>
+            </div>
+            <div class="col-md-6 d-flex align-self-stretch ftco-animate">
+                <div class="media block-6 services text-center">
+                    <div class="icon d-flex justify-content-center align-items-center mb-4">
+                        <img src="img/caligraphy.png" alt="연필 아이콘" class="img-fluid" style="width: 50px; height: 50px;"> <!-- 펜 아이콘 -->
+                    </div>
+                    <div class="media-body">
+                        <h3 class="heading">리뷰 작성</h3>
+                        <p>방문한 장소에 대한 생생한 리뷰를 작성하고 다른 유저와 공유할 수 있습니다.</p>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
+
+<a href="https://www.flaticon.com/kr/free-icons/" title="연필 아이콘">연필 아이콘 제작자: Freepik - Flaticon</a>
     <!-- 공통 푸터 포함 -->
     <div th:replace="~{common/footer :: footer}"></div>
 

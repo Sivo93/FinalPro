@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,12 +39,16 @@ public class NoticeBoardService {
 	private final NoticeBoardFileRepository noticeBoardFileRepository;
 	private final NoticeBoardLikeRepository noticeBoardLikeRepository;
 	private final UserRepository userRepository;
-
+    private final SimpMessagingTemplate messagingTemplate;
+    
 	public void save(NoticeBoardDTO noticeBoardDTO) throws IllegalStateException, IOException {
 		// UserEntity를 UserRepository를 통해 조회합니다.
 		UserEntity userEntity = userRepository
 				.findByLoginidAndNickname(noticeBoardDTO.getLoginid(), noticeBoardDTO.getNickname()).get();
-
+	    // tag 값이 null이면 빈 문자열로 설정
+	    if (noticeBoardDTO.getTag() == null) {
+	        noticeBoardDTO.setTag("");
+	    }
 		// 파일 첨부 여부에 따라 로직 분리
 		if (noticeBoardDTO.getNoticeboardFile().isEmpty()) {
 			// 첨부 파일 없음
@@ -67,11 +72,12 @@ public class NoticeBoardService {
 				NoticeBoardFileEntity noticeBoardFileEntity = NoticeBoardFileEntity.toNoticeBoardFileEntity(noticeBoard,
 						originalFilename, storedFileName);
 				noticeBoardFileRepository.save(noticeBoardFileEntity); // 파일 정보 저장
+				
 			}
 		}
+
 	}
 	
-
 
 
 	@Transactional

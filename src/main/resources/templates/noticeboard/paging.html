@@ -320,15 +320,15 @@
 				<div class="col-md-9 ftco-animate">
 					<div class="filter-and-search">
 						<form id="tagFilterForm" action="/noticeboard/paging" method="get" class="tag-filter-form">
+
 							<select name="tag" onchange="document.getElementById('tagFilterForm').submit()">
 								<option value="" th:selected="${currentTag == null}">전체</option>
-								<option value="운동" th:selected="${currentTag == '운동'}">운동</option>
-								<option value="여가" th:selected="${currentTag == '여가'}">여가</option>
-								<option value="여행" th:selected="${currentTag == '여행'}">여행</option>
-								<option value="동물" th:selected="${currentTag == '동물'}">동물</option>
-								<option value="질문" th:selected="${currentTag == '질문'}">질문</option>
-								<option value="꿀팁" th:selected="${currentTag == '꿀팁'}">꿀팁</option>
+								<option value="FAQ">FAQ</option>
+								<option value="이벤트">이벤트</option>
+								<option value="점검">점검</option>
+								<option value="일반공지">일반공지</option>
 							</select>
+
 						</form>
 
 						<form action="#" class="search-form" id="searchForm">
@@ -379,22 +379,40 @@
 						</table>
 					</h2>
 					<div class="pagination">
-						<a th:href="@{/noticeboard/paging(page=1, tag=${currentTag}, search=${searchKeyword})}">
-							<< <a
-								th:href="${noticeBoardList.first} ? '#' : @{/noticeboard/paging(page=${noticeBoardList.number}, tag=${currentTag}, search=${searchKeyword})}">
-								< <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
-									<span th:if="${page == noticeBoardList.number + 1}" th:text="${page}"
-										class="current-page"></span>
+						<!-- << 링크: 첫 페이지가 아닐 경우에만 표시 -->
+						<span th:if="${!noticeBoardList.first}">
+							<a th:href="@{/noticeboard/paging(page=1, search=${searchKeyword})}">
+								<<< /a>
+						</span>
 
-									<span th:unless="${page == noticeBoardList.number + 1}">
-										<a th:href="@{/noticeboard/paging(page=${page}, tag=${currentTag}, search=${searchKeyword})}"
-											th:text="${page}"></a>
-									</span>
-									</span>
-									<a
-										th:href="${noticeBoardList.last} ? '#' : @{/noticeboard/paging(page=${noticeBoardList.number + 2}, tag=${currentTag}, search=${searchKeyword})}">></a>
-									<a
-										th:href="@{/noticeboard/paging(page=${noticeBoardList.totalPages}, tag=${currentTag}, search=${searchKeyword})}">>></a>
+						<!-- < 링크: 첫 페이지가 아닐 경우에만 표시 -->
+						<span th:if="${!noticeBoardList.first}">
+							<a
+								th:href="@{/noticeboard/paging(page=${noticeBoardList.number}, search=${searchKeyword})}">
+								<< /a>
+						</span>
+
+						<!-- 페이지 번호 -->
+						<span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+							<span th:if="${page == noticeBoardList.number + 1}" th:text="${page}"
+								class="current-page"></span>
+							<span th:unless="${page == noticeBoardList.number + 1}">
+								<a th:href="@{/noticeboard/paging(page=${page}, search=${searchKeyword})}"
+									th:text="${page}"></a>
+							</span>
+						</span>
+
+						<!-- > 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+						<span th:if="${!noticeBoardList.last}">
+							<a
+								th:href="@{/noticeboard/paging(page=${noticeBoardList.number + 2}, search=${searchKeyword})}">></a>
+						</span>
+
+						<!-- >> 링크: 마지막 페이지가 아닐 경우에만 표시 -->
+						<span th:if="${!noticeBoardList.last}">
+							<a
+								th:href="@{/noticeboard/paging(page=${noticeBoardList.totalPages}, search=${searchKeyword})}">>></a>
+						</span>
 					</div>
 					<a href="/noticeboard/save" class="btn" th:if="${session.role == 'admin'}">글작성</a>
 				</div>
@@ -549,11 +567,11 @@
 	});
 
 	$(document).ready(function () {
-		// 전체글에서 제목이 10글자 이상이면 잘라내고 "..."을 추가
+		// 전체글에서 제목이 12글자 이상이면 잘라내고 "..."을 추가
 		$('table.board tbody tr td a').each(function () {
 			var text = $(this).text();
-			if (text.length > 10) {
-				var truncated = text.substring(0, 8) + '...';
+			if (text.length > 12) {
+				var truncated = text.substring(0, 12) + '...';
 				$(this).text(truncated);
 			}
 		});

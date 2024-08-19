@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
-    <title>자랑게시판 글쓰기</title>
+    <title>자랑게시판</title>
     <!-- CKEditor CDN -->
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 
@@ -133,6 +133,14 @@
 		    background-size: 10px;
 		    text-align: center;
 		}
+
+.categories li a.active {
+	display: inline-block; /* 글자 크기에 맞게 배경색*/
+	color :  rgb(64, 0, 64); /*글자색*/
+	background-color: rgb(239, 223, 255); /*배경색*/
+	border-radius: 30px
+}
+
 .board-tag {
     background-color: rgb(255, 255, 255); /* 태그 배경색 */
     color: rgb(0, 0, 0); /* 태그 글자색 */
@@ -143,17 +151,17 @@
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
     font-weight: bold;
 }
+/*구분선*/
+hr.separator {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 20px 0; /* 구분선 위아래의 여백 */
+}
+
 .board-main {
     margin-top: 30px; /* 헤더와의 간격을 추가 */
     padding-top: 30px; /* 원하는 경우 내부 여백 추가 */
 }
-  
-.categories li a.active {
-	display: inline-block; /* 글자 크기에 맞게 배경색*/
-	color :  rgb(64, 0, 64); /*글자색*/
-	background-color: rgb(239, 223, 255); /*배경색*/
-	border-radius: 30px
-}  
     </style>
 </head>
 
@@ -168,14 +176,14 @@
                     <span class="board-tag">자랑게시판</span>
                     	<!-- 구분선 -->
     <hr class="separator">
-<form action="/biticboard/save" method="post" enctype="multipart/form-data">
+<form action="/biticboard/save" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
     <input type="hidden" name="loginid" th:value="${session.loginid}">
     
     <label for="nickname">작성자:</label>
     <input type="text" name="nickname" id="nickname" th:value="${session.nickname}" readonly>
 
     <div style="display: flex; flex-direction: column;">
-        <label for="tag">태그:</label>
+        <label for="tag">태그를 선택해주세요</label>
         <select name="tag">
             <option value="운동">운동</option>
             <option value="여가">여가</option>
@@ -190,12 +198,12 @@
     </div>
 
     <label for="contents">내용:</label>
-    <textarea name="contents" id="editor" cols="30" rows="10"></textarea>
+    <textarea name="contents" id="editor" style="min-height: 300px; width: 100%;"></textarea>
+
 
     <div class="file-input-container">
         <!-- 파일 선택 부분 -->
         <label for="file" class="file-input-label">
-            <i class="fas fa-upload"></i>
         </label>
         <input type="file" name="biticboardFile" id="file" class="file-input" multiple>
     </div>
@@ -209,35 +217,12 @@
                         <div class="categories">
                             <h3>속닥속닥</h3>
                             <li><a href="/freeboard/paging" >자유게시판 <span></span></a></li>
-                            <li><a href="/biticboard/paging" class = "active">자랑게시판 <span></span></a></li>
+                            <li><a href="/biticboard/paging" class ="active">자랑게시판 <span></span></a></li>
                             <li><a href="/noticeboard/paging">공지사항 <span></span></a></li>
                         </div>
                     </div>
                     <div class="sidebar-box ftco-animate">
-					    <h3>인기글</h3>
-					    
-						<div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
-						    <div class="text">
-						        <h3 class="heading">
-						            <a th:href="@{/biticboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}"></a>
-						        </h3>
-						        <div class="meta">
-						            <div>
-						                <a href="#">
-						                    <span class="icon-calendar"></span>
-						                    <span th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
-						                </a>
-						            </div>
-						            <div>
-						                <a href="#">
-						                    <span class="icon-person"></span>
-						                    <span th:text="${popularPost.nickname}"></span>
-						                    (<span th:text="${popularPost.likeCount}"></span> 추천)
-						                </a>
-						            </div>
-						        </div>
-						    </div>
-						</div>
+
                     </div>
                 </div>
             </div>
@@ -246,19 +231,38 @@
 
     <div th:replace="~{common/footer :: footer}"></div>
     <!-- CKEditor 인스턴스 초기화 -->
-    <script>
-        ClassicEditor
-            .create(document.querySelector('#editor'), {
-                language: "ko",
-                ckfinder: {
-                    uploadUrl: '/uploadImageBiticBoard', // 파일 업로드 엔드포인트 설정
-                    withCredentials: true
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    </script>
+	<script>
+	    ClassicEditor
+	        .create(document.querySelector('#editor'), {
+	            language: "ko",
+	            ckfinder: {
+	                uploadUrl: '/uploadImageBiticBoard', // 파일 업로드 엔드포인트 설정
+	                withCredentials: true
+	            }
+	        })
+	        .catch(error => {
+	            console.error(error);
+	        });
+	</script>
+	<script>
+    function validateForm() {
+        const title = document.getElementById('title').value.trim();
+        const contents = document.querySelector('.ck-editor__editable').innerText.trim();
+
+        if (title === "") {
+            alert("제목을 입력해주세요.");
+            return false;
+        }
+
+        if (contents === "") {
+            alert("내용을 입력해주세요.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+
 </body>
 
 </html>

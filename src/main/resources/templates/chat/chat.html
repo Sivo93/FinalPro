@@ -64,12 +64,40 @@
     </div>
 </div>
 <script>
+	    // 전역 범위에 정의된 removeFile 함수
+    function removeFile() {
+        const fileInput = document.getElementById('file-input');
+        fileInput.value = ''; // 파일 입력 필드 초기화
+        document.getElementById('file-preview').innerHTML = ''; // 미리보기 삭제
+    }
+	function scrollToBottom() {
+	    const chatMessages = document.querySelector('#chat-messages');
+	
+	    // 이미지가 모두 로드된 후 스크롤 이동
+	    const images = chatMessages.querySelectorAll('img');
+	    if (images.length > 0) {
+	        let loadedImages = 0;
+	        images.forEach((img) => {
+	            img.onload = () => {
+	                loadedImages++;
+	                if (loadedImages === images.length) {
+	                    chatMessages.scrollTop = chatMessages.scrollHeight; // 모든 이미지가 로드되면 스크롤 이동
+	                }
+	            };
+	        });
+	    } else {
+	        // 이미지가 없으면 바로 스크롤 이동
+	        chatMessages.scrollTop = chatMessages.scrollHeight;
+	    }
+	}
+
+
 	document.addEventListener('DOMContentLoaded', (event) => {
 	let stompClient = null;
 	let senderNickname = '[[${sender}]]';
 	let receiverNickname = '[[${receiver}]]';
 	let lastMessageDate = null;
-
+	
     // 웹소켓 연결
     function connect() {
         const socket = new SockJS('/ws');
@@ -226,16 +254,7 @@
 	    });
 	}
 
-    // 모든 채팅 메시지 로딩
-    function loadAllMessages() {
-        const roomId = generateRoomId(senderNickname, receiverNickname);
-        $.get("/chat/allMessages", { roomId: roomId }, function(data) {
-            data.forEach(function(message) {
-                displayMessage(message, false);
-            });
-            scrollToBottom(); // 모든 메시지를 로드한 후 스크롤을 하단으로 이동
-        });
-    }
+
 
     // 날짜를 연, 월, 일 형식으로 포맷팅
     function formatDate(date) {
@@ -400,11 +419,8 @@ function displayMessage(message, isHistory = false) {
         }
     }
 
-    // 채팅 메시지 목록을 하단으로 스크롤(모든 메시지 로드 후 호출해 최신 메시지가 보이도록)
-    function scrollToBottom() {
-        const chatMessages = document.querySelector('#chat-messages');
-        chatMessages.scrollTop = chatMessages.scrollHeight; // 스크롤을 가장 하단으로 이동
-    }
+
+
 
     // 채팅방 목록을 가져와 화면에 표시
     function loadChatRooms() {
@@ -461,7 +477,16 @@ function displayMessage(message, isHistory = false) {
     function openChat(receiver) {
         window.location.href = `/chat?sender=${encodeURIComponent(senderNickname)}&receiver=${encodeURIComponent(receiver)}`;
     }
-
+    // 모든 채팅 메시지 로딩
+    function loadAllMessages() {
+        const roomId = generateRoomId(senderNickname, receiverNickname);
+        $.get("/chat/allMessages", { roomId: roomId }, function(data) {
+            data.forEach(function(message) {
+                displayMessage(message, false);
+            });
+            scrollToBottom(); // 모든 메시지를 로드한 후 스크롤을 하단으로 이동
+        });
+    }
     // 사이드바 너비 조절 스토리지 저장
     function saveSidebarWidth() {
         const chatSidebar = document.querySelector('.chat-sidebar');
@@ -516,11 +541,6 @@ function handleFileSelect(event) {
     }
 }
 
-    // 파일 미리보기 제거
-    function removeFile() {
-        document.getElementById('file-input').value = '';
-        document.getElementById('file-preview').innerHTML = '';
-    }
 
     // 채팅방 메시지 필터링
     function filterMessages() {
@@ -561,11 +581,6 @@ function handleFileSelect(event) {
         }
     }
 
-    // 스크롤을 하단으로 이동
-    function scrollToBottom() {
-        const chatMessages = document.querySelector('#chat-messages');
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
 
     // 검색결과 없을 때 팝업 표시
     function showNoResultsPopup() {

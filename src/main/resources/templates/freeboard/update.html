@@ -133,7 +133,27 @@
 		    background-size: 10px;
 		    text-align: center;
 		}
-
+.board-tag {
+    background-color: rgb(255, 255, 255); /* 태그 배경색 */
+    color: rgb(0, 0, 0); /* 태그 글자색 */
+    padding: 5px 10px; /* 태그 패딩 */
+    border-radius: 5px; /* 태그의 모서리를 둥글게 */
+    font-size: 14px; /* 태그 글자 크기 */
+    margin-right: 10px; /* 태그와 제목 사이의 간격 */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+    font-weight: bold;
+}
+.board-main {
+    margin-top: 30px; /* 헤더와의 간격을 추가 */
+    padding-top: 30px; /* 원하는 경우 내부 여백 추가 */
+}
+.categories li a.active {
+	display: inline-block; /* 글자 크기에 맞게 배경색*/
+	color :  rgb(64, 0, 64); /*글자색*/
+	background-color: rgb(239, 223, 255); /*배경색*/
+	border-radius: 30px
+}
+   
     </style>
 </head>
 
@@ -145,7 +165,9 @@
             <div class="row">
                 <div class="col-md-8 ftco-animate">
                     <!-- 제목 추가 -->
-                    <h1>글 수정</h1>
+                    <span class="board-tag">자유게시판</span>
+                    	<!-- 구분선 -->
+    				<hr class="separator">
 	<form action="/freeboard/update" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="seq" th:value="${freeBoardUpdate.seq}">
 		<input type="hidden" name="loginid" th:value="${freeBoardUpdate.loginid}">
@@ -153,7 +175,6 @@
 		태그: <input type="text" name="tag" th:value="${freeBoardUpdate.tag}" readonly> <br>
 		제목: <input type="text" name="title" th:value="${freeBoardUpdate.title}"> <br>
 		내용: <textarea name="contents" id="editor" cols="30" rows="10" th:text="${freeBoardUpdate.contents}"></textarea> <br>
-		파일: <input type="file" name="files" multiple> <br />
 		<input type="hidden" name="views" th:value="${freeBoardUpdate.views}">
 		<input type="hidden" name="likeCount" th:value="${freeBoardUpdate.likeCount}">
 		<input type="hidden" name="fileAttached" th:value="${freeBoardUpdate.fileAttached}">
@@ -162,44 +183,16 @@
                 </div>
 
                 <div class="col-md-4 sidebar ftco-animate">
-                    <div class="sidebar-box">
-                        <form action="#" class="search-form">
-                            <!-- 검색폼 -->
-                        </form>
-                    </div>
+
                     <div class="sidebar-box ftco-animate">
                         <div class="categories">
                             <h3>속닥속닥</h3>
-                            <li><a href="sokdakfree.html">자유게시판 <span></span></a></li>
-                            <li><a href="sokdakbitic.html">자랑게시판 <span></span></a></li>
-                            <li><a href="sokdaknotice.html">공지사항 <span></span></a></li>
+                            <li><a href="/freeboard/paging" class ="active">자유게시판 <span></span></a></li>
+                            <li><a href="/biticboard/paging">자랑게시판 <span></span></a></li>
+                            <li><a href="/noticeboard/paging" >공지사항 <span></span></a></li>
                         </div>
                     </div>
                     <div class="sidebar-box ftco-animate">
-					    <h3>인기글</h3>
-					    
-						<div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
-						    <div class="text">
-						        <h3 class="heading">
-						            <a th:href="@{/freeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}"></a>
-						        </h3>
-						        <div class="meta">
-						            <div>
-						                <a href="#">
-						                    <span class="icon-calendar"></span>
-						                    <span th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
-						                </a>
-						            </div>
-						            <div>
-						                <a href="#">
-						                    <span class="icon-person"></span>
-						                    <span th:text="${popularPost.nickname}"></span>
-						                    (<span th:text="${popularPost.likeCount}"></span> 추천)
-						                </a>
-						            </div>
-						        </div>
-						    </div>
-						</div>
                     </div>
                 </div>
             </div>

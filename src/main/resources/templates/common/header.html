@@ -100,6 +100,7 @@
     .icon-container img {
       vertical-align: middle;
     }
+
   </style>
 </head>
 <body>
@@ -112,17 +113,17 @@
       </button>
       <div class="collapse navbar-collapse" id="ftco-nav">
         <ul class="navbar-nav ml-auto" id="navbar-menu">
-          <li class="nav-item active"><a href="/" class="nav-link">홈</a></li>
-          <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" id="sokdakMenu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">속닥속닥</a>
-            <div class="dropdown-menu" aria-labelledby="sokdakMenu">
-              <a class="dropdown-item" href="/noticeboard/paging">공지사항</a>
-              <a class="dropdown-item" href="/freeboard/paging">자유게시판</a>
-              <a class="dropdown-item" href="/biticboard/paging">자랑게시판</a>
-            </div>
-          </li>
-          <li class="nav-item"><a href="/shop/shoplist" class="nav-link">쇼핑</a></li>
-          <li class="nav-item"><a href="/outside" class="nav-link">이불밖으로</a></li>
+    <li class="nav-item" id="home"><a href="/" class="nav-link">홈</a></li>
+    <li class="nav-item dropdown" id="sokdak">
+        <a href="#" class="nav-link dropdown-toggle" id="sokdakMenu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">속닥속닥</a>
+        <div class="dropdown-menu" aria-labelledby="sokdakMenu">
+            <a class="dropdown-item" href="/noticeboard/paging">공지사항</a>
+            <a class="dropdown-item" href="/freeboard/paging">자유게시판</a>
+            <a class="dropdown-item" href="/biticboard/paging">자랑게시판</a>
+        </div>
+    </li>
+    <li class="nav-item" id="shop"><a href="/shop/shoplist" class="nav-link">쇼핑</a></li>
+    <li class="nav-item" id="outside"><a href="/outside" class="nav-link">이불밖으로</a></li>
           <li class="nav-item cta" id="login-item"><a href="/user/login" class="nav-link"><span>로그인</span></a></li>
           <li class="nav-item cta" id="signup-item"><a href="/user/save" class="nav-link"><span>회원가입</span></a></li>
           <li class="nav-item cta" id="nickname-item" style="display:none;">
