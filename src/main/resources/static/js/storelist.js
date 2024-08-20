@@ -10,6 +10,19 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchTags(); // 태그 필터 가져오기
     }
 
+	// 기존 마커 제거 함수
+    function removeMarkers() {
+        markers.forEach(marker => marker.setMap(null));
+        markers.length = 0; // 배열 비우기
+    }
+    
+	// 태그 필터 변경 시 호출되는 함수
+    document.getElementById('tag-filters').addEventListener('change', function(event) {
+        if (event.target && event.target.classList.contains('tag-checkbox')) {
+            fetchStoreList(); // 태그 필터에 따라 상가 리스트 다시 가져오기
+        }
+    });
+    
     // 현재 위치를 가져오는 함수
     function getCurrentPosition() {
         if (navigator.geolocation) {
@@ -66,6 +79,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+	// 지도에 마커를 업데이트하는 함수
+    function updateMarkers(stores) {
+        removeMarkers(); // 기존 마커 제거
+
+        stores.forEach(store => {
+            var markerPosition = new kakao.maps.LatLng(store.latitude, store.longitude);
+            var marker = new kakao.maps.Marker({
+                position: markerPosition,
+                map: map
+            });
+
+            var infoWindow = new kakao.maps.InfoWindow({
+                content: `<div style="padding:5px;font-size:12px;">${store.name}</div>`,
+                removable: true
+            });
+
+            kakao.maps.event.addListener(marker, 'mouseover', function() {
+                infoWindow.open(map, marker);
+            });
+
+            kakao.maps.event.addListener(marker, 'mouseout', function() {
+                infoWindow.close();
+            });
+
+            kakao.maps.event.addListener(marker, 'click', function() {
+                moveToLocation(store.latitude, store.longitude);
+            });
+
+            markers.push(marker); // 마커 배열에 저장
+            infoWindows.push(infoWindow); // 정보창 배열에 저장
+        });
+    }
     // 상가 리스트를 서버에서 가져오는 함수
     function fetchStoreList() {
         const selectedTags = Array.from(document.querySelectorAll('.tag-checkbox:checked'))
@@ -74,18 +119,21 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('/api/stores')
             .then(response => response.json())
             .then(stores => {
+				// 사용자 위치 기준 거리 계산 및 정렬
                 if (userPosition.lat && userPosition.lng) {
                     stores = calculateDistances(stores, userPosition);
                     stores.sort((a, b) => a.distance - b.distance);
                 }
-
+                
+				// 태그 필터링
                 if (selectedTags.length > 0) {
                     stores = stores.filter(store =>
                         store.tags && store.tags.some(tag => selectedTags.includes(tag))
                     );
                 }
 
-                renderStoreList(stores);
+                renderStoreList(stores); // 필터링된 상가 리스트 렌더링
+                updateMarkers(stores); // 필터링된 상가에 대한 마커 업데이트
             })
             .catch(error => console.error('Error fetching store list:', error));
     }
