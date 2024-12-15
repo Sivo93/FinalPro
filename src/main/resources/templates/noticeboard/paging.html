@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>공지사항</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+        <!-- SockJS와 Stomp.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/open-iconic-bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/animate.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}">
+    <link rel="stylesheet" th:href="@{/css/magnific-popup.css}">
+    <link rel="stylesheet" th:href="@{/css/aos.css}">
+    <link rel="stylesheet" th:href="@{/css/ionicons.min.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap-datepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/jquery.timepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/flaticon.css}">
+    <link rel="stylesheet" th:href="@{/css/icomoon.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+		
+		       /* 테이블 스타일링 */
+        table.board {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table.board th,
+        table.board td {
+            padding: 15px;
+            text-align: center;
+        }
+
+        table.board thead th {
+            background-color: rgb(106, 0, 213);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        table.board tbody tr {
+            border-bottom: 1px solid #e8e8e8;
+            transition: background-color 0.3s ease;
+        }
+
+        table.board tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        table.board tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        /* 페이지 이동 버튼을 포함하는 div 스타일링 */
+		.pagination {
+		    display: flex;
+		    justify-content: center; /* 수평 중앙 정렬 */
+		    align-items: center; /* 수직 중앙 정렬 */
+		    margin-top: 10px;
+		    margin-bottom: 20px;
+		    gap: 10px; /* 버튼 사이 간격 */
+		}
+
+
+
+.pagination a {
+	font-size: 14px;
+    display: inline-block;
+    color: #6c63ff;
+    padding: 8px 12px; /* 패딩으로 버튼의 내부 여백을 조절 */
+    text-decoration: none;
+    margin: 0 5px; /* 버튼 사이의 간격 */
+    border: 1px solid #ddd;
+    border-radius: 4px; /* 버튼의 둥근 모서리 조절 */
+    font-size: 14px; /* 버튼 글자의 크기 */
+    width: 40px; /* 버튼의 너비를 고정 */
+    height: 40px; /* 버튼의 높이를 고정 */
+    display: flex;
+    justify-content: center; /* 텍스트를 수평 중앙에 위치 */
+    align-items: center; /* 텍스트를 수직 중앙에 위치 */
+}
+
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            table.board th,
+            table.board td {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .hero-wrap {
+                background-size: cover;
+                background-position: center;
+            }
+
+            .board-main {
+                padding: 0 15px;
+            }
+
+            .pagination {
+                flex-direction: column;
+            }
+
+            .pagination a {
+                margin-bottom: 10px;
+            }
+        }
+
+        /* 링크 스타일 */
+        a {
+            color: #6c63ff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+			border : 1px solid  rgb(64, 0, 128);
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: #5753d3;
+        }
+
+
+
+		.toggle-menu {
+		    display: none;
+		    position: absolute;
+		    background: #fff;
+		    border: 1px solid #ccc;
+		    z-index: 1000;
+		    border-radius: 8px; /* 모서리를 둥글게 설정 */
+		}
+		.toggle-menu ul {
+		    list-style: none;
+		    padding: 0;
+		    margin: 0;
+		    border-radius: 8px; /* 모서리를 둥글게 설정 */
+		}
+		.toggle-menu ul li {
+		    padding: 10px;
+		    cursor: pointer;
+		    border-radius: 8px; /* 리스트 아이템도 둥글게 설정 */
+		}
+		.toggle-menu ul li:hover {
+		    background: #f1f1f1;
+		    border-radius: 8px; /* 호버 시에도 모서리가 둥글게 유지되도록 설정 */
+		}
+        
+		
+		select[name="tag"] {
+		    width: 10%;
+		    padding: 10px;
+		    margin-bottom: 15px;
+		    border: 1px solid #ddd;
+		    border-radius: 30px; /* 둥근 모서리 */
+		    font-size: 16px;
+		    background-color: #fff; /* 배경색 */
+		    appearance: none; /* 드롭다운 화살표 제거 */
+		    -webkit-appearance: none;
+		    -moz-appearance: none;
+		    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/></svg>');
+		    background-repeat: no-repeat;
+		    background-position: right 10px center;
+		    background-size: 10px;
+		    text-align: center;
+		}
+		
+		/* */
+.filter-and-search {
+    display: flex !important; /* Flexbox로 수평 정렬을 강제 */
+    align-items: center !important; /* 수직 중앙 정렬을 강제 */
+    gap: 10px !important; /* 두 요소 사이의 간격 */
+    margin-bottom: 15px !important; /* 아래쪽 여백 */
+}
+
+.tag-filter-form select {
+    padding: 10px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 30px !important; /* 둥근 모서리 */
+    font-size: 16px !important;
+    background-color: #fff !important;
+    appearance: none !important; /* 기본 드롭다운 화살표 제거 */
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="#000" d="M2 0L0 2h4L2 0z"/>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    background-size: 10px !important;
+    text-align: center !important;
+}
+
+.board-main {
+    margin-top: 30px; /* 헤더와의 간격을 추가 */
+    padding-top: 30px; /* 원하는 경우 내부 여백 추가 */
+}
+.search-form {
+    position: relative !important; /* 검색 입력란과 아이콘을 포지셔닝하기 위해 필요 */
+}
+
+.search-container {
+    position: relative !important; /* 검색 입력란과 아이콘을 감싸는 컨테이너 */
+}
+
+.search-form input {
+    width: 250px !important; /* 검색 입력란의 너비 */
+    padding: 10px 40px 10px 10px !important; /* 아이콘이 들어갈 자리 확보 (오른쪽 여백 추가) */
+    border-radius: 5px !important;
+    border: 1px solid #ddd !important;
+    font-size: 16px !important;
+}
+
+.current-page {
+    font-size: 22px; /* 글자크기 */
+    font-weight: bold; /* 굵게 */
+    color: rgb(64, 0, 64); /* 글자 색상 */
+}
+
+.categories li a.active {
+	display: inline-block; /* 글자 크기에 맞게 배경색*/
+	color :  rgb(64, 0, 64); /*글자색*/
+	background-color: rgb(239, 223, 255); /*배경색*/
+	border-radius: 30px
+}
+		    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: fragment}"></div>
+    <section class="ftco-section">
+        <div class="board-main">
+            <div class="row">
+                <div class="col-md-9 ftco-animate">
+                    <h2 class="mb-3">
+                        <table class="board">
+                            <span class="text">
+                                <thead>
+<div class="filter-and-search">
+    <form id="tagFilterForm" action="/noticeboard/paging" method="get" class="tag-filter-form">
+        <select name="tag" onchange="document.getElementById('tagFilterForm').submit()">
+            <option value="" ${currentTag==null ? 'selected' : '' }>전체</option>
+            <option value="운동" ${currentTag=='운동' ? 'selected' : '' }>운동</option>
+            <option value="여가" ${currentTag=='여가' ? 'selected' : '' }>여가</option>
+            <option value="여행" ${currentTag=='여행' ? 'selected' : '' }>여행</option>
+            <option value="동물" ${currentTag=='동물' ? 'selected' : '' }>동물</option>
+            <option value="질문" ${currentTag=='질문' ? 'selected' : '' }>질문</option>
+            <option value="꿀팁" ${currentTag=='꿀팁' ? 'selected' : '' }>꿀팁</option>
+        </select>
+    </form>
+    <form action="#" class="search-form">
+        <div class="search-container">
+            <input type="text" class="form-control" placeholder="제목으로 검색" name="search" th:value="${search}">
+        </div>
+    </form>
+</div>
+                                    <tr>
+                                        <th>번호</th>
+                                        <th>태그</th>
+                                        <th>제목</th>
+                                        <th>작성자</th>
+                                        <th>작성일</th>
+                                        <th>조회수</th>
+                                        <th>추천</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="noticeboard: ${noticeBoardList}">
+                                        <td th:text="${noticeboard.seq}"></td>
+                                        <td th:text="${noticeboard.tag}"></td>
+                                        <td><a th:href="@{|/noticeboard/${noticeboard.seq}|(page=${noticeBoardList.number + 1})}" th:text="${noticeboard.title}"></a></td>
+                                        <td>
+                                            <span class="user-name" th:data-nickname="${noticeboard.nickname}" th:text="${noticeboard.nickname}" style="cursor: pointer;"></span>
+                                            <div class="toggle-menu">
+                                                <ul>
+                                                    <li class="start-chat" th:data-nickname="${noticeboard.nickname}">1대1 채팅</li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td th:text="*{#temporals.format(noticeboard.createdTime, 'yyyy-MM-dd HH:mm')}"></td>
+                                        <td th:text="${noticeboard.views}"></td>
+                                        <td th:text="${noticeboard.likeCount}"></td>
+                                    </tr>
+                                </tbody>
+                            </span>
+                        </table>
+                        <div class="pagination">
+                            <a th:href="@{/noticeboard/paging(page=1)}"><<</a>
+                            <a th:href="${noticeBoardList.first} ? '#' : @{/noticeboard/paging(page=${noticeBoardList.number})}"><</a>
+                            <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+                                <span th:if="${page == noticeBoardList.number + 1}" th:text="${page}" class="current-page"></span>
+
+                                <span th:unless="${page == noticeBoardList.number + 1}">
+                                    <a th:href="@{/noticeboard/paging(page=${page})}" th:text="${page}"></a>
+                                </span>
+                            </span>
+                            <a th:href="${noticeBoardList.last} ? '#' : @{/noticeboard/paging(page=${noticeBoardList.number + 2})}">></a>
+                            <a th:href="@{/noticeboard/paging(page=${noticeBoardList.totalPages})}">>></a>
+                        </div>
+                        <a href="/noticeboard/save" class="btn">글작성</a>
+                </div>
+                <div class="col-md-3 sidebar ftco-animate">
+                    <div class="sidebar-box ftco-animate">
+                        <div class="categories">
+                            <h3>속닥속닥</h3>
+                            <li><a href="/freeboard/paging">자유게시판 <span></span></a></li>
+                            <li><a href="/biticboard/paging" >자랑게시판 <span></span></a></li>
+                            <li><a href="/noticeboard/paging" class = "active">공지사항 <span></span></a></li>
+                        </div>
+                    </div>
+					<div class="sidebar-box ftco-animate">
+					    <h3>인기글</h3>
+					    <div th:each="popularPost, iterStat : ${popularPosts}" th:if="${iterStat.index < 3}" class="block-21 mb-4 d-flex">
+					        <div class="text">
+					            <h3 class="heading">
+					                <a th:href="@{/noticeboard/{seq}(seq=${popularPost.seq})}" th:text="${popularPost.title}" class="truncate-title"></a>
+					            </h3>
+					            <div class="meta">
+					                <div>
+					                    <a href="#">
+					                        <span class="icon-calendar"></span>
+					                        <span th:text="${#temporals.format(popularPost.createdTime, 'yyyy-MM-dd')}"></span>
+					                    </a>
+					                </div>
+					                <div>
+					                    <a href="#">
+					                        <span class="icon-person"></span>
+					                        <span th:text="${popularPost.nickname}"></span>
+					                        (<span th:text="${popularPost.likeCount}"></span> 추천)
+					                    </a>
+					                </div>
+					            </div>
+					        </div>
+					    </div>
+					</div>
+					</div>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <div th:replace="~{common/footer :: footer}"></div>
+</body>
+<script>
+    const saveReq = () => {
+        location.href = "/noticeboard/save";
+    }
+
+    function openChatWithUser(receiver) {
+        const sender = document.getElementById('nickname').innerText;
+        const chatWindow = window.open(`/chat?sender=${encodeURIComponent(sender)}&receiver=${encodeURIComponent(receiver)}`, 'ChatWindow', 'width=800,height=600');
+        chatWindow.focus();
+    }
+
+    $(document).ready(function() {
+        // 사용자 이름 클릭 시 이벤트 처리
+        $('.user-name').click(function() {
+            const currentUser = $('#nickname').text().trim(); // 현재 사용자 닉네임
+            const nickname = $(this).data('nickname');
+            if (currentUser !== nickname) {
+                const toggleMenu = $(this).siblings('.toggle-menu');
+                $('.toggle-menu').not(toggleMenu).hide(); // 다른 모든 토글 메뉴를 숨김
+                toggleMenu.toggle(); // 현재 토글 메뉴를 토글
+            }
+        });
+
+        // "1대1 채팅" 클릭 시 이벤트 처리
+        $(document).on('click', '.start-chat', function() {
+            const receiver = $(this).data('nickname');
+            openChatWithUser(receiver);
+        });
+    });
+    
+    	$(document).ready(function () {
+		// 태그 선택 시 게시글 필터링
+		$('#tagSelect').change(function () {
+			const selectedTag = $(this).val();
+			loadBoardData(selectedTag);
+		});
+
+		// 페이지 로드 시 전체 게시글 로드
+		loadBoardData();
+
+		function loadBoardData(tag = '') {
+			// 태그에 따라 게시글 데이터를 가져오는 AJAX 요청
+			$.ajax({
+				url: '/noticeboard/paging', // 서버의 API 엔드포인트
+				method: 'GET',
+				data: {tag: tag},
+				success: function (response) {
+					// 게시글 데이터를 렌더링
+					renderBoardList(response);
+				},
+				error: function (error) {
+					console.error('Error loading board data:', error);
+				}
+			});
+		}
+
+		function renderBoardList(boardData) {
+			const boardList = $('#boardList');
+			boardList.empty(); // 기존 게시글 목록을 지우고
+
+			// 가져온 게시글 데이터를 반복하며 테이블에 추가
+			boardData.forEach(noticeboard => {
+				const boardRow = `
+                <tr>
+                    <td>${noticeboard.seq}</td>
+                    <td>${noticeboard.tag}</td>
+                    <td><a href="/noticeboard/${noticeboard.seq}">${noticeboard.title}</a></td>
+                    <td>${noticeboard.nickname}</td>
+                    <td>${new Date(noticeboard.createdTime).toLocaleDateString()}</td>
+                    <td>${noticeboard.views}</td>
+                    <td>${noticeboard.likeCount}</td>
+                </tr>
+            `;
+				boardList.append(boardRow);
+			});
+		}
+	});
+	
+	    $(document).ready(function () {
+        // 인기글에서 제목이 10글자 이상이면 잘라내고 "..."을 추가
+        $('.truncate-title').each(function () {
+            var text = $(this).text();
+            if (text.length > 10) {
+                var truncated = text.substring(0, 10) + '...';
+                $(this).text(truncated);
+            }
+        });
+    });
+    
+    $(document).ready(function () {
+    // 전체글에서 제목이 10글자 이상이면 잘라내고 "..."을 추가
+    $('table.board tbody tr td a').each(function () {
+        var text = $(this).text();
+        if (text.length > 10) {
+            var truncated = text.substring(0, 8) + '...';
+            $(this).text(truncated);
+        }
+    });
+});
+
+</script>
+</html>

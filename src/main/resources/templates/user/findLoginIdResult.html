@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
+    <title>아이디 찾기 결과</title>
+</head>
+<body>
+    <h1>아이디 찾기 결과</h1>
+    
+    <!-- 아이디 또는 오류 메시지를 표시할 영역 -->
+    <p>
+        <span th:if="${loginid}" th:text="'찾으신 아이디는: ' + ${loginid} + ' 입니다.'"></span>
+        <span th:if="${error}" th:text="${error}"></span>
+    </p>
+
+    <a href="/user/login">로그인 페이지로 돌아가기</a>
+</body>
+</html>

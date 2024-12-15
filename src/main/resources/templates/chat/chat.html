@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>채팅</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/css/chat.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+</head>
+<body>
+<div class="chat-container">
+    <div class="chat-sidebar">
+        <h2>채팅방 목록</h2>
+        <ul></ul>
+        <div class="resizer"></div>
+    </div>
+    <div class="chat-main">
+        <div class="chat-header">
+            <h3 th:text="'채팅 상대: ' + ${receiver}"></h3>
+            <div class="search-container">
+                <i class="fas fa-search" id="search-icon"></i>
+                <input type="text" id="message-search" placeholder="메시지 검색" oninput="filterMessages()">
+            </div>
+        </div>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div id="no-results-popup" class="no-results-popup">검색한 값이 존재하지 않습니다</div>
+        <div class="file-preview" id="file-preview"></div>
+        <div class="chat-footer">
+            <input type="text" id="message-input" placeholder="메시지 입력">
+            <label for="file-input" class="file-label">
+                <i class="fas fa-paperclip"></i>
+                <input type="file" id="file-input">
+            </label>
+            <button id="send-button">전송</button>
+            <div id="upload-progress" style="width: 0%; height: 5px; background-color: green;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 이미지 및 동영상 미리보기 모달 -->
+<div id="mediaModal" class="modal">
+    <span class="close">&times;</span>
+    <div class="modal-content">
+        <img id="modalImage" style="display: none; max-width: 100%; max-height: 100%;">
+        <video id="modalVideo" controls style="display: none; max-width: 100%; max-height: 100%;"></video>
+        <div class="caption">
+            <a id="downloadMediaLink" class="download-button" href="#" download>다운로드</a>
+        </div>
+    </div>
+</div>
+
+<!-- 파일 미리보기 모달 -->
+<div id="fileModal" class="modal">
+    <span class="close">&times;"></span>
+    <div class="modal-content">
+        <div id="unsupportedMessage" style="display: none;">
+            미리보기를 지원하지 않는 파일 형식입니다.
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+            <button id="downloadButton" class="download-button" style="display: none;">다운로드</button>
+        </div>
+    </div>
+</div>
+<script>
+	    // 전역 범위에 정의된 removeFile 함수
+    function removeFile() {
+        const fileInput = document.getElementById('file-input');
+        fileInput.value = ''; // 파일 입력 필드 초기화
+        document.getElementById('file-preview').innerHTML = ''; // 미리보기 삭제
+    }
+	function scrollToBottom() {
+	    const chatMessages = document.querySelector('#chat-messages');
+	
+	    // 이미지가 모두 로드된 후 스크롤 이동
+	    const images = chatMessages.querySelectorAll('img');
+	    if (images.length > 0) {
+	        let loadedImages = 0;
+	        images.forEach((img) => {
+	            img.onload = () => {
+	                loadedImages++;
+	                if (loadedImages === images.length) {
+	                    chatMessages.scrollTop = chatMessages.scrollHeight; // 모든 이미지가 로드되면 스크롤 이동
+	                }
+	            };
+	        });
+	    } else {
+	        // 이미지가 없으면 바로 스크롤 이동
+	        chatMessages.scrollTop = chatMessages.scrollHeight;
+	    }
+	}
+
+
+	document.addEventListener('DOMContentLoaded', (event) => {
+	let stompClient = null;
+	let senderNickname = '[[${sender}]]';
+	let receiverNickname = '[[${receiver}]]';
+	let lastMessageDate = null;
+	
+    // 웹소켓 연결
+    function connect() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, onConnected, onError);
+    }
+
+    // 연결 성공했을때 호출
+    function onConnected() {
+        const roomId = generateRoomId(senderNickname, receiverNickname);
+        stompClient.subscribe('/topic/' + roomId, onMessageReceived);
+        stompClient.subscribe('/topic/chat-list/' + senderNickname, onChatListUpdate);
+        stompClient.subscribe('/topic/notifications/' + senderNickname, onNotificationReceived);
+
+        // 현재 사용자가 수신자인 경우 모든 메시지를 읽음으로 표시
+        if (receiverNickname === '[[${sender}]]') {
+            markAllMessagesAsRead();
+        }
+
+        loadAllMessages(); // 모든 메시지 로드
+    }
+
+    // 연결 오류 발생했을 때 콘솔에 출력
+    function onError(error) {
+        console.error('Could not connect to WebSocket server. Please refresh this page to try again!');
+    }
+
+    // 메시지 전송(텍스트, 파일)
+    function sendMessage(event) {
+        const messageContent = document.querySelector('#message-input').value.trim();
+        const fileInput = document.querySelector('#file-input');
+        if (fileInput.files.length > 0) {
+            uploadFile(fileInput.files[0], function(fileName, fileDownloadUri) {
+                sendMessageToServer(messageContent, fileName, fileDownloadUri);
+            });
+        } else {
+            sendMessageToServer(messageContent, null, null);
+        }
+        event.preventDefault();
+    }
+
+    // 메시지를 읽음 상태로 표시
+    function markMessageAsRead(messageId) {
+        fetch(`/chat/messages/markAsRead?messageId=${messageId}`, {
+            method: 'POST'
+        }).then(response => {
+            if (response.ok) {
+                console.log("Message marked as read.");
+            } else {
+                console.error("Failed to mark message as read.");
+            }
+        }).catch(error => {
+            console.error("Error marking message as read:", error);
+        });
+    }
+
+    // 파일 업로드 (ajax)
+    function uploadFile(file, callback) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/uploadFile/chat", true);
+
+        xhr.upload.onprogress = function(event) {
+            if (event.lengthComputable) {
+                const percentComplete = (event.loaded / event.total) * 100;
+                console.log(percentComplete + '% uploaded');
+                document.querySelector('#upload-progress').style.width = percentComplete + '%';
+            }
+        };
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                console.log('File uploaded successfully');
+                const response = JSON.parse(xhr.responseText);
+                callback(response.fileName, response.fileDownloadUri);
+                document.querySelector('#upload-progress').style.width = '0%';
+            } else {
+                console.error('File upload failed');
+            }
+        };
+
+        xhr.send(formData);
+    }
+
+    // 메시지를 전송 (json)
+    function sendMessageToServer(messageContent, fileName, fileDownloadUri) {
+        if ((messageContent || fileName) && stompClient) {
+            const chatMessage = {
+                sender: { nickname: senderNickname },
+                receiver: { nickname: receiverNickname },
+                content: messageContent,
+                timestamp: new Date().toISOString(),
+                fileName: fileName,
+                fileUrl: fileDownloadUri
+            };
+            stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+            document.querySelector('#message-input').value = '';
+            document.querySelector('#file-input').value = '';
+            document.querySelector('#file-preview').innerHTML = '';
+        }
+    }
+
+    // 서버에서 메시지 수신했을 때 화면에 표시하고 스크롤을 하단으로 이동
+    function onMessageReceived(payload) {
+        const message = JSON.parse(payload.body);
+        displayMessage(message);
+        if (message.sender.nickname !== senderNickname) {
+            showNotification(message);
+        }
+        scrollToBottom();
+    }
+
+    // 새 메시지 알림
+    function showNotification(message) {
+        if (Notification.permission === "granted") {
+            const notification = new Notification(`새 메시지: ${message.sender.nickname}`, {
+                body: message.content,
+                icon: '/static/img/icon.png' // 아이콘 경로 설정
+            });
+            notification.onclick = function () {
+                window.focus();
+            };
+        }
+    }
+
+    // 알림 수신했을때 환영페이지에서 사용자에게 알림
+    function onNotificationReceived(payload) {
+        const message = JSON.parse(payload.body);
+        if (message.sender.nickname !== receiverNickname) {
+            alert(`새 메시지가 도착했습니다: ${message.sender.nickname} - ${message.content}`);
+        }
+    }
+
+	// 채팅방 목록을 받아와 화면에 표시 (수정된 부분)
+	function onChatListUpdate(payload) {
+	    const chatRooms = JSON.parse(payload.body);
+	    const chatSidebar = document.querySelector('.chat-sidebar ul');
+	    chatSidebar.innerHTML = ''; // 기존 채팅방 목록 초기화
+	    chatRooms.forEach(function(roomDto) {
+	        if (roomDto.sender && roomDto.receiver) {
+	            const user = roomDto.sender.nickname === senderNickname ? roomDto.receiver : roomDto.sender;
+	
+	            // 현재 사용자가 채팅방을 나가지 않았을 경우에만 목록에 표시
+	            if (!roomDto.hasLeft) {
+	                const li = document.createElement('li');
+	                li.onclick = () => openChat(user.nickname);
+	                li.className = user.nickname === receiverNickname ? 'active' : '';
+	                li.innerHTML = `<strong>${user.nickname}</strong><br><span>${roomDto.latestMessage}</span>`;
+	                chatSidebar.appendChild(li);
+	            }
+	        }
+	    });
+	}
+
+
+
+    // 날짜를 연, 월, 일 형식으로 포맷팅
+    function formatDate(date) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString(undefined, options);
+    }
+
+    // 날짜 구분선 추가
+    function addDateSeparator(date, isHistory = false) {
+        const dateSeparator = document.createElement('div');
+        dateSeparator.classList.add('date-separator');
+        const dateLine = document.createElement('div');
+        dateLine.classList.add('date-line');
+        const dateText = document.createElement('span');
+        dateText.textContent = formatDate(date); // 날짜 포맷팅
+        dateLine.appendChild(dateText);
+        dateSeparator.appendChild(dateLine);
+
+        const chatMessages = document.querySelector('#chat-messages');
+        if (isHistory) {
+            chatMessages.insertBefore(dateSeparator, chatMessages.firstChild);
+        } else {
+            chatMessages.appendChild(dateSeparator);
+        }
+    }
+
+function displayMessage(message, isHistory = false) {
+    const messageDate = new Date(message.timestamp);
+    const messageDateString = messageDate.toDateString();
+
+    const chatMessages = document.querySelector('#chat-messages');
+    const lastMessageElement = isHistory ? chatMessages.firstChild : chatMessages.lastChild;
+    const lastMessageDateString = lastMessageElement ? new Date(lastMessageElement.dataset.timestamp).toDateString() : null;
+
+    if (lastMessageDateString !== messageDateString) {
+        addDateSeparator(messageDate, isHistory);
+    }
+
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('chat-message');
+    messageElement.dataset.timestamp = message.timestamp;
+
+    // 메시지를 보낸 사람이 현재 사용자(`senderNickname`)인지 확인
+    if (message.sender.nickname === senderNickname) {
+        messageElement.classList.add('chat-message-right');
+    } else {
+        messageElement.classList.add('chat-message-left');
+    }
+
+    messageElement.dataset.messageId = message.id;
+
+    // 메시지를 읽음으로 표시하는 이벤트 리스너 추가
+    messageElement.addEventListener('mouseenter', function() {
+        // 수신자가 현재 사용자일 때만 읽음으로 표시
+        if (!message.read && message.sender.nickname !== senderNickname) {
+            markMessageAsRead(message.id);
+        }
+    });
+
+    const messageContent = document.createElement('div');
+    messageContent.classList.add('message-content');
+    const textElement = document.createElement('span');
+    const messageText = document.createTextNode(message.content);
+    textElement.appendChild(messageText);
+    messageContent.appendChild(textElement);
+    messageElement.appendChild(messageContent);
+
+    const timestampElement = document.createElement('div');
+    timestampElement.classList.add('timestamp');
+    timestampElement.textContent = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    messageElement.appendChild(timestampElement);
+
+    if (message.fileUrl) {
+        const fileExtension = message.fileName.split('.').pop().toLowerCase();
+        if (["jpeg", "jpg", "gif", "png"].includes(fileExtension)) {
+            const img = document.createElement('img');
+            img.src = message.fileUrl;
+            img.style.maxWidth = '200px';
+            img.onclick = function() {
+                openMediaModal(message.fileUrl, 'image');
+            };
+            messageContent.appendChild(img);
+        } else if (["mp4", "webm", "ogg"].includes(fileExtension)) {
+            const video = document.createElement('video');
+            video.src = message.fileUrl;
+            video.style.maxWidth = '200px';
+            video.controls = true;
+            video.onclick = function() {
+                openMediaModal(message.fileUrl, 'video');
+            };
+            messageContent.appendChild(video);
+        } else {
+            const fileLink = document.createElement('a');
+            fileLink.href = "#";
+            fileLink.textContent = message.fileName;
+            fileLink.onclick = function() {
+                openFileModal(message.fileUrl, message.fileName);
+                return false;
+            };
+            messageContent.appendChild(fileLink);
+        }
+    }
+
+    if (isHistory) {
+        chatMessages.insertBefore(messageElement, chatMessages.firstChild);
+    } else {
+        chatMessages.appendChild(messageElement);
+    }
+}
+
+    // 미디어 미리보기 모달을 여는 함수
+    function openMediaModal(mediaUrl, mediaType) {
+        const modal = document.getElementById("mediaModal");
+        const modalImg = document.getElementById("modalImage");
+        const modalVideo = document.getElementById("modalVideo");
+        const downloadLink = document.getElementById("downloadMediaLink");
+
+        modal.style.display = "block";
+        if (mediaType === 'image') {
+            modalImg.style.display = "block";
+            modalVideo.style.display = "none";
+            modalImg.src = mediaUrl;
+            downloadLink.href = mediaUrl;
+        } else if (mediaType === 'video') {
+            modalImg.style.display = "none";
+            modalVideo.style.display = "block";
+            modalVideo.src = mediaUrl;
+            downloadLink.href = mediaUrl;
+        }
+
+        const closeModal = document.getElementsByClassName("close")[0];
+        closeModal.onclick = function() {
+            modal.style.display = "none";
+            if (mediaType === 'video') {
+                modalVideo.pause(); // 비디오 일시정지
+            }
+        }
+    }
+
+    // 파일 미리보기 모달을 여는 함수(미리보기가 불가능한 경우 메시지 표시)
+    function openFileModal(fileUrl, fileName) {
+        const modal = document.getElementById("fileModal");
+        const unsupportedMessage = document.getElementById("unsupportedMessage");
+        const downloadButton = document.getElementById("downloadButton");
+
+        modal.style.display = "block";
+        unsupportedMessage.style.display = "block";
+        downloadButton.style.display = "block"; // 미리보기가 불가능해도 다운로드 버튼 표시
+        downloadButton.onclick = function() {
+            // 파일 다운로드 링크 설정 및 클릭 이벤트 발생
+            const a = document.createElement('a');
+            a.href = fileUrl;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        };
+
+        const closeModal = document.getElementsByClassName("close")[1];
+        closeModal.onclick = function() {
+            modal.style.display = "none";
+        }
+    }
+
+
+
+
+    // 채팅방 목록을 가져와 화면에 표시
+    function loadChatRooms() {
+        $.get("/chat/rooms", function(data) {
+            onChatListUpdate({ body: JSON.stringify(data) });
+        });
+    }
+
+    document.querySelector('#send-button').addEventListener('click', sendMessage, true);
+    document.querySelector('#message-input').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            sendMessage(event);
+        }
+    });
+    loadSidebarWidth();
+
+    const chatSidebar = document.querySelector('.chat-sidebar');
+    const resizer = document.querySelector('.resizer');
+    let isResizing = false;
+    let lastDownX = 0;
+
+    resizer.addEventListener('mousedown', function(e) {
+        isResizing = true;
+        lastDownX = e.clientX;
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!isResizing) return;
+
+        let offsetRight = document.body.offsetWidth - (e.clientX - document.body.offsetLeft);
+        chatSidebar.style.width = (e.clientX - chatSidebar.offsetLeft) + 'px';
+        localStorage.setItem('chatSidebarWidth', chatSidebar.style.width);
+    });
+
+    document.addEventListener('mouseup', function(e) {
+        isResizing = false;
+    });
+
+    chatSidebar.addEventListener('mouseup', saveSidebarWidth);
+    document.querySelector('#chat-messages').addEventListener('scroll', function() {});
+
+    document.querySelector('#file-input').addEventListener('change', handleFileSelect);
+
+    document.getElementById('search-icon').addEventListener('click', function() {
+        document.getElementById('message-search').classList.toggle('active');
+    });
+
+    // 두 사용자의 닉네임을 사용해 채팅방 id 생성
+    function generateRoomId(sender, receiver) {
+        return sender.localeCompare(receiver) > 0 ? sender + "_" + receiver : receiver + "_" + sender;
+    }
+
+    // 다른 채팅방 열기(사용자의 닉네임으로 연결된)
+    function openChat(receiver) {
+        window.location.href = `/chat?sender=${encodeURIComponent(senderNickname)}&receiver=${encodeURIComponent(receiver)}`;
+    }
+    // 모든 채팅 메시지 로딩
+    function loadAllMessages() {
+        const roomId = generateRoomId(senderNickname, receiverNickname);
+        $.get("/chat/allMessages", { roomId: roomId }, function(data) {
+            data.forEach(function(message) {
+                displayMessage(message, false);
+            });
+            scrollToBottom(); // 모든 메시지를 로드한 후 스크롤을 하단으로 이동
+        });
+    }
+    // 사이드바 너비 조절 스토리지 저장
+    function saveSidebarWidth() {
+        const chatSidebar = document.querySelector('.chat-sidebar');
+        localStorage.setItem('chatSidebarWidth', chatSidebar.style.width);
+    }
+    // 스토리지에서 사이드바 너비 로드 (사이즈 조절 후 창을 다시 열면 변경된 사이즈로 로드되게 하는 기능)
+    function loadSidebarWidth() {
+        const chatSidebar = document.querySelector('.chat-sidebar');
+        const savedWidth = localStorage.getItem('chatSidebarWidth');
+        if (savedWidth) {
+            chatSidebar.style.width = savedWidth;
+        }
+    }
+// 파일 선택 시 미리보기 처리 함수
+function handleFileSelect(event) {
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+    if (file) {
+        const filePreview = document.getElementById('file-preview');
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const fileType = getFileType(file.name);
+            if (fileType === 'image') {
+                filePreview.innerHTML = `
+                    <div class="file-preview-item">
+                        <img src="${e.target.result}" alt="file" style="max-width: 100px; max-height: 100px;">
+                        <button class="file-remove-btn" onclick="removeFile()">X</button>
+                    </div>
+                `;
+            } else if (fileType === 'video') {
+                filePreview.innerHTML = `
+                    <div class="file-preview-item">
+                        <video controls style="max-width: 200px;">
+                            <source src="${e.target.result}" type="${file.type}">
+                            Your browser does not support the video tag.
+                        </video>
+                        <button class="file-remove-btn" onclick="removeFile()">X</button>
+                    </div>
+                `;
+            } else {
+                filePreview.innerHTML = `
+                    <div class="file-preview-item">
+                        <span>${file.name}</span>
+                        <button class="file-remove-btn" onclick="removeFile()">X</button>
+                    </div>
+                `;
+            }
+        };
+
+        reader.readAsDataURL(file);
+    }
+}
+
+
+    // 채팅방 메시지 필터링
+    function filterMessages() {
+        const searchTerm = document.getElementById('message-search').value.toLowerCase();
+        const messages = document.querySelectorAll('.chat-message');
+        const dateSeparators = document.querySelectorAll('.date-separator');
+        let hasResults = false;
+        let visibleDates = new Set();
+
+        messages.forEach(message => {
+            const messageText = message.querySelector('.message-content').textContent.toLowerCase();
+            if (messageText.includes(searchTerm)) {
+                message.style.display = ''; // 메시지를 보여줌
+                hasResults = true;
+                const messageDate = new Date(message.dataset.timestamp);
+                const messageDateString = messageDate.toDateString();
+                visibleDates.add(messageDateString);
+            } else {
+                message.style.display = 'none'; // 메시지를 숨김
+            }
+        });
+
+        dateSeparators.forEach(separator => {
+            const dateText = separator.querySelector('.date-line span').textContent;
+            if (visibleDates.has(dateText)) {
+                separator.style.display = 'block';
+            } else {
+                separator.style.display = 'none';
+            }
+        });
+
+        if (!hasResults && searchTerm !== '') {
+            showNoResultsPopup(); // 검색 결과가 없을 때 팝업 표시
+        } else if (searchTerm === '') {
+            messages.forEach(message => message.style.display = ''); // 모든 메시지 다시 표시
+            dateSeparators.forEach(separator => separator.style.display = 'block'); // 모든 날짜 구분선 다시 표시
+            scrollToBottom(); // 스크롤을 하단으로 이동
+        }
+    }
+
+
+    // 검색결과 없을 때 팝업 표시
+    function showNoResultsPopup() {
+        const popup = document.getElementById('no-results-popup');
+        popup.style.display = 'block';
+        setTimeout(() => {
+            popup.style.display = 'none';
+        }, 3000); // 3초 후에 사라지도록 설정
+    }
+
+// 파일 확장자를 보고 파일 유형 결정
+function getFileType(fileName) {
+    const fileExtension = fileName.split('.').pop().toLowerCase();
+    if (["jpeg", "jpg", "png", "gif"].includes(fileExtension)) {
+        return "image";
+    } else if (["mp4", "webm", "ogg"].includes(fileExtension)) {
+        return "video";
+    } else {
+        return "unsupported";
+    }
+}
+
+    // 모든 메시지를 읽음으로 표시
+    function markAllMessagesAsRead() {
+        fetch(`/chat/messages/markAllAsRead?sender=${encodeURIComponent(senderNickname)}&receiver=${encodeURIComponent(receiverNickname)}`, {
+            method: 'POST'
+        }).then(response => {
+            if (response.ok) {
+                console.log("All messages marked as read.");
+            } else {
+                console.error("Failed to mark all messages as read.");
+            }
+        }).catch(error => {
+            console.error("Error marking all messages as read:", error);
+        });
+    }
+
+    connect(); // 웹소켓 연결
+    loadChatRooms(); // 채팅방 목록 로드
+});
+
+</script>
+</body>
+</html>

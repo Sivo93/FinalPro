@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>판매 상품 수정</title>
+    <!-- 외부 스타일시트 -->
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .edit-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-container h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-group input[type="file"] {
+            padding: 5px;
+        }
+
+        .form-group img {
+            max-width: 200px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .form-group button {
+            background-color: #6c63ff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .form-group button:hover {
+            background-color: #4b42d2;
+        }
+
+        .form-group a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #6c63ff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: fragment}"></div>
+    
+    <div class="edit-container">
+        <h2>판매상품 정보수정</h2>
+        <form th:action="@{/shop/update/{nom}(nom=${shop.nom})}" th:method="post" th:object="${shop}" enctype="multipart/form-data">
+            
+            <!-- 상품명 -->
+            <div class="form-group">
+                <label for="productName">상품명</label>
+                <input type="text" id="productname" th:field="*{productname}" required>
+            </div>
+            
+            <!-- 설명 -->
+            <div class="form-group">
+                <label for="description">설명</label>
+                <textarea id="description" th:field="*{description}" required></textarea>
+            </div>
+            
+            <!-- 가격 -->
+            <div class="form-group">
+                <label for="price">가격</label>
+                <input type="number" id="price" th:field="*{price}" step="0.01" required>
+            </div>
+
+			<!--판매자-->
+			<label for="sellernickname">판매자: </label>
+			<input type="text" id="sellernickname" th:field="*{sellernickname}" required>
+			
+            <!-- 기존 이미지 표시 -->
+            <div class="form-group">
+				<label>기존 이미지</label>
+ 				<div th:if="${shop.imageUrls != null}">
+					<div th:each="imageUrl : ${shop.imageUrls}">
+	                    <img th:src="@{${shop.imageUrls[0]}}" alt="Current Image" style="max-width: 300px;">
+					</div>
+				</div>
+				<div th:if="${shop.imageUrls == null}">
+					<p>이미지가 없습니다.</p>
+				</div>
+            </div>
+
+            <!-- 새 이미지 업로드 -->
+            <div class="form-group">
+				<label for="images">새 이미지 업로드</label>
+				<input type="file" name="images" multiple>
+            </div>
+
+            <!-- 저장 버튼 -->
+            <div class="form-group">
+                <button type="submit">수정하기</button>
+            </div>
+        </form>
+
+        <!-- 취소 버튼 -->
+        <div class="form-group">
+            <a th:href="@{/shop/shoplist}">취소</a>
+        </div>
+    </div>
+    
+    <div th:replace="~{common/footer :: footer}"></div>
+</body>
+</html>
